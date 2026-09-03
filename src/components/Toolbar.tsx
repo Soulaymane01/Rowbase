@@ -84,6 +84,8 @@ interface ToolbarProps {
   onRenameView: (index: number, name: string) => void;
   onToggleBar: () => void;
   app: App;
+  onImportCSV?: (mode: "new" | "append") => void;
+  onExport?: (format: "csv" | "json") => void;
 }
 
 type PopoverType = "visibility" | "viewMenu" | null;
@@ -100,11 +102,17 @@ export function Toolbar({
   onRenameView,
   onToggleBar,
   app,
+  onImportCSV,
+  onExport,
 }: ToolbarProps) {
   const [openPopover, setOpenPopover] = useState<PopoverType>(null);
   const [chartConfigOpen, setChartConfigOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const chartSettingsRef = useRef<HTMLDivElement>(null);
+  const importRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
 
   const activeLayout: ViewLayout = activeView.layout || "table";
 
@@ -148,10 +156,23 @@ export function Toolbar({
     };
   }, [openPopover]);
 
+  useEffect(() => {
+    if (!importOpen && !exportOpen) return;
+    const doc = activeDocument;
+    const handleClick = (e: MouseEvent) => {
+      if (importRef.current && !importRef.current.contains(e.target as Node)) setImportOpen(false);
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) setExportOpen(false);
+    };
+    doc.addEventListener("mousedown", handleClick);
+    return () => doc.removeEventListener("mousedown", handleClick);
+  }, [importOpen, exportOpen]);
+
   // Close popover when view changes
   useEffect(() => {
     setOpenPopover(null);
     setChartConfigOpen(false);
+    setImportOpen(false);
+    setExportOpen(false);
   }, [activeViewIndex]);
 
   const togglePopover = useCallback((type: PopoverType) => {
@@ -205,6 +226,29 @@ export function Toolbar({
           <circle cx="11" cy="7" r="1.2" />
         </svg>
       </button>
+
+      <div className="csv-db-toolbar-import-anchor" ref={importRef} style={{ position: "relative" }}>
+        <button className="csv-db-toolbar-btn" onClick={() => setImportOpen((v) => !v)} title="Import">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M7 2v8M3 6l4-4 4 4"/><path d="M2 10v2h10v-2"/></svg>
+        </button>
+        {importOpen && (
+          <div className="csv-db-popover csv-db-import-popover" style={{ position: "absolute", top: "100%", right: 0 }}>
+            <div className="csv-db-view-menu-item" onClick={() => { setImportOpen(false); onImportCSV?.("new"); }}>Import CSV → New database</div>
+            <div className="csv-db-view-menu-item" onClick={() => { setImportOpen(false); onImportCSV?.("append"); }}>Import CSV → Append to current</div>
+          </div>
+        )}
+      </div>
+      <div className="csv-db-toolbar-export-anchor" ref={exportRef} style={{ position: "relative" }}>
+        <button className="csv-db-toolbar-btn" onClick={() => setExportOpen((v) => !v)} title="Export">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M7 6V2M7 6l-4 4 4-4 4 4"/><path d="M2 10v2h10v-2"/></svg>
+        </button>
+        {exportOpen && (
+          <div className="csv-db-popover csv-db-export-popover" style={{ position: "absolute", top: "100%", right: 0 }}>
+            <div className="csv-db-view-menu-item" onClick={() => { setExportOpen(false); onExport?.("csv"); }}>Export as CSV</div>
+            <div className="csv-db-view-menu-item" onClick={() => { setExportOpen(false); onExport?.("json"); }}>Export as JSON</div>
+          </div>
+        )}
+      </div>
 
       {/* Chart settings trigger (chart layout only) */}
       {activeLayout === "chart" && (

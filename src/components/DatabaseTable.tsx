@@ -18,6 +18,9 @@ import { ListView } from "./ListView";
 import { GalleryView } from "./GalleryView";
 import { ChartView } from "./ChartView";
 import { AppContext, DatabaseModelContext, DatabasePathContext } from "../AppContext";
+import { parsePlainCSV, inferColumns, exportToPlainCSV, exportToJSON } from "../import-export";
+import { Notice, normalizePath } from "obsidian";
+import { serializeCSV } from "../csv-parser";
 
 type Action =
   | { type: "SET_MODEL"; model: DatabaseModel; fromExternal?: boolean }
@@ -674,6 +677,61 @@ export function DatabaseTable({
     modal.open();
   }, [app, model, allDisplayColumns, handleSetCell, handleAddSelectOption, handleUpdateSelectOption, handleRemoveOptionDef, databasePath]);
 
+  const handleImportCSV = useCallback((mode: "new" | "append") => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv,text/csv";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      const { headers, rows } = parsePlainCSV(text);
+      if (headers.length === 0) { new Notice("CSV has no header"); return; }
+      if (mode === "new") {
+        const cols = inferColumns(headers, rows);
+        const newModel: DatabaseModel = { columns: cols, rows, views: [{ name: "Default", sorts: [], filters: [], hiddenColumns: [] }], formatVersion: 1 };
+        const base = file.name.replace(/\.csv$/i, "");
+        const folder = databasePath.includes("/") ? databasePath.substring(0, databasePath.lastIndexOf("/")) : "";
+        let path = normalizePath(folder ? `${folder}/${base}.csvdb` : `${base}.csvdb`);
+        let i = 1;
+        while (app.vault.getAbstractFileByPath(path)) { path = normalizePath(folder ? `${folder}/${base} ${i}.csvdb` : `${base} ${i}.csvdb`); i++; }
+        await app.vault.create(path, serializeCSV(newModel));
+        new Notice(`Created ${path}`);
+      } else {
+        const existingHeaders = model.columns.map((c) => c.name);
+        const newCols = headers.filter((h) => !existingHeaders.includes(h));
+        let nextModel = model;
+        for (const h of newCols) {
+          const colVals = rows.map((r) => r[headers.indexOf(h)] ?? "");
+          const inferred = inferColumns([h], rows.map((r) => [r[headers.indexOf(h)] ?? ""]))[0];
+          nextModel = { ...nextModel, columns: [...nextModel.columns, { ...inferred, name: h, columnIndex: nextModel.columns.length }], rows: nextModel.rows.map((r) => [...r, ""]) };
+        }
+        const colIndexByName = new Map(nextModel.columns.map((c, idx) => [c.name, idx]));
+        const newRows: string[][] = rows.map((r) => {
+          const out = Array(nextModel.columns.length).fill("");
+          headers.forEach((h, hi) => { const idx = colIndexByName.get(h); if (idx !== undefined) out[idx] = r[hi] ?? ""; });
+          return out;
+        });
+        const merged: DatabaseModel = { ...nextModel, rows: [...nextModel.rows, ...newRows] };
+        dispatch({ type: "SET_MODEL", model: merged });
+        new Notice(`Appended ${rows.length} rows`);
+      }
+    };
+    input.click();
+  }, [app, model, databasePath]);
+
+  const handleExport = useCallback(async (format: "csv" | "json") => {
+    const headers = model.columns.map((c) => c.name);
+    const content = format === "csv" ? exportToPlainCSV(headers, model.rows) : exportToJSON(model.columns, model.rows);
+    const ext = format === "csv" ? "csv" : "json";
+    const base = databasePath.replace(/\.csvdb$/i, "");
+    const path = normalizePath(`${base}.${ext}`);
+    const existing = app.vault.getAbstractFileByPath(path);
+    if (existing) await app.vault.delete(existing as any);
+    await app.vault.create(path, content);
+    new Notice(`Exported to ${path}`);
+  }, [app, model, databasePath]);
+
   // View management handlers
   const handleAddView = useCallback(() => {
     dispatch({ type: "ADD_VIEW" });
@@ -772,6 +830,8 @@ export function DatabaseTable({
           }}
           onToggleBar={handleToggleBar}
           app={app}
+          onImportCSV={handleImportCSV}
+          onExport={handleExport}
         />
       </div>
       {barVisible && (
