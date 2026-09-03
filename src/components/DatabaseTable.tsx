@@ -17,6 +17,7 @@ import { KanbanView } from "./KanbanView";
 import { ListView } from "./ListView";
 import { GalleryView } from "./GalleryView";
 import { ChartView } from "./ChartView";
+import { StatsView } from "./StatsView";
 import { AppContext, DatabaseModelContext, DatabasePathContext } from "../AppContext";
 import { parsePlainCSV, inferColumns, exportToPlainCSV, exportToJSON } from "../import-export";
 import { Notice, normalizePath } from "obsidian";
@@ -890,6 +891,8 @@ export function DatabaseTable({
           onDeleteRow={handleDeleteRow}
           onCardClick={handleCardClick}
         />
+      ) : activeLayout === "stats" ? (
+        <StatsView rows={filteredSortedRows} columns={model.columns} />
       ) : (
         tableView
       )}

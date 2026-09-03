@@ -2004,6 +2004,14 @@ body.csv-db-card-dragging {
 
 .csv-db-cell-computed { font-style: italic; color: var(--text-muted); font-weight: 500; }
 .csv-db-cell-computed-value { white-space: nowrap; }
+.csv-db-stats { padding: 12px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; }
+.csv-db-stats-section h4 { margin: 0 0 8px; font-size: 13px; color: var(--text-muted); }
+.csv-db-stats-bar-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.csv-db-stats-label { min-width: 80px; }
+.csv-db-stats-bar-track { flex: 1; height: 8px; background: var(--background-modifier-border); border-radius: 4px; overflow: hidden; }
+.csv-db-stats-bar { height: 100%; background: var(--interactive-accent); }
+.csv-db-stats-count { min-width: 24px; text-align: right; color: var(--text-muted); }
+.csv-db-stats-empty { color: var(--text-muted); padding: 24px; text-align: center; }
 
 /* — Polish: airy table and states — */
 .csv-db-table tbody tr:hover { background: var(--background-modifier-hover); }
