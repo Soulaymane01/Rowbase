@@ -405,22 +405,35 @@ export function matchesFilter(
     }
     case "greater-than": {
       const n = Number(vals[0]);
-      if (Number.isNaN(n)) return false;
-      return value.kind === "number" ? value.number > n : value.kind === "date" ? value.date.getTime() > new Date(vals[0]).getTime() : false;
+      if (value.kind === "number") return !Number.isNaN(n) && value.number > n;
+      if (value.kind === "date") {
+        const t = new Date(vals[0]).getTime();
+        return !Number.isNaN(t) && value.date.getTime() > t;
+      }
+      return false;
     }
     case "less-than": {
       const n = Number(vals[0]);
-      if (Number.isNaN(n)) return false;
-      return value.kind === "number" ? value.number < n : value.kind === "date" ? value.date.getTime() < new Date(vals[0]).getTime() : false;
+      if (value.kind === "number") return !Number.isNaN(n) && value.number < n;
+      if (value.kind === "date") {
+        const t = new Date(vals[0]).getTime();
+        return !Number.isNaN(t) && value.date.getTime() < t;
+      }
+      return false;
     }
     case "between": {
-      const lo = Number(vals[0]);
-      const hi = Number(vals[1]);
-      if (Number.isNaN(lo) || Number.isNaN(hi)) return false;
-      if (value.kind === "number") return value.number >= lo && value.number <= hi;
+      if (value.kind === "number") {
+        const lo = Number(vals[0]);
+        const hi = Number(vals[1]);
+        if (Number.isNaN(lo) || Number.isNaN(hi)) return false;
+        return value.number >= lo && value.number <= hi;
+      }
       if (value.kind === "date") {
+        const lo = new Date(vals[0]).getTime();
+        const hi = new Date(vals[1]).getTime();
+        if (Number.isNaN(lo) || Number.isNaN(hi)) return false;
         const t = value.date.getTime();
-        return t >= new Date(vals[0]).getTime() && t <= new Date(vals[1]).getTime();
+        return t >= lo && t <= hi;
       }
       return false;
     }
