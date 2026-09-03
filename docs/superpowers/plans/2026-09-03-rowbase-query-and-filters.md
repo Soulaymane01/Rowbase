@@ -555,7 +555,6 @@ Expected: PASS. If the option-order assertion fails, confirm `buildRow`/`resolve
 
 **Interfaces:**
 - Produces `runQuery(model: DatabaseModel, view: ViewDef): QueryResultRow[]`.
-- Produces `getColumnByName(columns: ColumnDef[], name: string): ColumnDef | undefined`.
 - Consumes: `TypedValue`/`resolveRow` from `./record`, `matchesFilter` from `./filter`, `compareValues` from `./compare`, `ColumnDef`/`ViewDef`/`DatabaseModel` from `../types`.
 - Produces an `index.ts` barrel exporting `runQuery`, `sortRows`, `matchesFilter`, `resolveRow`, `TypedValue` for later phases.
 
