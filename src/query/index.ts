@@ -16,6 +16,8 @@ export { buildChartData } from "./chart";
 export type { ChartData, ChartSeries, ChartKind, ChartAgg, ChartConfig } from "./chart";
 export { evaluateFormula } from "./formula";
 export type { FormulaCell, FormulaValue, FormulaEnv } from "./formula";
+export { computeRollup } from "./rollup";
+export type { RollupHandler, RollupValue } from "./rollup";
 
 export function runQuery(model: DatabaseModel, view: ViewDef): QueryResultRow[] {
   let result = model.rows.map((row, originalIndex) => resolveRow(buildRow(row, originalIndex), model.columns));
