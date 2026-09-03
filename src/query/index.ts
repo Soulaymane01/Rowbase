@@ -12,6 +12,8 @@ export { sortRows } from "./sort";
 export { compareValues } from "./compare";
 export { groupRowsBySelect } from "./group";
 export type { Group } from "./group";
+export { buildChartData } from "./chart";
+export type { ChartData, ChartSeries, ChartKind, ChartAgg, ChartConfig } from "./chart";
 
 export function runQuery(model: DatabaseModel, view: ViewDef): QueryResultRow[] {
   let result = model.rows.map((row, originalIndex) => resolveRow(buildRow(row, originalIndex), model.columns));
