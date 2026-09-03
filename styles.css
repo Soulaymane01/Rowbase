@@ -2013,11 +2013,21 @@ body.csv-db-card-dragging {
 .csv-db-stats-count { min-width: 24px; text-align: right; color: var(--text-muted); }
 .csv-db-stats-empty { color: var(--text-muted); padding: 24px; text-align: center; }
 .csv-db-timeline { padding: 12px; overflow: auto; }
-.csv-db-timeline-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--background-modifier-border); cursor: pointer; }
-.csv-db-timeline-label { min-width: 100px; font-size: 13px; }
-.csv-db-timeline-track { flex: 1; height: 12px; background: var(--background-modifier-border); border-radius: 6px; position: relative; }
-.csv-db-timeline-bar { position: absolute; top: 0; height: 100%; background: var(--interactive-accent); border-radius: 6px; }
-.csv-db-timeline-now { position: absolute; top: -2px; width: 2px; height: 16px; background: var(--color-red); }
+.csv-db-timeline-axis-bar { position: relative; height: 36px; margin-bottom: 12px; border-bottom: 2px solid var(--background-modifier-border); }
+.csv-db-timeline-axis-line { position: absolute; bottom: 12px; left: 0; right: 0; height: 2px; background: var(--background-modifier-border); }
+.csv-db-timeline-tick { position: absolute; bottom: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.csv-db-timeline-tick-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+.csv-db-timeline-tick-label { font-size: 10px; color: var(--text-faint); white-space: nowrap; }
+.csv-db-timeline-now-line { position: absolute; bottom: 0; width: 2px; height: 36px; background: var(--color-red); opacity: 0.8; }
+.csv-db-timeline-items { display: flex; flex-direction: column; gap: 4px; }
+.csv-db-timeline-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--background-modifier-border); cursor: pointer; }
+.csv-db-timeline-row:hover { background: var(--background-modifier-hover); }
+.csv-db-timeline-label { min-width: 110px; font-size: 13px; font-weight: 500; }
+.csv-db-timeline-track { flex: 1; height: 20px; position: relative; display: flex; align-items: center; }
+.csv-db-timeline-line { position: absolute; height: 3px; background: var(--interactive-accent); border-radius: 2px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; justify-content: space-between; }
+.csv-db-timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--interactive-accent); border: 2px solid var(--background-primary); flex-shrink: 0; }
+.csv-db-timeline-dot.start { margin-left: -4px; } .csv-db-timeline-dot.end { margin-right: -4px; }
+.csv-db-timeline-dates { font-size: 11px; color: var(--text-faint); min-width: 140px; text-align: right; }
 
 /* — Polish: airy table and states — */
 .csv-db-table tbody tr:hover { background: var(--background-modifier-hover); }
