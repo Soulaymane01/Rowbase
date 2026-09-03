@@ -52,6 +52,11 @@ export interface ViewDef {
   filters: FilterRule[];
   hiddenColumns: string[];
   groupByColumn?: string;
+  chartType?: "bar" | "line" | "pie" | "area";
+  chartXColumn?: string;
+  chartYColumn?: string;
+  chartAgg?: "count" | "sum" | "avg";
+  chartColorByColumn?: string;
 }
 
 export interface DatabaseModel {
