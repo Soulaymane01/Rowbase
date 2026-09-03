@@ -10,6 +10,8 @@ export { resolveValue } from "./resolve";
 export { matchesFilter } from "./filter";
 export { sortRows } from "./sort";
 export { compareValues } from "./compare";
+export { groupRowsBySelect } from "./group";
+export type { Group } from "./group";
 
 export function runQuery(model: DatabaseModel, view: ViewDef): QueryResultRow[] {
   let result = model.rows.map((row, originalIndex) => resolveRow(buildRow(row, originalIndex), model.columns));

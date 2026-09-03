@@ -1,10 +1,12 @@
 import { useCallback, useMemo } from "react";
-import { ColumnDef, DisplayColumn, SelectOption, ViewDef } from "../types";
+import { ColumnDef, DisplayColumn, ViewDef } from "../types";
 import { KanbanColumn } from "./KanbanColumn";
 import { useCardDrag } from "../hooks/useCardDrag";
+import { groupRowsBySelect } from "../query/group";
+import { QueryResultRow } from "../query/record";
 
 interface KanbanViewProps {
-  rows: Array<{ row: string[]; originalIndex: number }>;
+  rows: QueryResultRow[];
   columns: ColumnDef[];
   displayColumns: DisplayColumn[];
   activeView: ViewDef;
@@ -38,55 +40,8 @@ export function KanbanView({
 
   // Partition rows into groups
   const groups = useMemo(() => {
-    if (!groupByInfo) return [];
-
-    const options = groupByInfo.col.options || [];
-    const groupMap = new Map<string, Array<{ row: string[]; originalIndex: number }>>();
-
-    // Initialize groups in option order
-    for (const opt of options) {
-      groupMap.set(opt.value, []);
-    }
-    // Always have a "No value" group
-    groupMap.set("", []);
-
-    for (const entry of rows) {
-      const cellValue = entry.row[groupByInfo.dataIdx] || "";
-      if (!groupMap.has(cellValue)) {
-        // Value exists in data but not in options (orphaned) — add to "No value"
-        const noValue = groupMap.get("")!;
-        noValue.push(entry);
-      } else {
-        groupMap.get(cellValue)!.push(entry);
-      }
-    }
-
-    // Build ordered group list: options first, then "No value"
-    const result: Array<{
-      groupValue: string;
-      option: SelectOption | null;
-      rows: Array<{ row: string[]; originalIndex: number }>;
-    }> = [];
-
-    for (const opt of options) {
-      result.push({
-        groupValue: opt.value,
-        option: opt,
-        rows: groupMap.get(opt.value)!,
-      });
-    }
-
-    const noValueRows = groupMap.get("")!;
-    if (noValueRows.length > 0) {
-      result.push({
-        groupValue: "",
-        option: null,
-        rows: noValueRows,
-      });
-    }
-
-    return result;
-  }, [rows, groupByInfo]);
+    return groupRowsBySelect(rows, columns, groupByColumn);
+  }, [rows, columns, groupByColumn]);
 
   const handleCardMove = useCallback((rowOriginalIndex: number, targetGroupValue: string) => {
     if (!groupByInfo) return;
