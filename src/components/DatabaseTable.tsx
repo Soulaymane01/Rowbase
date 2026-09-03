@@ -28,7 +28,7 @@ type Action =
   | { type: "REORDER_ROW"; fromRowIdx: number; toRowIdx: number; position: "before" | "after" }
   | { type: "ADD_COLUMN"; column: ColumnDef }
   | { type: "DELETE_COLUMN"; colIdx: number }
-  | { type: "UPDATE_COLUMN"; colIdx: number; name: string; colType: ColumnType; options: SelectOption[]; wrapContent: boolean; titleNoteEnabled: boolean; titleNoteFolder: string; relationTargetPath: string; relationMultiple: boolean }
+  | { type: "UPDATE_COLUMN"; colIdx: number; name: string; colType: ColumnType; options: SelectOption[]; wrapContent: boolean; titleNoteEnabled: boolean; titleNoteFolder: string; relationTargetPath: string; relationMultiple: boolean; formula?: string; rollup?: ColumnDef["rollup"] }
   | { type: "SET_COLUMN_WIDTH"; colIdx: number; width: number }
   | { type: "ADD_SELECT_OPTION"; colIdx: number; option: SelectOption }
   | { type: "UPDATE_SELECT_OPTION"; colIdx: number; oldValue: string; newOption: SelectOption | null }
@@ -230,6 +230,16 @@ function databaseReducer(state: DatabaseModel, action: Action): DatabaseModel {
         } else {
           delete updated.relationTargetPath;
           delete updated.relationMultiple;
+        }
+        if (action.colType === "formula") {
+          updated.formula = action.formula || undefined;
+        } else {
+          delete updated.formula;
+        }
+        if (action.colType === "rollup") {
+          updated.rollup = action.rollup;
+        } else {
+          delete updated.rollup;
         }
         return updated;
       });
@@ -633,8 +643,8 @@ export function DatabaseTable({
         col,
         model.columns,
         databasePath,
-        (name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, relationTargetPath, relationMultiple) => {
-          dispatch({ type: "UPDATE_COLUMN", colIdx: dataIdx, name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, relationTargetPath, relationMultiple });
+        (name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, relationTargetPath, relationMultiple, formula, rollup) => {
+          dispatch({ type: "UPDATE_COLUMN", colIdx: dataIdx, name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, relationTargetPath, relationMultiple, formula, rollup });
         },
         () => {
           dispatch({ type: "DELETE_COLUMN", colIdx: dataIdx });
