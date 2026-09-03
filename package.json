@@ -11,7 +11,8 @@
   },
   "scripts": {
     "dev": "node esbuild.config.mjs",
-    "build": "node esbuild.config.mjs production"
+    "build": "node esbuild.config.mjs production",
+    "test:offline": "node test-offline-baseline.mjs"
   },
   "devDependencies": {
     "@codemirror/state": "^6.5.0",

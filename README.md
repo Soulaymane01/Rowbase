@@ -69,6 +69,28 @@ To test locally, create a symlink from your vault's plugin directory to the proj
 ln -s /path/to/rowbase /path/to/vault/.obsidian/plugins/rowbase
 ```
 
+## Offline baseline
+
+Rowbase's runtime is fully offline. It makes no HTTP requests, WebSocket
+connections, telemetry, CDN asset fetches, or remote service calls; everything
+reads from and writes to the local Obsidian vault. Its runtime source and the
+production bundle are audited against that policy by:
+
+```bash
+npm run build            # produces main.js
+npm run test:offline     # scans src/ and main.js for network/dynamic-code behavior
+```
+
+The audit (`test-offline-baseline.mjs`) rejects `fetch`, `XMLHttpRequest`,
+`WebSocket`, `http(s)://`, `127.0.0.1`, `localhost`, `eval`, and
+`new Function(` in Rowbase's runtime source and in the built bundle. It ignores
+fork documentation (`UPSTREAM.md`), README installation links, package-lock
+metadata, and comments that document the audit itself. Inert string constants
+and dead code paths carried inside the preserved bundled dependencies (for
+example React DOM's XML namespace identifiers and papaparse's unused remote
+download path) are permitted and documented in the test, since bundled
+dependencies are not removed.
+
 ## License
 
 The majority of this code was written by Claude Code (Opus), but all code has been thoroughly reviewed and tested by a human. The upstream project is by jysperm and is licensed under the MIT License; that license and attribution are preserved in [LICENSE](LICENSE). Rowbase is itself released under the [MIT License](LICENSE).
