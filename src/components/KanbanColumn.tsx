@@ -5,7 +5,7 @@ import { KanbanCard } from "./KanbanCard";
 interface KanbanColumnProps {
   groupValue: string;
   option: SelectOption | null; // null for "No value" column
-  rows: Array<{ row: string[]; originalIndex: number }>;
+  rows: Array<{ row: string[]; originalIndex: number; computed?: Record<number, string> }>;
   displayColumns: DisplayColumn[];
   groupByDataIdx: number;
   onDeleteRow: (rowIdx: number) => void;
@@ -36,11 +36,12 @@ export function KanbanColumn({
         <span className="csv-db-kanban-count">{rows.length}</span>
       </div>
       <div className="csv-db-kanban-column-body">
-        {rows.map(({ row, originalIndex }) => (
+        {rows.map(({ row, originalIndex, computed }) => (
           <KanbanCard
             key={originalIndex}
             row={row}
             originalIndex={originalIndex}
+            computed={computed}
             displayColumns={displayColumns}
             groupByDataIdx={groupByDataIdx}
             onDeleteRow={onDeleteRow}

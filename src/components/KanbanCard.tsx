@@ -7,6 +7,7 @@ import { Tag } from "./Tag";
 interface KanbanCardProps {
   row: string[];
   originalIndex: number;
+  computed?: Record<number, string>;
   displayColumns: DisplayColumn[];
   groupByDataIdx: number;
   onDeleteRow: (rowIdx: number) => void;
@@ -75,6 +76,7 @@ function renderCardProperty(value: string, col: ColumnDef): React.ReactNode {
 export function KanbanCard({
   row,
   originalIndex,
+  computed,
   displayColumns,
   groupByDataIdx,
   onDeleteRow,
@@ -84,10 +86,11 @@ export function KanbanCard({
   const visibleColumns = displayColumns.filter((dc) => dc.dataIdx !== groupByDataIdx);
   const titleCol = visibleColumns[0];
   const propertyColumns = visibleColumns.slice(1);
+  const getVal = (dataIdx: number) => computed?.[dataIdx] ?? row[dataIdx] ?? "";
 
   // Title: render with type awareness — use plain text for text-like types, Tag for select types
   const titleIsPlainText = titleCol && (titleCol.col.type === "text" || titleCol.col.type === "title" || titleCol.col.type === "number" || titleCol.col.type === "date");
-  const titleValue = titleCol ? row[titleCol.dataIdx] : "";
+  const titleValue = titleCol ? getVal(titleCol.dataIdx) : "";
 
   return (
     <div
@@ -104,7 +107,7 @@ export function KanbanCard({
         <div className="csv-db-kanban-card-title">Untitled</div>
       )}
       {propertyColumns.map(({ col, dataIdx }) => {
-        const value = row[dataIdx];
+        const value = getVal(dataIdx);
         const rendered = renderCardProperty(value, col);
         if (!rendered) return null;
         return (

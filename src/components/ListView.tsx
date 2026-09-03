@@ -52,7 +52,7 @@ interface RowLineProps {
 
 function RowLine({ row, displayColumns, onDeleteRow, onCardClick }: RowLineProps) {
   const titleCol = displayColumns[0];
-  const titleValue = titleCol ? row.row[titleCol.dataIdx] : "";
+  const titleValue = titleCol ? (row.computed?.[titleCol.dataIdx] ?? row.row[titleCol.dataIdx] ?? "") : "";
   const props = displayColumns.slice(1);
 
   return (
@@ -64,7 +64,8 @@ function RowLine({ row, displayColumns, onDeleteRow, onCardClick }: RowLineProps
       <span className="csv-db-list-title">{titleValue || "Untitled"}</span>
       <span className="csv-db-list-props">
         {props.map(({ col, dataIdx }) => {
-          const rendered = renderPreview(row.row[dataIdx], col);
+          const val = row.computed?.[dataIdx] ?? row.row[dataIdx] ?? "";
+          const rendered = renderPreview(val, col);
           return rendered ? <span key={col.name} className="csv-db-list-prop">{rendered}</span> : null;
         })}
       </span>

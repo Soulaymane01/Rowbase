@@ -86,8 +86,9 @@ export function GalleryView({
     <div className="csv-db-gallery-scroll">
       <div className="csv-db-gallery">
         {rows.map((r) => {
-          const coverValue = coverCol ? r.row[columns.findIndex((c) => c.name === coverCol.name)] : "";
-          const titleValue = titleCol ? r.row[titleCol.dataIdx] : "";
+          const coverIdx = coverCol ? columns.findIndex((c) => c.name === coverCol.name) : -1;
+          const coverValue = coverIdx !== -1 ? (r.computed?.[coverIdx] ?? r.row[coverIdx] ?? "") : "";
+          const titleValue = titleCol ? (r.computed?.[titleCol.dataIdx] ?? r.row[titleCol.dataIdx] ?? "") : "";
           return (
             <div
               key={r.originalIndex}
@@ -100,7 +101,8 @@ export function GalleryView({
                 <div className="csv-db-gallery-title">{titleValue || "Untitled"}</div>
                 <div className="csv-db-gallery-props">
                   {propCols.map(({ col, dataIdx }) => {
-                    const rendered = renderProp(r.row[dataIdx], col);
+                    const val = r.computed?.[dataIdx] ?? r.row[dataIdx] ?? "";
+                    const rendered = renderProp(val, col);
                     return rendered ? <span key={col.name} className="csv-db-gallery-prop">{rendered}</span> : null;
                   })}
                 </div>

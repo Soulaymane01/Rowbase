@@ -275,6 +275,10 @@ function RowDetailField({
         );
       }
 
+      case "formula":
+      case "rollup":
+        return <span className="csv-db-cell-computed-value">{value || ""}</span>;
+
       default:
         return <span>{value}</span>;
     }

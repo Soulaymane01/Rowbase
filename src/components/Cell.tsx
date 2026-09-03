@@ -63,6 +63,14 @@ export function Cell({ value, column, onChange, onAddOption, onUpdateOption, onR
     return <RelationCell value={value} column={column} onChange={onChange} />;
   }
 
+  if (column.type === "formula" || column.type === "rollup") {
+    return (
+      <td className={`csv-db-cell csv-db-cell-computed${column.wrapContent ? " csv-db-cell-wrap" : ""}`}>
+        <span className="csv-db-cell-computed-value">{value ?? ""}</span>
+      </td>
+    );
+  }
+
   // text, number, date
   return (
     <TextCell value={value} column={column} onChange={onChange} />
