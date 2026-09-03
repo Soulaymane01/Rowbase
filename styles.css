@@ -1942,3 +1942,36 @@ body.csv-db-card-dragging {
 .csv-db-row-detail-note:hover {
   border-color: var(--interactive-accent);
 }
+
+/* ========== List View ========== */
+.csv-db-list-scroll { overflow: auto; height: 100%; padding: 12px; }
+.csv-db-list { display: flex; flex-direction: column; gap: 4px; max-width: 720px; }
+.csv-db-list-group { border: 1px solid var(--background-modifier-border); border-radius: 6px; overflow: hidden; }
+.csv-db-list-group-header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; font-weight: 600; background: var(--background-secondary); }
+.csv-db-list-chevron { width: 12px; }
+.csv-db-list-group-label { flex: 1; }
+.csv-db-list-group-count { color: var(--text-muted); font-size: 0.85em; }
+.csv-db-list-group-body { display: flex; flex-direction: column; }
+.csv-db-list-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-top: 1px solid var(--background-modifier-border); cursor: pointer; }
+.csv-db-list-row:hover, .csv-db-list-row.is-selected { background: var(--background-modifier-hover); }
+.csv-db-list-title { font-weight: 500; min-width: 140px; }
+.csv-db-list-props { display: flex; flex-wrap: wrap; gap: 6px; }
+.csv-db-list-prop { }
+.csv-db-list-delete { margin-left: auto; opacity: 0; cursor: pointer; color: var(--text-muted); }
+.csv-db-list-row:hover .csv-db-list-delete { opacity: 0.7; }
+
+/* ========== Gallery View ========== */
+.csv-db-gallery-scroll { overflow: auto; height: 100%; padding: 12px; }
+.csv-db-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.csv-db-gallery-card { position: relative; border: 1px solid var(--background-modifier-border); border-radius: 8px; overflow: hidden; cursor: pointer; background: var(--background-primary); }
+.csv-db-gallery-card:hover { border-color: var(--interactive-accent); }
+.csv-db-gallery-cover { height: 120px; width: 100%; }
+.csv-db-gallery-cover-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.csv-db-gallery-cover-empty { background: var(--background-secondary); }
+.csv-db-gallery-card-body { padding: 8px 10px; }
+.csv-db-gallery-title { font-weight: 600; margin-bottom: 6px; }
+.csv-db-gallery-props { display: flex; flex-wrap: wrap; gap: 6px; }
+.csv-db-gallery-prop { }
+.csv-db-gallery-delete { position: absolute; top: 6px; right: 6px; background: var(--background-primary); border-radius: 4px; padding: 2px 6px; opacity: 0; cursor: pointer; color: var(--text-muted); }
+.csv-db-gallery-card:hover .csv-db-gallery-delete { opacity: 0.8; }
+.csv-db-gallery-empty { grid-column: 1 / -1; color: var(--text-muted); text-align: center; padding: 32px; }
