@@ -261,6 +261,20 @@ function ViewMenu({
         <span className="csv-db-view-menu-check">{activeLayout === "kanban" ? "✓" : "\u00A0\u00A0"}</span>
         {" "}Board
       </div>
+      <div
+        className="csv-db-view-menu-item"
+        onClick={() => setLayout("list")}
+      >
+        <span className="csv-db-view-menu-check">{activeLayout === "list" ? "✓" : "\u00A0\u00A0"}</span>
+        {" "}List
+      </div>
+      <div
+        className="csv-db-view-menu-item"
+        onClick={() => setLayout("gallery")}
+      >
+        <span className="csv-db-view-menu-check">{activeLayout === "gallery" ? "✓" : "\u00A0\u00A0"}</span>
+        {" "}Gallery
+      </div>
 
       {/* Group by section (kanban only) */}
       {activeLayout === "kanban" && (

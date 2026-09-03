@@ -14,6 +14,7 @@ import { RowDetailModalWrapper } from "./RowDetailModal";
 import { useColumnResize } from "../hooks/useColumnResize";
 import { useColumnDrag } from "../hooks/useColumnDrag";
 import { KanbanView } from "./KanbanView";
+import { ListView } from "./ListView";
 import { AppContext, DatabaseModelContext, DatabasePathContext } from "../AppContext";
 
 type Action =
@@ -772,6 +773,27 @@ export function DatabaseTable({
             <NewRowButton onAddRow={handleAddRow} />
           </div>
         </div>
+      ) : activeLayout === "kanban" ? (
+        <KanbanView
+          rows={filteredSortedRows}
+          columns={model.columns}
+          displayColumns={displayColumns}
+          activeView={activeView}
+          onSetCell={handleSetCell}
+          onDeleteRow={handleDeleteRow}
+          onAddRowWithValues={handleAddRowWithValues}
+          onCardClick={handleCardClick}
+        />
+      ) : activeLayout === "list" ? (
+        <ListView
+          rows={filteredSortedRows}
+          columns={model.columns}
+          displayColumns={displayColumns}
+          activeView={activeView}
+          onSetCell={handleSetCell}
+          onDeleteRow={handleDeleteRow}
+          onCardClick={handleCardClick}
+        />
       ) : (
         <KanbanView
           rows={filteredSortedRows}
