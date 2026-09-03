@@ -12,7 +12,11 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production",
-    "test:offline": "node test-offline-baseline.mjs"
+    "test:metadata": "node test-baseline-metadata.mjs",
+    "test:offline": "node test-offline-baseline.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:csvdb": "tsx --test test/csv-parser.test.ts",
+    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:csvdb && npm run build && npm run test:offline"
   },
   "devDependencies": {
     "@codemirror/state": "^6.5.0",
@@ -24,6 +28,7 @@
     "esbuild": "0.17.3",
     "obsidian": "latest",
     "tslib": "2.4.0",
+    "tsx": "^4.23.13",
     "typescript": "4.7.4"
   },
   "dependencies": {
