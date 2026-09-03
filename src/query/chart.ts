@@ -71,7 +71,7 @@ export function buildChartData(
       aggregates.set(key, agg);
       if (colorIdx !== -1 && !seriesSeen.has(color)) {
         seriesSeen.add(color);
-        seriesNames.unshift(color);
+        seriesNames.push(color);
       }
     }
     agg.count += 1;

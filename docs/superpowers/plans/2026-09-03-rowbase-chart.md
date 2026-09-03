@@ -96,7 +96,7 @@ test("pie returns a single series with a value per label", () => {
   assert.deepEqual(data.series[0].values, [40, 20]);
 });
 
-test("line/area with color-by splits into one series per color value", () => {
+test("line/area with color-by splits into one series per color value (first-appearance order)", () => {
   const cols: ColumnDef[] = [
     { name: "Category", type: "select", options: [{ value: "Food", color: "red" }, { value: "Travel", color: "blue" }] },
     { name: "Owner", type: "select", options: [{ value: "A", color: "red" }, { value: "B", color: "blue" }] },
@@ -114,14 +114,14 @@ test("line/area with color-by splits into one series per color value", () => {
   );
   // X labels from Category: Food, Travel (appearance order).
   assert.deepEqual(data.labels, ["Food", "Travel"]);
-  // color-by over Owner → one series per Owner value.
+  // color-by over Owner → one series per Owner value, in FIRST-APPEARANCE order (A row0, B row1).
   assert.equal(data.series.length, 2);
-  assert.equal(data.series[0].name, "B"); // B appears first (row 1)
-  assert.equal(data.series[1].name, "A"); // A appears second (row 0)
-  // Owner B: only Travel=2 → series B values [0, 2] in label order.
-  assert.deepEqual(data.series[0].values, [0, 2]);
-  // Owner A: Food=1+3 → series A values [4, 0].
-  assert.deepEqual(data.series[1].values, [4, 0]);
+  assert.equal(data.series[0].name, "A");
+  assert.equal(data.series[1].name, "B");
+  // Owner A: Food=1+3 → [4, 0] in label order (Food, Travel).
+  assert.deepEqual(data.series[0].values, [4, 0]);
+  // Owner B: Travel=2 → [0, 2].
+  assert.deepEqual(data.series[1].values, [0, 2]);
 });
 
 test("missing xColumn yields empty labels; non-numeric values skipped", () => {
@@ -241,7 +241,7 @@ export function buildChartData(
 }
 ```
 
-Note: color-by and X are separate columns in the test above (Owner vs Category). Series names are pushed in appearance order (B then A, matching the first row each appears in), and `series` is built over `seriesNames` in that order — so `series[0]` is B, `series[1]` is A, and their `values` arrays align to `labels` order (outer map over `labels`, inner `aggregates.get(keyFor(label, color))`). If color-by is unset, `seriesOrder` is `[""]` and a single "value" series is returned.
+Note: color-by and X are separate columns in the test above (Owner vs Category). Series names are recorded in **first-appearance order** (`A` then `B`), matching how row 0 and row 1 first introduce each Owner value. `series` is built over `seriesNames` in that order (using `push`, not `unshift`), and each series' `values` array aligns to `labels` order (outer map over `labels`, inner `aggregates.get(keyFor(label, color))`). If color-by is unset, `seriesOrder` is `[""]` and a single "value" series is returned.
 
 - [ ] **Step 4: Run the chart test to verify it passes**
 
