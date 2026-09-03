@@ -50,7 +50,7 @@ path runs.
 Non-blocking and not reproducible on demand. Recorded for follow-up: if it recurs,
 capture the exact triggering action and fix in the shared view layer (not the query
 engine). The baseline gate (`npm run check:baseline`) passes — typecheck, metadata,
-csvdb, query (21 tests), build, offline audit all green.
+csvdb, query (20 tests), build, offline audit all green.
 
 ## Follow-up item (later enhancement, not blocking)
 
