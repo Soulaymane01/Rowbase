@@ -3,13 +3,16 @@
 }
 
 .csv-db-scroll-area {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: calc(100vh - 120px);
+  scrollbar-width: thin;
 }
 
 .csv-db-wrapper {
   min-width: 100%;
   display: inline-block;
   padding-left: 18px;
+  padding-right: 8px;
 }
 
 /* Table */
@@ -19,11 +22,13 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
-/* Header */
+/* Header — sticky with subtle elevation */
 .csv-db-table thead {
   position: sticky;
   top: 0;
   z-index: 2;
+  box-shadow: 0 1px 0 var(--background-modifier-border), 0 2px 6px rgba(0,0,0,0.06);
+  backdrop-filter: saturate(1.2);
 }
 
 .csv-db-header-cell {
