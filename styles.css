@@ -1991,3 +1991,6 @@ body.csv-db-card-dragging {
 .csv-db-chart-config-field { display: flex; flex-direction: column; gap: 4px; }
 .csv-db-chart-config-label { font-size: 0.85em; color: var(--text-muted); }
 .csv-db-chart-config-done { align-self: flex-end; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); cursor: pointer; }
+
+.csv-db-cell-computed { font-style: italic; color: var(--text-muted); font-weight: 500; }
+.csv-db-cell-computed-value { white-space: nowrap; }
