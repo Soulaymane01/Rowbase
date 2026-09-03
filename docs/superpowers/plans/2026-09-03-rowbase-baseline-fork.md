@@ -316,16 +316,13 @@ npm run check:baseline
 Expected: typecheck, metadata test, CSV round-trip test, production build, and
 offline audit all pass.
 
-- [ ] **Step 5: Run lint and record non-blocking inherited findings**
+- [ ] **Step 5: Confirm the typecheeck gate and record non-blocking findings**
 
-Run:
-
-```bash
-npm run lint
-```
-
-Fix errors introduced by Rowbase changes. Record pre-existing upstream lint
-errors separately rather than broadening this baseline task into a refactor.
+The fork does not scaffold an ESLint `lint` script, and Step 3 limits new scripts to
+those named in the brief, so do not add one here. Use `tsc --noEmit` (via the
+`typecheck` script) as the type gate instead. Record pre-existing upstream
+non-blocking findings separately rather than broadening this baseline task into
+a refactor.
 
 - [ ] **Step 6: Commit the verification harness**
 
