@@ -1,4 +1,4 @@
-export type ColumnType = "text" | "number" | "date" | "checkbox" | "select" | "multiselect" | "note" | "title" | "relation" | "url" | "link";
+export type ColumnType = "text" | "number" | "date" | "checkbox" | "select" | "multiselect" | "note" | "title" | "relation" | "url" | "link" | "formula" | "rollup";
 
 export type TagColor = "gray" | "brown" | "orange" | "yellow" | "green" | "blue" | "purple" | "pink" | "red";
 
@@ -18,6 +18,8 @@ export interface ColumnDef {
   width?: number;
   columnIndex?: number;
   wrapContent?: boolean;
+  formula?: string;
+  rollup?: { relationColumn: string; targetColumn: string; handler: "count" | "sum" | "avg" | "min" | "max" | "list"; targetFilter?: { column: string; equals: string } };
 }
 
 export interface DisplayColumn {
