@@ -1975,3 +1975,19 @@ body.csv-db-card-dragging {
 .csv-db-gallery-delete { position: absolute; top: 6px; right: 6px; background: var(--background-primary); border-radius: 4px; padding: 2px 6px; opacity: 0; cursor: pointer; color: var(--text-muted); }
 .csv-db-gallery-card:hover .csv-db-gallery-delete { opacity: 0.8; }
 .csv-db-gallery-empty { grid-column: 1 / -1; color: var(--text-muted); text-align: center; padding: 32px; }
+
+/* ========== Chart View ========== */
+.csv-db-chart-scroll { overflow: auto; height: 100%; padding: 0; }
+.csv-db-chart { padding: 12px; display: flex; justify-content: center; }
+.csv-db-chart-svg { max-width: 100%; height: auto; }
+.csv-db-chart-axis-label { font-size: 11px; fill: var(--text-muted); }
+.csv-db-chart-empty { color: var(--text-muted); text-align: center; padding: 40px; }
+
+.csv-db-chart-config { width: 260px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.csv-db-chart-config-section-label { font-weight: 600; font-size: 0.85em; color: var(--text-muted); }
+.csv-db-chart-config-row { display: flex; gap: 6px; }
+.csv-db-chart-config-type { flex: 1; padding: 6px 4px; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); cursor: pointer; }
+.csv-db-chart-config-type.is-active { border-color: var(--interactive-accent); background: var(--background-secondary); }
+.csv-db-chart-config-field { display: flex; flex-direction: column; gap: 4px; }
+.csv-db-chart-config-label { font-size: 0.85em; color: var(--text-muted); }
+.csv-db-chart-config-done { align-self: flex-end; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); cursor: pointer; }
