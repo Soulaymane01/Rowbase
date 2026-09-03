@@ -18,6 +18,7 @@ import { ListView } from "./ListView";
 import { GalleryView } from "./GalleryView";
 import { ChartView } from "./ChartView";
 import { StatsView } from "./StatsView";
+import { TimelineView } from "./TimelineView";
 import { AppContext, DatabaseModelContext, DatabasePathContext } from "../AppContext";
 import { parsePlainCSV, inferColumns, exportToPlainCSV, exportToJSON } from "../import-export";
 import { Notice, normalizePath } from "obsidian";
@@ -893,6 +894,8 @@ export function DatabaseTable({
         />
       ) : activeLayout === "stats" ? (
         <StatsView rows={filteredSortedRows} columns={model.columns} />
+      ) : activeLayout === "timeline" ? (
+        <TimelineView rows={filteredSortedRows} columns={model.columns} onCardClick={handleCardClick} />
       ) : (
         tableView
       )}

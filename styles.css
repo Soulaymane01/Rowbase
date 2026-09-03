@@ -2012,6 +2012,12 @@ body.csv-db-card-dragging {
 .csv-db-stats-bar { height: 100%; background: var(--interactive-accent); }
 .csv-db-stats-count { min-width: 24px; text-align: right; color: var(--text-muted); }
 .csv-db-stats-empty { color: var(--text-muted); padding: 24px; text-align: center; }
+.csv-db-timeline { padding: 12px; overflow: auto; }
+.csv-db-timeline-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--background-modifier-border); cursor: pointer; }
+.csv-db-timeline-label { min-width: 100px; font-size: 13px; }
+.csv-db-timeline-track { flex: 1; height: 12px; background: var(--background-modifier-border); border-radius: 6px; position: relative; }
+.csv-db-timeline-bar { position: absolute; top: 0; height: 100%; background: var(--interactive-accent); border-radius: 6px; }
+.csv-db-timeline-now { position: absolute; top: -2px; width: 2px; height: 16px; background: var(--color-red); }
 
 /* — Polish: airy table and states — */
 .csv-db-table tbody tr:hover { background: var(--background-modifier-hover); }
