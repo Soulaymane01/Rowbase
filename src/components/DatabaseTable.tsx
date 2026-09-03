@@ -15,6 +15,7 @@ import { useColumnResize } from "../hooks/useColumnResize";
 import { useColumnDrag } from "../hooks/useColumnDrag";
 import { KanbanView } from "./KanbanView";
 import { ListView } from "./ListView";
+import { GalleryView } from "./GalleryView";
 import { AppContext, DatabaseModelContext, DatabasePathContext } from "../AppContext";
 
 type Action =
@@ -795,14 +796,13 @@ export function DatabaseTable({
           onCardClick={handleCardClick}
         />
       ) : (
-        <KanbanView
+        <GalleryView
           rows={filteredSortedRows}
           columns={model.columns}
           displayColumns={displayColumns}
           activeView={activeView}
           onSetCell={handleSetCell}
           onDeleteRow={handleDeleteRow}
-          onAddRowWithValues={handleAddRowWithValues}
           onCardClick={handleCardClick}
         />
       )}
