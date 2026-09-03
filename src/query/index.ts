@@ -14,6 +14,8 @@ export { groupRowsBySelect } from "./group";
 export type { Group } from "./group";
 export { buildChartData } from "./chart";
 export type { ChartData, ChartSeries, ChartKind, ChartAgg, ChartConfig } from "./chart";
+export { evaluateFormula } from "./formula";
+export type { FormulaCell, FormulaValue, FormulaEnv } from "./formula";
 
 export function runQuery(model: DatabaseModel, view: ViewDef): QueryResultRow[] {
   let result = model.rows.map((row, originalIndex) => resolveRow(buildRow(row, originalIndex), model.columns));
