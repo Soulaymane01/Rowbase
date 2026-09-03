@@ -2,7 +2,7 @@ import { useReducer, useEffect, useRef, useCallback, useMemo, useState } from "r
 import { App } from "obsidian";
 import { DatabaseModel, ColumnDef, ColumnType, SelectOption, DisplayColumn, ViewDef, SortRule, FilterRule } from "../types";
 import { splitMultiSelect, joinMultiSelect } from "../csv-parser";
-import { splitRelationValue } from "../relation-utils";
+import { runQuery } from "../query";
 import { TableHeader } from "./TableHeader";
 import { TableBody } from "./TableBody";
 import { NewRowButton } from "./NewRowButton";
@@ -380,105 +380,6 @@ function databaseReducer(state: DatabaseModel, action: Action): DatabaseModel {
   }
 }
 
-function applyFilters(
-  rows: string[][],
-  filters: ViewDef["filters"],
-  columns: ColumnDef[]
-): Array<{ row: string[]; originalIndex: number }> {
-  const indexed = rows.map((row, i) => ({ row, originalIndex: i }));
-  if (filters.length === 0) return indexed;
-
-  return indexed.filter(({ row }) => {
-    return filters.every((filter) => {
-      const colIdx = columns.findIndex((c) => c.name === filter.column);
-      if (colIdx === -1) return true;
-      const cell = row[colIdx] || "";
-      const colType = columns[colIdx].type;
-
-      switch (filter.operator) {
-        case "is-empty":
-          return cell === "";
-        case "is-not-empty":
-          return cell !== "";
-        case "contains": {
-          if (filter.value.length === 0) return true;
-          if (colType === "multiselect" || colType === "relation") {
-            const cellValues = splitMultiSelect(cell);
-            const values = colType === "relation"
-              ? splitRelationValue(cell, columns[colIdx])
-              : cellValues;
-            return filter.value.some((v) => values.includes(v));
-          }
-          if (colType === "select") {
-            return filter.value.includes(cell);
-          }
-          // text, number, date
-          return filter.value.some((v) => cell.toLowerCase().includes(v.toLowerCase()));
-        }
-        case "does-not-contain": {
-          if (filter.value.length === 0) return true;
-          if (colType === "multiselect" || colType === "relation") {
-            const values = colType === "relation"
-              ? splitRelationValue(cell, columns[colIdx])
-              : splitMultiSelect(cell);
-            return !filter.value.some((v) => values.includes(v));
-          }
-          if (colType === "select") {
-            return !filter.value.includes(cell);
-          }
-          return !filter.value.some((v) => cell.toLowerCase().includes(v.toLowerCase()));
-        }
-        default:
-          return true;
-      }
-    });
-  });
-}
-
-function applySorts(
-  rows: Array<{ row: string[]; originalIndex: number }>,
-  sorts: ViewDef["sorts"],
-  columns: ColumnDef[]
-): Array<{ row: string[]; originalIndex: number }> {
-  if (sorts.length === 0) return rows;
-
-  const sorted = [...rows];
-  sorted.sort((a, b) => {
-    for (const sort of sorts) {
-      const colIdx = columns.findIndex((c) => c.name === sort.column);
-      if (colIdx === -1) continue;
-
-      const colType = columns[colIdx].type;
-      const cellA = a.row[colIdx] || "";
-      const cellB = b.row[colIdx] || "";
-
-      let cmp = 0;
-      if (colType === "number") {
-        const numA = parseFloat(cellA);
-        const numB = parseFloat(cellB);
-        if (isNaN(numA) && isNaN(numB)) cmp = 0;
-        else if (isNaN(numA)) cmp = -1;
-        else if (isNaN(numB)) cmp = 1;
-        else cmp = numA - numB;
-      } else if (colType === "checkbox") {
-        const boolA = cellA === "true" ? 1 : 0;
-        const boolB = cellB === "true" ? 1 : 0;
-        cmp = boolA - boolB;
-      } else {
-        // text, select, date, multiselect — locale string compare
-        cmp = cellA.localeCompare(cellB);
-      }
-
-      if (cmp !== 0) {
-        return sort.direction === "desc" ? -cmp : cmp;
-      }
-    }
-    return 0;
-  });
-
-  return sorted;
-}
-
 interface DatabaseTableProps {
   initialModel: DatabaseModel;
   onModelChange: (model: DatabaseModel) => void;
@@ -536,9 +437,8 @@ export function DatabaseTable({
   const effectiveFilters = barVisible ? draftFilters : activeView.filters;
 
   const filteredSortedRows = useMemo(() => {
-    const filtered = applyFilters(model.rows, effectiveFilters, model.columns);
-    return applySorts(filtered, effectiveSorts, model.columns);
-  }, [model.rows, model.columns, effectiveFilters, effectiveSorts]);
+    return runQuery(model, { ...activeView, sorts: effectiveSorts, filters: effectiveFilters });
+  }, [model, activeView, effectiveSorts, effectiveFilters]);
 
   // Ref for stable access in callbacks
   const displayColumnsRef = useRef(displayColumns);

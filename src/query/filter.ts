@@ -17,7 +17,7 @@ export function matchesFilter(
     case "equals": {
       if (value.kind === "number") return vals.length > 0 && value.number === Number(vals[0]);
       if (value.kind === "date") return vals.length > 0 && sameDate(value.date, vals[0]);
-      if (value.kind === "multi") return vals.length > 0 && value.multi.join("|") === normalize(vals).join("|");
+      if (value.kind === "multi") return vals.length > 0 && value.multi.map(normalize).join("|") === vals.map(normalize).join("|");
       return value.kind === "text" && vals.map(normalize).includes(normalize(value.text));
     }
     case "is-not":
