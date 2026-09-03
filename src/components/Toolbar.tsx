@@ -3,6 +3,7 @@ import { App, Modal } from "obsidian";
 import { createRoot, Root } from "react-dom/client";
 import { ViewDef, ViewLayout, ColumnDef, DisplayColumn } from "../types";
 import { ColumnVisibilityEditor } from "./ColumnVisibilityEditor";
+import { ChartConfigPopover } from "./ChartConfigPopover";
 
 class RenameViewModal extends Modal {
   private currentName: string;
@@ -101,7 +102,31 @@ export function Toolbar({
   app,
 }: ToolbarProps) {
   const [openPopover, setOpenPopover] = useState<PopoverType>(null);
+  const [chartConfigOpen, setChartConfigOpen] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const chartSettingsRef = useRef<HTMLDivElement>(null);
+
+  const activeLayout: ViewLayout = activeView.layout || "table";
+
+  // Close chart config popover when clicking outside or pressing Escape
+  useEffect(() => {
+    if (!chartConfigOpen) return;
+    const doc = activeDocument;
+    const handleClick = (e: MouseEvent) => {
+      if (chartSettingsRef.current && !chartSettingsRef.current.contains(e.target as Node)) {
+        setChartConfigOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setChartConfigOpen(false);
+    };
+    doc.addEventListener("mousedown", handleClick);
+    doc.addEventListener("keydown", handleKey);
+    return () => {
+      doc.removeEventListener("mousedown", handleClick);
+      doc.removeEventListener("keydown", handleKey);
+    };
+  }, [chartConfigOpen]);
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -126,6 +151,7 @@ export function Toolbar({
   // Close popover when view changes
   useEffect(() => {
     setOpenPopover(null);
+    setChartConfigOpen(false);
   }, [activeViewIndex]);
 
   const togglePopover = useCallback((type: PopoverType) => {
@@ -179,6 +205,32 @@ export function Toolbar({
           <circle cx="11" cy="7" r="1.2" />
         </svg>
       </button>
+
+      {/* Chart settings trigger (chart layout only) */}
+      {activeLayout === "chart" && (
+        <div className="csv-db-toolbar-chart-anchor" ref={chartSettingsRef}>
+          <button
+            className="csv-db-toolbar-btn"
+            onClick={() => setChartConfigOpen((v) => !v)}
+            title="Chart settings"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 13V3M2 13H10M2 8H6M2 4H4" />
+              <circle cx="9" cy="6" r="0.8" />
+              <circle cx="11" cy="8" r="0.8" />
+              <circle cx="12" cy="5" r="0.8" />
+            </svg>
+          </button>
+          {chartConfigOpen && (
+            <ChartConfigPopover
+              activeView={activeView}
+              columns={columns}
+              onUpdateView={(view) => onUpdateView(activeViewIndex, view)}
+              onClose={() => setChartConfigOpen(false)}
+            />
+          )}
+        </div>
+      )}
 
       {/* Popovers */}
       {openPopover === "visibility" && (
@@ -274,6 +326,13 @@ function ViewMenu({
       >
         <span className="csv-db-view-menu-check">{activeLayout === "gallery" ? "✓" : "\u00A0\u00A0"}</span>
         {" "}Gallery
+      </div>
+      <div
+        className="csv-db-view-menu-item"
+        onClick={() => setLayout("chart")}
+      >
+        <span className="csv-db-view-menu-check">{activeLayout === "chart" ? "✓" : "\u00A0\u00A0"}</span>
+        {" "}Chart
       </div>
 
       {/* Group by section (kanban & list) */}

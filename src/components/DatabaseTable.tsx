@@ -16,6 +16,7 @@ import { useColumnDrag } from "../hooks/useColumnDrag";
 import { KanbanView } from "./KanbanView";
 import { ListView } from "./ListView";
 import { GalleryView } from "./GalleryView";
+import { ChartView } from "./ChartView";
 import { AppContext, DatabaseModelContext, DatabasePathContext } from "../AppContext";
 
 type Action =
@@ -694,6 +695,48 @@ export function DatabaseTable({
   const activeLayout = activeView.layout || "table";
   const canReorderRows = effectiveSorts.length === 0;
 
+  const tableView = (
+    <div className="csv-db-scroll-area">
+      <div className="csv-db-wrapper">
+        <table
+          className="csv-db-table"
+          ref={tableRef}
+          style={{ width: `${totalWidth}px` }}
+        >
+          <colgroup ref={colGroupRef}>
+            <col style={{ width: "0px" }} />
+            {displayColumns.map(({ col }, i) => (
+              <col key={i} style={{ width: `${col.width ?? 180}px` }} />
+            ))}
+            <col style={{ width: "32px" }} />
+          </colgroup>
+          <TableHeader
+            displayColumns={displayColumns}
+            onResizeStart={onResizeStart}
+            consumeJustResized={consumeJustResized}
+            onAddColumn={handleAddColumn}
+            onColumnClick={handleColumnClick}
+            onDragStart={onDragStart}
+            consumeJustDragged={consumeJustDragged}
+            dragState={dragState}
+          />
+          <TableBody
+            rows={filteredSortedRows}
+            displayColumns={displayColumns}
+            onSetCell={handleSetCell}
+            onDeleteRow={handleDeleteRow}
+            onReorderRow={handleReorderRow}
+            canReorderRows={canReorderRows}
+            onAddSelectOption={handleAddSelectOption}
+            onUpdateSelectOption={handleUpdateSelectOption}
+            onRemoveOptionDef={handleRemoveOptionDef}
+          />
+        </table>
+        <NewRowButton onAddRow={handleAddRow} />
+      </div>
+    </div>
+  );
+
   return (
     <AppContext.Provider value={app}>
       <DatabasePathContext.Provider value={databasePath}>
@@ -735,45 +778,7 @@ export function DatabaseTable({
         />
       )}
       {activeLayout === "table" ? (
-        <div className="csv-db-scroll-area">
-          <div className="csv-db-wrapper">
-            <table
-              className="csv-db-table"
-              ref={tableRef}
-              style={{ width: `${totalWidth}px` }}
-            >
-              <colgroup ref={colGroupRef}>
-                <col style={{ width: "0px" }} />
-                {displayColumns.map(({ col }, i) => (
-                  <col key={i} style={{ width: `${col.width ?? 180}px` }} />
-                ))}
-                <col style={{ width: "32px" }} />
-              </colgroup>
-              <TableHeader
-                displayColumns={displayColumns}
-                onResizeStart={onResizeStart}
-                consumeJustResized={consumeJustResized}
-                onAddColumn={handleAddColumn}
-                onColumnClick={handleColumnClick}
-                onDragStart={onDragStart}
-                consumeJustDragged={consumeJustDragged}
-                dragState={dragState}
-              />
-              <TableBody
-                rows={filteredSortedRows}
-                displayColumns={displayColumns}
-                onSetCell={handleSetCell}
-                onDeleteRow={handleDeleteRow}
-                onReorderRow={handleReorderRow}
-                canReorderRows={canReorderRows}
-                onAddSelectOption={handleAddSelectOption}
-                onUpdateSelectOption={handleUpdateSelectOption}
-                onRemoveOptionDef={handleRemoveOptionDef}
-              />
-            </table>
-            <NewRowButton onAddRow={handleAddRow} />
-          </div>
-        </div>
+        tableView
       ) : activeLayout === "kanban" ? (
         <KanbanView
           rows={filteredSortedRows}
@@ -795,7 +800,7 @@ export function DatabaseTable({
           onDeleteRow={handleDeleteRow}
           onCardClick={handleCardClick}
         />
-      ) : (
+      ) : activeLayout === "gallery" ? (
         <GalleryView
           rows={filteredSortedRows}
           columns={model.columns}
@@ -805,6 +810,18 @@ export function DatabaseTable({
           onDeleteRow={handleDeleteRow}
           onCardClick={handleCardClick}
         />
+      ) : activeLayout === "chart" ? (
+        <ChartView
+          rows={filteredSortedRows}
+          columns={model.columns}
+          displayColumns={displayColumns}
+          activeView={activeView}
+          onSetCell={handleSetCell}
+          onDeleteRow={handleDeleteRow}
+          onCardClick={handleCardClick}
+        />
+      ) : (
+        tableView
       )}
         </DatabaseModelContext.Provider>
       </DatabasePathContext.Provider>

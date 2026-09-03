@@ -43,7 +43,7 @@ export interface FilterRule {
   value: string[];
 }
 
-export type ViewLayout = "table" | "kanban" | "list" | "gallery";
+export type ViewLayout = "table" | "kanban" | "list" | "gallery" | "chart";
 
 export interface ViewDef {
   name: string;
