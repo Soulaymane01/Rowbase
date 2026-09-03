@@ -1,0 +1,16 @@
+"{""name"":""Name"",""type"":""title"",""titleNoteEnabled"":true,""width"":231,""columnIndex"":0,""views"":[{""name"":""All Tasks"",""sorts"":[],""filters"":[],""hiddenColumns"":[]},{""name"":""Active Work"",""sorts"":[{""column"":""Due Date"",""direction"":""asc""}],""filters"":[{""column"":""Status"",""operator"":""contains"",""value"":[""In Progress"",""In Review""]}],""hiddenColumns"":[""Completed""]},{""name"":""Bugs"",""sorts"":[{""column"":""Due Date"",""direction"":""asc""}],""filters"":[{""column"":""Tags"",""operator"":""contains"",""value"":[""Bug""]}],""hiddenColumns"":[]},{""name"":""Done"",""sorts"":[{""column"":""Due Date"",""direction"":""desc""}],""filters"":[{""column"":""Completed"",""operator"":""contains"",""value"":[""true""]}],""hiddenColumns"":[""Story Points"",""Completed""]},{""name"":""Board"",""layout"":""kanban"",""sorts"":[],""filters"":[],""hiddenColumns"":[""Spec"",""Due Date"",""Completed"",""Story Points""],""groupByColumn"":""Status""}],""formatVersion"":1}","{""name"":""Status"",""type"":""select"",""options"":[{""value"":""Backlog"",""color"":""gray""},{""value"":""Todo"",""color"":""blue""},{""value"":""In Progress"",""color"":""yellow""},{""value"":""In Review"",""color"":""purple""},{""value"":""Done"",""color"":""green""},{""value"":""Cancelled"",""color"":""red""}],""columnIndex"":1,""width"":110}","{""name"":""Tags"",""type"":""multiselect"",""options"":[{""value"":""Bug"",""color"":""red""},{""value"":""Feature"",""color"":""blue""},{""value"":""Docs"",""color"":""brown""},{""value"":""Refactor"",""color"":""purple""},{""value"":""Testing"",""color"":""green""},{""value"":""Design"",""color"":""pink""},{""value"":""Performance"",""color"":""orange""}],""columnIndex"":2,""width"":183}","{""name"":""Spec"",""type"":""note"",""columnIndex"":3,""width"":268}","{""name"":""Due Date"",""type"":""date"",""columnIndex"":4,""width"":108}","{""name"":""Completed"",""type"":""checkbox"",""columnIndex"":5,""width"":103}","{""name"":""Assignee"",""type"":""text"",""columnIndex"":6,""width"":99}","{""name"":""Story Points"",""type"":""number"",""columnIndex"":7}"
+User authentication flow,Done,Feature|Design,docs/Auth Flow.md,2025-01-15,true,Alice,8
+Fix login page crash on Safari,Done,Bug,,2025-01-18,true,Bob,3
+Write API documentation,In Progress,Docs,docs/API Reference.md,2025-02-10,false,Charlie,5
+Refactor database query layer,In Progress,Refactor|Performance,,2025-02-15,false,Alice,13
+Add dark mode support,Todo,Feature|Design,docs/Dark Mode Spec.md,2025-02-20,false,Diana,8
+Set up CI/CD pipeline,Done,Feature,docs/CI Pipeline,2025-01-20,true,Bob,5
+Fix pagination off-by-one error,In Review,Bug,,2025-02-05,false,Charlie,2
+Add export to CSV feature,Todo,Feature,,2025-03-01,false,Diana,5
+Update unit tests for auth module,In Progress,Testing,docs/Auth Flow.md,2025-02-12,false,Alice,3
+Design settings page mockup,Done,Design,docs/Settings Page.md,2025-01-25,true,Diana,3
+Optimize image loading performance,Backlog,Performance,,2025-03-15,false,Bob,8
+Fix broken links in README,Cancelled,Docs|Bug,,2025-01-10,false,,1
+Implement search functionality,Todo,Feature,docs/Search Spec.md,2025-02-28,false,Alice,13
+Add input validation for forms,Backlog,Feature|Bug,,2025-03-10,false,Charlie,5
+Write onboarding guide,Todo,Docs|Design,docs/Onboarding Guide.md,2025-03-05,false,Diana,3

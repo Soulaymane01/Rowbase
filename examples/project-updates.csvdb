@@ -1,0 +1,5 @@
+"{""name"":""Title"",""type"":""title"",""titleNoteEnabled"":true,""columnIndex"":0,""width"":220,""views"":[{""name"":""All Updates"",""sorts"":[{""column"":""Date"",""direction"":""desc""}],""filters"":[],""hiddenColumns"":[]}],""formatVersion"":1}","{""name"":""Project"",""type"":""relation"",""relationTargetPath"":""project-tracker.csvdb"",""columnIndex"":1,""width"":240}","{""name"":""Date"",""type"":""date"",""columnIndex"":2,""width"":120}","{""name"":""Summary"",""type"":""text"",""columnIndex"":3,""width"":360,""wrapContent"":true}"
+Auth flow shipped,User authentication flow,2025-01-15,Released the first version of the user authentication flow.
+Safari crash investigation,Fix login page crash on Safari,2025-01-17,Linked the crash report back to the login page bug.
+Search planning,Implement search functionality,2025-02-18,Outlined the first search workflow and follow-up tasks.
+Docs refresh,Write API documentation,2025-02-20,Collected API documentation updates in one place.

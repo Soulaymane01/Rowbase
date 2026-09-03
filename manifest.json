@@ -1,0 +1,10 @@
+{
+  "id": "csv-database",
+  "name": "CSV Database",
+  "version": "0.3.0",
+  "minAppVersion": "0.16.0",
+  "description": "Interactive database view backed by CSV files, with rich column types, multiple views, sort & filter.",
+  "author": "jysperm",
+  "authorUrl": "https://github.com/jysperm",
+  "isDesktopOnly": false
+}

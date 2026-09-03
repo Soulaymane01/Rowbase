@@ -1,0 +1,12 @@
+node_modules/
+main.js
+
+# Build output
+*.js.map
+build/
+dist/
+
+# Local Obsidian deployment folders
+.obsidian/
+.trash/
+.release/
