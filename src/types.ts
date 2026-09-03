@@ -1,4 +1,4 @@
-export type ColumnType = "text" | "number" | "date" | "checkbox" | "select" | "multiselect" | "note" | "title" | "relation";
+export type ColumnType = "text" | "number" | "date" | "checkbox" | "select" | "multiselect" | "note" | "title" | "relation" | "url" | "link";
 
 export type TagColor = "gray" | "brown" | "orange" | "yellow" | "green" | "blue" | "purple" | "pink" | "red";
 
@@ -30,7 +30,12 @@ export interface SortRule {
   direction: "asc" | "desc";
 }
 
-export type FilterOperator = "contains" | "does-not-contain" | "is-empty" | "is-not-empty";
+export type FilterOperator =
+  | "equals" | "is-not"
+  | "contains" | "does-not-contain" | "starts-with"
+  | "is-empty" | "is-not-empty"
+  | "greater-than" | "less-than" | "between"
+  | "before" | "after";
 
 export interface FilterRule {
   column: string;
