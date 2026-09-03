@@ -276,8 +276,8 @@ function ViewMenu({
         {" "}Gallery
       </div>
 
-      {/* Group by section (kanban only) */}
-      {activeLayout === "kanban" && (
+      {/* Group by section (kanban & list) */}
+      {(activeLayout === "kanban" || activeLayout === "list") && (
         <>
           <div className="csv-db-view-menu-separator" />
           <div className="csv-db-view-menu-section-label">Group by</div>
