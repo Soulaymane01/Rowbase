@@ -16,7 +16,8 @@
     "test:offline": "node test-offline-baseline.mjs",
     "typecheck": "tsc --noEmit",
     "test:csvdb": "tsx --test test/csv-parser.test.ts",
-    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:csvdb && npm run build && npm run test:offline"
+    "test:query": "tsx --test test/query-resolve.test.ts test/query-compare.test.ts test/query-filter.test.ts test/query-sort.test.ts",
+    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:csvdb && npm run test:query && npm run build && npm run test:offline"
   },
   "devDependencies": {
     "@codemirror/state": "^6.5.0",

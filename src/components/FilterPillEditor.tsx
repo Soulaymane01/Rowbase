@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { ColumnDef, FilterRule, FilterOperator } from "../types";
 import { Tag } from "./Tag";
 import { getTypeIcon } from "../constants";
+import { operatorsForType, OPERATOR_LABELS } from "../query/operators";
 
 interface FilterPillEditorProps {
   filter: FilterRule;
@@ -195,6 +196,23 @@ function FilterSelectValueTrigger({
   );
 }
 
+function FilterRangeValue({ column, values, onUpdateValue }: {
+  column: ColumnDef; values: string[]; onUpdateValue: (value: string[]) => void;
+}) {
+  const inputType = column.type === "date" ? "date" : column.type === "number" ? "number" : "text";
+  const set = (i: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = [...values];
+    next[i] = e.target.value;
+    onUpdateValue(next.slice(0, 2));
+  };
+  return (
+    <div className="csv-db-filter-range">
+      <input className="csv-db-popover-input" type={inputType} value={values[0] ?? ""} onChange={set(0)} placeholder="From" />
+      <input className="csv-db-popover-input" type={inputType} value={values[1] ?? ""} onChange={set(1)} placeholder="To" />
+    </div>
+  );
+}
+
 export function FilterPillEditor({ filter, columns, onUpdate, onDelete, onClose }: FilterPillEditorProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -228,7 +246,11 @@ export function FilterPillEditor({ filter, columns, onUpdate, onDelete, onClose 
           <select
             className="csv-db-popover-select"
             value={filter.column}
-            onChange={(e) => onUpdate({ column: e.target.value, value: [] })}
+            onChange={(e) => {
+              const nextType = columns.find((c) => c.name === e.target.value)?.type ?? "text";
+              const firstOp = operatorsForType(nextType)[0];
+              onUpdate({ column: e.target.value, operator: firstOp, value: [] });
+            }}
           >
             {columns.map((col) => (
               <option key={col.name} value={col.name}>
@@ -250,20 +272,26 @@ export function FilterPillEditor({ filter, columns, onUpdate, onDelete, onClose 
               onUpdate(update);
             }}
           >
-            <option value="contains">Contains</option>
-            <option value="does-not-contain">Does not contain</option>
-            <option value="is-empty">Is empty</option>
-            <option value="is-not-empty">Is not empty</option>
+            {operatorsForType(column?.type ?? "text").map((op) => (
+              <option key={op} value={op}>{OPERATOR_LABELS[op]}</option>
+            ))}
           </select>
         </div>
-        {showValue && isSelectType && column && (
+        {showValue && filter.operator === "between" && column && (
+          <FilterRangeValue
+            column={column}
+            values={filter.value}
+            onUpdateValue={(value) => onUpdate({ value })}
+          />
+        )}
+        {showValue && filter.operator !== "between" && isSelectType && column && (
           <FilterSelectValueTrigger
             column={column}
             selectedValues={filter.value}
             onUpdateValue={(value) => onUpdate({ value })}
           />
         )}
-        {showValue && !isSelectType && (
+        {showValue && filter.operator !== "between" && !isSelectType && (
           <FilterTextValue
             filter={filter}
             onUpdateValue={(value) => onUpdate({ value })}

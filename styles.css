@@ -1110,6 +1110,19 @@ body.theme-dark {
   box-shadow: none;
 }
 
+.csv-db-filter-range {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+}
+
+.csv-db-filter-range .csv-db-popover-input {
+  flex: 1;
+  min-width: 0;
+}
+
 .csv-db-popover-remove {
   background: none;
   border: none;

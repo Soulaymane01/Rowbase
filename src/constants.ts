@@ -22,6 +22,8 @@ export const COLUMN_TYPES: { value: ColumnType; label: string }[] = [
   { value: "note", label: "Note" },
   { value: "title", label: "Title" },
   { value: "relation", label: "Relation" },
+  { value: "url", label: "URL" },
+  { value: "link", label: "Link" },
 ];
 
 export const TAG_COLOR_OPTIONS: TagColor[] = [
@@ -44,6 +46,8 @@ export function getTypeIcon(type: string): string {
     case "note": return "↗";
     case "title": return "T";
     case "relation": return "⇄";
+    case "url": return "↗";
+    case "link": return "🔗";
     default: return "Aa";
   }
 }
