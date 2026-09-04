@@ -2014,7 +2014,7 @@ body.csv-db-card-dragging {
 .csv-db-stats-empty { color: var(--text-muted); padding: 24px; text-align: center; }
 /* Timeline / Gantt */
 .csv-db-gantt { display: flex; flex-direction: column; height: 100%; overflow: hidden; font-size: 13px; }
-.csv-db-gantt-header { display: flex; border-bottom: 2px solid var(--background-modifier-border); position: sticky; top: 0; z-index: 2; background: var(--background-primary); }
+.csv-db-gantt-header { display: flex; border-bottom: 2px solid var(--background-modifier-border); position: sticky; top: 0; z-index: 2; background: var(--background-primary); overflow: hidden; }
 .csv-db-gantt-label-col { min-width: 160px; max-width: 200px; flex-shrink: 0; padding: 0 12px; display: flex; align-items: center; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
 .csv-db-gantt-timeline-col { flex: 1; position: relative; overflow: hidden; }
 .csv-db-gantt-date-axis { position: relative; height: 32px; }
@@ -2031,15 +2031,13 @@ body.csv-db-card-dragging {
 .csv-db-gantt-row.odd { background: var(--background-secondary); }
 .csv-db-gantt-row .csv-db-gantt-label-col { display: flex; align-items: center; border-right: 1px solid var(--background-modifier-border); }
 .csv-db-gantt-row-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.csv-db-gantt-row-status { font-size: 10px; padding: 1px 6px; border-radius: 4px; background: var(--background-modifier-border); color: var(--text-muted); white-space: nowrap; margin-left: 6px; }
 .csv-db-gantt-row .csv-db-gantt-timeline-col { position: relative; }
 .csv-db-gantt-grid { position: absolute; inset: 0; pointer-events: none; }
 .csv-db-gantt-gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--background-modifier-border); opacity: 0.6; }
 .csv-db-gantt-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--color-red); opacity: 0.5; z-index: 1; }
 .csv-db-gantt-bar { position: absolute; top: 50%; transform: translateY(-50%); height: 18px; border-radius: 9px; z-index: 2; cursor: grab; overflow: hidden; }
 .csv-db-gantt-bar:active { cursor: grabbing; }
-.csv-db-gantt-bar.active { background: var(--interactive-accent); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
-.csv-db-gantt-bar.done { background: var(--text-faint); opacity: 0.7; }
-.csv-db-gantt-bar.future { background: var(--color-green); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
 .csv-db-gantt-bar-text { position: absolute; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 600; color: white; white-space: nowrap; pointer-events: none; line-height: 18px; }
 
 /* — Polish: airy table and states — */

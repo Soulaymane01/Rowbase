@@ -1,6 +1,7 @@
-import { ColumnDef } from "../types";
+import { useRef, useCallback } from "react";
+import { ColumnDef, SelectOption } from "../types";
 import { QueryResultRow } from "../query/record";
-import { buildTimelineItems, TimelineItem } from "../query/timeline";
+import { buildTimelineItems } from "../query/timeline";
 
 interface TimelineViewProps { rows: QueryResultRow[]; columns: ColumnDef[]; onCardClick: (idx:number)=>void; }
 
@@ -39,10 +40,52 @@ function generateTicks(min: number, max: number, unit: "day"|"week"|"month", ste
   return ticks;
 }
 
+function getStatusColor(val: string, options?: SelectOption[]): string {
+  if (!options) return "";
+  const opt = options.find((o) => o.value.toLowerCase() === val.toLowerCase());
+  return opt?.color || "";
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  red: "hsl(0, 70%, 60%)", green: "hsl(140, 50%, 45%)", blue: "hsl(210, 70%, 55%)",
+  yellow: "hsl(40, 80%, 50%)", purple: "hsl(270, 55%, 55%)", pink: "hsl(330, 65%, 58%)",
+  orange: "hsl(24, 80%, 55%)", gray: "hsl(0, 0%, 55%)",
+};
+
+function resolveBarStyle(statusVal: string, now: number, start: number, end: number, statusOpt?: SelectOption[]): React.CSSProperties {
+  const colorKey = getStatusColor(statusVal, statusOpt);
+  if (colorKey && STATUS_COLORS[colorKey]) {
+    const bg = STATUS_COLORS[colorKey];
+    if (end < now) return { background: bg, opacity: 0.55 };
+    if (start > now) return { background: bg, opacity: 0.8 };
+    return { background: bg, boxShadow: "0 1px 4px rgba(0,0,0,0.2)" };
+  }
+  if (end < now) return { background: "var(--text-faint)", opacity: 0.6 };
+  if (start > now) return { background: "var(--color-green)" };
+  return { background: "var(--interactive-accent)" };
+}
+
 export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) {
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  const onHeaderScroll = useCallback(() => {
+    if (bodyRef.current && headerRef.current) {
+      bodyRef.current.scrollLeft = headerRef.current.scrollLeft;
+    }
+  }, []);
+  const onBodyScroll = useCallback(() => {
+    if (bodyRef.current && headerRef.current) {
+      headerRef.current.scrollLeft = bodyRef.current.scrollLeft;
+    }
+  }, []);
+
   const startIdx = columns.findIndex((c)=>/^(start|from|begin)/i.test(c.name) || c.type==="date");
   const endIdx = columns.findIndex((c,i)=>i!==startIdx && (/^(end|due|to|finish)/i.test(c.name) || c.type==="date"));
+  const statusIdx = columns.findIndex((c)=>/^(status|state)/i.test(c.name) || c.type==="select");
+  const statusOpt = statusIdx !== -1 ? columns[statusIdx].options : undefined;
   const labelIdx = 0;
+
   if (startIdx===-1 || endIdx===-1) return <div className="csv-db-stats-empty">Add Start and End/Due date columns to use Timeline.</div>;
   const items = buildTimelineItems(rows, startIdx, endIdx, labelIdx);
   if (items.length===0) return <div className="csv-db-stats-empty">No dated rows to show on Timeline.</div>;
@@ -63,7 +106,7 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
 
   return (
     <div className="csv-db-gantt">
-      <div className="csv-db-gantt-header">
+      <div className="csv-db-gantt-header" ref={headerRef} onScroll={onHeaderScroll}>
         <div className="csv-db-gantt-label-col" />
         <div className="csv-db-gantt-timeline-col">
           <div className="csv-db-gantt-date-axis">
@@ -81,27 +124,28 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
           </div>
         </div>
       </div>
-      <div className="csv-db-gantt-body">
+      <div className="csv-db-gantt-body" ref={bodyRef} onScroll={onBodyScroll}>
         {items.map((it, idx) => {
           const left = pct(it.start.getTime());
           const right = pct(it.end.getTime());
           const width = Math.max(right - left, 0.6);
-          const isPast = it.end.getTime() < now;
-          const isFuture = it.start.getTime() > now;
           const days = Math.round((it.end.getTime() - it.start.getTime()) / 86400000);
+          const statusVal = statusIdx !== -1 ? it.row[statusIdx] || "" : "";
+          const barStyle = resolveBarStyle(statusVal, now, it.start.getTime(), it.end.getTime(), statusOpt);
           return (
             <div key={it.originalIndex} className={`csv-db-gantt-row ${idx % 2 === 0 ? "even" : "odd"}`} onClick={()=>onCardClick(it.originalIndex)}>
               <div className="csv-db-gantt-label-col">
                 <span className="csv-db-gantt-row-label" title={it.label}>{it.label}</span>
+                {statusVal && <span className="csv-db-gantt-row-status">{statusVal}</span>}
               </div>
               <div className="csv-db-gantt-timeline-col">
                 <div className="csv-db-gantt-grid">
                   {ticks.map((_,i)=>(<div key={i} className="csv-db-gantt-gridline" style={{ left: `${pct(ticks[i].t)}%` }} />))}
                   {todayPct >= 0 && <div className="csv-db-gantt-today-line" style={{ left: `${todayPct}%` }} />}
                 </div>
-                <div className={`csv-db-gantt-bar ${isPast ? "done" : isFuture ? "future" : "active"}`}
-                  style={{ left: `${left}%`, width: `${width}%` }}
-                  title={`${it.start.toISOString().slice(0,10)} → ${it.end.toISOString().slice(0,10)} (${days}d)`}>
+                <div className="csv-db-gantt-bar"
+                  style={{ left: `${left}%`, width: `${width}%`, ...barStyle }}
+                  title={`${it.start.toISOString().slice(0,10)} → ${it.end.toISOString().slice(0,10)} (${days}d)${statusVal ? " ["+statusVal+"]" : ""}`}>
                   {width > 8 && <span className="csv-db-gantt-bar-text">{days > 0 ? `${days}d` : ""}</span>}
                 </div>
               </div>
