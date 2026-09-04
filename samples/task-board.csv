@@ -1,0 +1,16 @@
+Task,Status,Priority,Assignee,Tags,Estimated Hours,Actual Hours,Done
+Fix login timeout bug,In Progress,P0,Alice,Bug|Testing,4,2,false
+Add dark mode toggle,To Do,P1,Bob,Feature,8,0,false
+Update API docs,Backlog,P3,Charlie,Documentation,3,0,false
+Refactor auth module,In Progress,P1,Alice,Enhancement,12,6,false
+Write unit tests for payments,In Review,P2,Diana,Testing,6,5,false
+Design new dashboard cards,Done,P1,Eve,Feature,10,10,true
+Fix mobile responsive layout,To Do,P0,Bob,Bug,5,0,false
+Add export to CSV feature,Backlog,P2,Charlie,Feature,4,0,false
+Performance audit,In Progress,P1,Diana,Enhancement,8,3,false
+Update dependencies,To Do,P3,Alice,Enhancement,2,0,false
+Add keyboard shortcuts,Done,P2,Eve,Feature,6,6,true
+Fix date picker timezone,In Review,P0,Bob,Bug,3,2,false
+Write integration tests,Backlog,P2,Charlie,Testing,8,0,false
+Add error boundaries,To Do,P1,Diana,Enhancement,4,0,false
+Optimize bundle size,In Progress,P2,Alice,Enhancement,6,2,false
