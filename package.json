@@ -1,6 +1,6 @@
 {
   "name": "rowbase",
-  "version": "0.3.0",
+  "version": "0.1.0",
   "description": "Rowbase — interactive Notion-style database for Obsidian with multiple views, formulas, rollups, relations, and more.",
   "main": "main.js",
   "license": "MIT",
