@@ -26,11 +26,27 @@ export function titleFolderExists(app: App, value: string, column: ColumnDef, da
   return file instanceof TFolder;
 }
 
+async function ensureFolder(app: App, path: string): Promise<void> {
+  const parts = path.split("/").filter(Boolean);
+  let current = "";
+  for (const part of parts) {
+    current = current ? `${current}/${part}` : part;
+    const existing = app.vault.getAbstractFileByPath(current);
+    if (!existing) {
+      await app.vault.createFolder(current);
+    }
+  }
+}
+
 export async function openTitleFolder(app: App, value: string, column: ColumnDef, databasePath: string): Promise<void> {
   const path = getTitleFolderPath(value, column, databasePath);
   if (!path) return;
 
-  const file = app.vault.getAbstractFileByPath(path);
+  let file = app.vault.getAbstractFileByPath(path);
+  if (!(file instanceof TFolder)) {
+    await ensureFolder(app, path);
+    file = app.vault.getAbstractFileByPath(path);
+  }
   if (file instanceof TFolder) {
     app.workspace.trigger("file-explorer:reveal", file);
   }
