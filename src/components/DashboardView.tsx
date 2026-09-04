@@ -63,7 +63,20 @@ function HabitCard({ habit, rows, columns, onSetCell }: { habit: HabitInfo; rows
 }
 
 function ActivityGrid({ activity, dateRange }: { activity: DayActivity[]; dateRange: { start: string; end: string } | null }) {
-  if (!dateRange || activity.length === 0) return <div className="csv-db-dash-empty">No date data</div>;
+  if (!dateRange || activity.length === 0) return (
+    <div className="csv-db-empty">
+      <div className="csv-db-empty-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+        </svg>
+      </div>
+      <div className="csv-db-empty-title">No dashboard data</div>
+      <div className="csv-db-empty-desc">Add a Select, Checkbox, or Date column to see your dashboard.</div>
+    </div>
+  );
 
   const start = new Date(dateRange.start);
   const end = new Date(dateRange.end);
@@ -170,7 +183,18 @@ export function DashboardView({ rows, columns, onSetCell, onCardClick }: Dashboa
         </div>
       )}
       {!hasAny && (
-        <div className="csv-db-dash-empty">No dashboard data — add a Select, Checkbox, or Date column.</div>
+        <div className="csv-db-empty">
+          <div className="csv-db-empty-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7"/>
+              <rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/>
+            </svg>
+          </div>
+          <div className="csv-db-empty-title">No dashboard data</div>
+          <div className="csv-db-empty-desc">Add a Select, Checkbox, or Date column to see your dashboard.</div>
+        </div>
       )}
     </div>
   );

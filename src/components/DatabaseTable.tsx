@@ -12,7 +12,7 @@ import { Toolbar } from "./Toolbar";
 import { FilterSortBar } from "./FilterSortBar";
 import { ColumnModalWrapper } from "./ColumnModal";
 import { RowDetailModalWrapper } from "./RowDetailModal";
-import { useColumnResize } from "../hooks/useColumnResize";
+import { useColumnResize, measureColumnMaxWidth } from "../hooks/useColumnResize";
 import { useColumnDrag } from "../hooks/useColumnDrag";
 import { KanbanView } from "./KanbanView";
 import { ListView } from "./ListView";
@@ -44,7 +44,9 @@ type Action =
   | { type: "ADD_VIEW" }
   | { type: "ADD_VIEW_FROM_DRAFT"; sorts: SortRule[]; filters: FilterRule[]; sourceView: ViewDef }
   | { type: "DELETE_VIEW"; viewIndex: number }
-  | { type: "UPDATE_VIEW"; viewIndex: number; view: ViewDef };
+  | { type: "UPDATE_VIEW"; viewIndex: number; view: ViewDef }
+  | { type: "UNDO" }
+  | { type: "REDO" };
 
 function ensureUniqueColumnName(name: string, existingNames: string[]): string {
   if (!existingNames.includes(name)) return name;
@@ -112,6 +114,47 @@ function ensureUniqueTitleRows(rows: string[][], colIdx: number): string[][] {
     if (uniqueValue === value) return row;
     return row.map((cell, ci) => (ci === colIdx ? uniqueValue : cell));
   });
+}
+
+interface HistoryState {
+  past: DatabaseModel[];
+  present: DatabaseModel;
+  future: DatabaseModel[];
+}
+
+const MAX_HISTORY = 100;
+
+function withHistory(reducer: (state: DatabaseModel, action: Action) => DatabaseModel) {
+  return function historyReducer(state: HistoryState, action: Action): HistoryState {
+    switch (action.type) {
+      case "UNDO": {
+        if (state.past.length === 0) return state;
+        const previous = state.past[state.past.length - 1];
+        return {
+          past: state.past.slice(0, -1),
+          present: previous,
+          future: [state.present, ...state.future],
+        };
+      }
+      case "REDO": {
+        if (state.future.length === 0) return state;
+        const next = state.future[0];
+        return {
+          past: [...state.past, state.present],
+          present: next,
+          future: state.future.slice(1),
+        };
+      }
+      default: {
+        const newPresent = reducer(state.present, action);
+        if (newPresent === state.present) return state;
+        const past = state.past.length >= MAX_HISTORY
+          ? [...state.past.slice(1), state.present]
+          : [...state.past, state.present];
+        return { past, present: newPresent, future: [] };
+      }
+    }
+  };
 }
 
 function databaseReducer(state: DatabaseModel, action: Action): DatabaseModel {
@@ -415,7 +458,20 @@ export function DatabaseTable({
   app,
   databasePath,
 }: DatabaseTableProps) {
-  const [model, dispatch] = useReducer(databaseReducer, initialModel);
+  const historyReducer = useMemo(() => withHistory(databaseReducer), []);
+  const [history, rawDispatch] = useReducer(historyReducer, {
+    past: [],
+    present: initialModel,
+    future: [],
+  });
+  const model = history.present;
+  const canUndo = history.past.length > 0;
+  const canRedo = history.future.length > 0;
+
+  const dispatch = useCallback((action: Action) => {
+    rawDispatch(action);
+  }, [rawDispatch]);
+
   const isExternalUpdate = useRef(false);
   const prevModelRef = useRef(model);
   const [activeViewIndex, setActiveViewIndex] = useState(0);
@@ -444,6 +500,25 @@ export function DatabaseTable({
     () => createRelationResolver(app, databasePath, model),
     [app, databasePath, model],
   );
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        dispatch({ type: "UNDO" });
+      } else if (mod && ((e.key === "z" && e.shiftKey) || e.key === "y")) {
+        e.preventDefault();
+        dispatch({ type: "REDO" });
+      } else if (mod && e.key === "Enter") {
+        e.preventDefault();
+        dispatch({ type: "ADD_ROW" });
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [dispatch]);
 
   // Determine if draft differs from saved view
   const isDirty = useMemo(() => {
@@ -602,8 +677,17 @@ export function DatabaseTable({
     dispatch({ type: "SET_COLUMN_WIDTH", colIdx: dataIdx, width });
   }, []);
 
-  const { colGroupRef, tableRef, onResizeStart, consumeJustResized } =
+  const { colGroupRef, tableRef, onResizeStart, consumeJustResized, fitColumnToContent } =
     useColumnResize({ onResizeEnd: handleResizeEnd });
+
+  const handleFitToContent = useCallback((displayIdx: number) => {
+    fitColumnToContent(displayIdx);
+  }, [fitColumnToContent]);
+
+  const handleResetWidth = useCallback((displayIdx: number) => {
+    const dataIdx = displayColumnsRef.current[displayIdx].dataIdx;
+    dispatch({ type: "SET_COLUMN_WIDTH", colIdx: dataIdx, width: 180 });
+  }, []);
 
   const handleReorderColumn = useCallback((fromDisplayIdx: number, toDisplayIdx: number) => {
     const dc = displayColumnsRef.current;
@@ -789,6 +873,7 @@ export function DatabaseTable({
           className="csv-db-table"
           ref={tableRef}
           style={{ width: `${totalWidth}px` }}
+          role="grid"
         >
           <colgroup ref={colGroupRef}>
             <col style={{ width: "0px" }} />
@@ -799,6 +884,7 @@ export function DatabaseTable({
           </colgroup>
           <TableHeader
             displayColumns={displayColumns}
+            sorts={effectiveSorts}
             onResizeStart={onResizeStart}
             consumeJustResized={consumeJustResized}
             onAddColumn={handleAddColumn}
@@ -806,6 +892,8 @@ export function DatabaseTable({
             onDragStart={onDragStart}
             consumeJustDragged={consumeJustDragged}
             dragState={dragState}
+            onFitToContent={handleFitToContent}
+            onResetWidth={handleResetWidth}
           />
           <TableBody
             rows={filteredSortedRows}

@@ -440,6 +440,10 @@ body.theme-dark {
   background: var(--background-modifier-hover);
 }
 
+.csv-db-dropdown-item[data-focused="true"] {
+  background: var(--background-modifier-hover);
+}
+
 .csv-db-dropdown-item.is-selected {
   background: rgba(var(--interactive-accent-rgb), 0.08);
 }
@@ -2108,19 +2112,127 @@ body.csv-db-card-dragging {
 .csv-db-gantt-ctx-sep { height: 1px; background: var(--background-modifier-border); margin: 4px 0; }
 .csv-db-gantt-ctx-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
+.csv-db-col-context-menu {
+  position: fixed;
+  z-index: 1000;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  min-width: 160px;
+}
+
+.csv-db-col-context-menu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: var(--text-normal);
+}
+
+.csv-db-col-context-menu-item:hover {
+  background: var(--background-modifier-hover);
+}
+
 /* — Polish: airy table and states — */
 .csv-db-table tbody tr:hover { background: var(--background-modifier-hover); }
 .csv-db-table tbody tr { transition: background 0.12s; }
 .csv-db-viewbar { padding: 8px 8px 4px; }
+/* Focus-visible styles for accessibility */
+.csv-db-grid:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+}
+.csv-db-checkbox:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+.csv-db-cell:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+}
+
 .csv-db-empty, .csv-db-chart-empty, .csv-db-gallery-empty, .csv-db-kanban-empty, .csv-db-list-empty {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 48px 24px; color: var(--text-muted); text-align: center; gap: 8px;
 }
-.csv-db-empty::before, .csv-db-chart-empty::before {
-  content: "◯"; font-size: 24px; opacity: 0.5;
+.csv-db-empty-icon { color: var(--text-muted); margin-bottom: 12px; }
+.csv-db-empty-title { font-size: 1.1em; font-weight: 600; color: var(--text-normal); margin-bottom: 6px; }
+.csv-db-empty-desc { font-size: 0.9em; color: var(--text-muted); max-width: 300px; }
+/* Tablet */
+@media (max-width: 1024px) {
+  .csv-db-toolbar {
+    flex-wrap: wrap;
+  }
+  .csv-db-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
 }
+
+/* Phone */
 @media (max-width: 700px) {
-  .csv-db-toolbar { gap: 2px; padding: 4px; }
-  .csv-db-gallery { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-  .csv-db-list-title { min-width: 100px; }
+  .csv-db-toolbar {
+    gap: 2px;
+    padding: 4px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .csv-db-toolbar > * {
+    width: 100%;
+  }
+  .csv-db-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 6px;
+  }
+  .csv-db-list-title {
+    min-width: 100px;
+  }
+  .csv-db-kanban-board {
+    padding-bottom: 8px;
+  }
+  .csv-db-kanban-col {
+    min-width: 260px;
+  }
+  .csv-db-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .csv-db-filter-sort-bar {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .csv-db-filter-pill {
+    width: 100%;
+  }
+  .csv-db-view-bar {
+    flex-wrap: wrap;
+  }
+  .csv-db-stat-card {
+    min-width: 120px;
+    padding: 10px;
+  }
+  .csv-db-stat-value {
+    font-size: 1.3em;
+  }
+}
+
+/* Touch improvements */
+@media (pointer: coarse) {
+  .csv-db-resize-handle {
+    width: 8px;
+    right: -4px;
+  }
+  .csv-db-row-drag-handle {
+    width: 16px;
+  }
+  .csv-db-filter-remove,
+  .csv-db-sort-remove {
+    padding: 6px;
+  }
 }

@@ -19,8 +19,8 @@ interface CellProps {
 export function Cell({ value, column, onChange, onAddOption, onUpdateOption, onRemoveOptionDef }: CellProps) {
   if (column.type === "checkbox") {
     return (
-      <td className={`csv-db-cell${column.wrapContent ? " csv-db-cell-wrap" : ""}`}>
-        <CheckboxCell value={value} onChange={onChange} />
+      <td className={`csv-db-cell${column.wrapContent ? " csv-db-cell-wrap" : ""}`} role="gridcell">
+        <CheckboxCell value={value} onChange={onChange} column={column} />
       </td>
     );
   }
@@ -65,7 +65,7 @@ export function Cell({ value, column, onChange, onAddOption, onUpdateOption, onR
 
   if (column.type === "formula" || column.type === "rollup") {
     return (
-      <td className={`csv-db-cell csv-db-cell-computed${column.wrapContent ? " csv-db-cell-wrap" : ""}`}>
+      <td className={`csv-db-cell csv-db-cell-computed${column.wrapContent ? " csv-db-cell-wrap" : ""}`} role="gridcell">
         <span className="csv-db-cell-computed-value">{value ?? ""}</span>
       </td>
     );

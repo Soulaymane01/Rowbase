@@ -129,8 +129,15 @@ export function ChartView({ rows, columns, displayColumns, activeView, onSetCell
 
   if (!data.labels.length) {
     return (
-      <div className="csv-db-chart-empty">
-        <p>Pick an X column (and optionally a Y value) in the chart settings.</p>
+      <div className="csv-db-empty">
+        <div className="csv-db-empty-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+            <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+          </svg>
+        </div>
+        <div className="csv-db-empty-title">Configure chart</div>
+        <div className="csv-db-empty-desc">Pick an X column (and optionally a Y value) in the chart settings.</div>
       </div>
     );
   }

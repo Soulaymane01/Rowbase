@@ -1,22 +1,26 @@
+import { ColumnDef } from "../types";
+
 interface CheckboxCellProps {
   value: string;
   onChange: (value: string) => void;
+  column: ColumnDef;
 }
 
-export function CheckboxCell({ value, onChange }: CheckboxCellProps) {
+export function CheckboxCell({ value, onChange, column }: CheckboxCellProps) {
   const checked = value === "true";
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
     onChange(checked ? "false" : "true");
   };
 
   return (
-    <div
-      className={`csv-db-checkbox ${checked ? "is-checked" : ""}`}
-      onClick={handleClick}
-    >
-      {checked && <span className="csv-db-checkbox-icon">✓</span>}
-    </div>
+    <input
+      type="checkbox"
+      className="csv-db-checkbox"
+      checked={checked}
+      onChange={handleChange}
+      aria-label={column.name}
+    />
   );
 }

@@ -75,6 +75,8 @@ export function RelationDropdown({
     <div
       ref={dropdownRef}
       className="csv-db-dropdown csv-db-relation-dropdown"
+      aria-expanded="true"
+      aria-haspopup="listbox"
       style={{
         top: `${anchorRect.top}px`,
         left: `${anchorRect.left}px`,
@@ -109,7 +111,7 @@ export function RelationDropdown({
       <div className="csv-db-dropdown-hint">
         {column.relationTargetPath || "Configure relation target"}
       </div>
-      <div className="csv-db-dropdown-list">
+      <div className="csv-db-dropdown-list" role="listbox">
         {filtered.map((record) => (
           <div
             key={record.key}

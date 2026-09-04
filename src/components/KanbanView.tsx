@@ -57,8 +57,16 @@ export function KanbanView({
 
   if (!groupByInfo) {
     return (
-      <div className="csv-db-kanban-empty">
-        <p>Select a column to group by in the view menu.</p>
+      <div className="csv-db-empty">
+        <div className="csv-db-empty-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="5" height="18" rx="1"/>
+            <rect x="10" y="3" width="5" height="12" rx="1"/>
+            <rect x="17" y="3" width="5" height="15" rx="1"/>
+          </svg>
+        </div>
+        <div className="csv-db-empty-title">Select a group column</div>
+        <div className="csv-db-empty-desc">Choose a Select column to group by in the view menu.</div>
       </div>
     );
   }

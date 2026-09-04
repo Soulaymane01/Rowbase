@@ -111,7 +111,17 @@ export function StatsView({ rows, columns }: StatsViewProps) {
         )}
       </div>
       {!hasAny && (
-        <div className="csv-db-stats-empty">No stats — add a Select, Number, or Date column.</div>
+        <div className="csv-db-empty">
+          <div className="csv-db-empty-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="12" width="4" height="9"/>
+              <rect x="10" y="7" width="4" height="14"/>
+              <rect x="17" y="3" width="4" height="18"/>
+            </svg>
+          </div>
+          <div className="csv-db-empty-title">No stats yet</div>
+          <div className="csv-db-empty-desc">Add a Select, Number, or Date column to see statistics.</div>
+        </div>
       )}
     </div>
   );

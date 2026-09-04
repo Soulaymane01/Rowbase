@@ -131,6 +131,7 @@ function RowDetailField({
           <CheckboxCell
             value={value}
             onChange={(v) => onSetCell(rowOriginalIndex, dataIdx, v)}
+            column={col}
           />
         );
       }

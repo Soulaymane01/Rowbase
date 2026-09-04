@@ -106,9 +106,35 @@ export function TimelineView({ rows, columns, onCardClick, onSetCell, onDeleteRo
   const progressIdx = columns.findIndex((c)=>/^(progress|percent|completion)/i.test(c.name) || c.type==="number");
   const labelIdx = 0;
 
-  if (startIdx===-1 || endIdx===-1) return <div className="csv-db-stats-empty">Add Start and End/Due date columns to use Timeline.</div>;
+  if (startIdx===-1 || endIdx===-1) return (
+    <div className="csv-db-empty">
+      <div className="csv-db-empty-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div className="csv-db-empty-title">No timeline data</div>
+      <div className="csv-db-empty-desc">Add Start and End/Due date columns to use Timeline.</div>
+    </div>
+  );
   const allItems = buildTimelineItems(rows, startIdx, endIdx, labelIdx);
-  if (allItems.length===0) return <div className="csv-db-stats-empty">No dated rows to show on Timeline.</div>;
+  if (allItems.length===0) return (
+    <div className="csv-db-empty">
+      <div className="csv-db-empty-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div className="csv-db-empty-title">No timeline data</div>
+      <div className="csv-db-empty-desc">No dated rows to show on Timeline.</div>
+    </div>
+  );
 
   const min = Math.min(...allItems.map((i)=>i.start.getTime()));
   const max = Math.max(...allItems.map((i)=>i.end.getTime()));

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ColumnDef, SelectOption } from "../types";
 import { pickColor } from "../constants";
@@ -31,8 +31,10 @@ export function MultiSelectDropdown({
   const [search, setSearch] = useState("");
   const [editingOption, setEditingOption] = useState<SelectOption | null>(null);
   const [editAnchorRect, setEditAnchorRect] = useState<DOMRect | null>(null);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const portalContainer = usePortalContainer();
 
   const handleClose = useCallback(() => {
@@ -45,6 +47,16 @@ export function MultiSelectDropdown({
   const lower = search.toLowerCase();
   const filtered = options.filter((o) => o.value.toLowerCase().includes(lower) && !currentValues.includes(o.value));
   const exactMatch = options.some((o) => o.value.toLowerCase() === lower);
+
+  useEffect(() => {
+    setFocusedIndex(-1);
+  }, [search]);
+
+  useEffect(() => {
+    if (focusedIndex >= 0 && optionRefs.current[focusedIndex]) {
+      optionRefs.current[focusedIndex]?.scrollIntoView({ block: "nearest" });
+    }
+  }, [focusedIndex]);
 
   const handleAdd = (value: string) => {
     if (!currentValues.includes(value)) {
@@ -88,6 +100,39 @@ export function MultiSelectDropdown({
     setEditAnchorRect(null);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const totalItems = filtered.length + (search.trim() && !exactMatch ? 1 : 0);
+    if (totalItems === 0) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setFocusedIndex((prev) => (prev + 1) % totalItems);
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setFocusedIndex((prev) => (prev - 1 + totalItems) % totalItems);
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (focusedIndex >= 0) {
+          if (search.trim() && !exactMatch && focusedIndex === 0) {
+            handleCreate();
+          } else {
+            const optionIndex = search.trim() && !exactMatch ? focusedIndex - 1 : focusedIndex;
+            if (optionIndex >= 0 && optionIndex < filtered.length) {
+              handleAdd(filtered[optionIndex].value);
+            }
+          }
+        }
+        break;
+      case "Escape":
+        e.preventDefault();
+        onClose();
+        break;
+    }
+  };
+
   const selectedOptions = currentValues.map(
     (v) => options.find((o) => o.value === v) || { value: v, color: "gray" as const }
   );
@@ -96,6 +141,8 @@ export function MultiSelectDropdown({
     <div
       ref={dropdownRef}
       className="csv-db-dropdown"
+      aria-expanded="true"
+      aria-haspopup="listbox"
       style={{
         // Align with the cell's top edge so the input area overlays the cell being edited
         top: `${anchorRect.top}px`,
@@ -124,14 +171,17 @@ export function MultiSelectDropdown({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={handleKeyDown}
           autoFocus
         />
       </div>
       <div className="csv-db-dropdown-hint">Select an option or create one</div>
-      <div className="csv-db-dropdown-list">
+      <div className="csv-db-dropdown-list" role="listbox">
         {search.trim() && !exactMatch && (
           <div
+            ref={(el) => { optionRefs.current[0] = el; }}
             className="csv-db-dropdown-item csv-db-dropdown-create"
+            data-focused={focusedIndex === 0 ? "true" : undefined}
             onClick={(e) => {
               e.stopPropagation();
               handleCreate();
@@ -140,24 +190,29 @@ export function MultiSelectDropdown({
             Create <Tag value={search.trim()} color={pickColor(options.length)} />
           </div>
         )}
-        {filtered.map((option) => (
-          <div
-            key={option.value}
-            className="csv-db-dropdown-item"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAdd(option.value);
-            }}
-          >
-            <Tag value={option.value} color={option.color || "gray"} />
-            <span
-              className="csv-db-option-more-btn"
-              onClick={(e) => handleMoreClick(e, option)}
+        {filtered.map((option, index) => {
+          const itemIndex = search.trim() && !exactMatch ? index + 1 : index;
+          return (
+            <div
+              key={option.value}
+              ref={(el) => { optionRefs.current[itemIndex] = el; }}
+              className="csv-db-dropdown-item"
+              data-focused={focusedIndex === itemIndex ? "true" : undefined}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAdd(option.value);
+              }}
             >
-              ···
-            </span>
-          </div>
-        ))}
+              <Tag value={option.value} color={option.color || "gray"} />
+              <span
+                className="csv-db-option-more-btn"
+                onClick={(e) => handleMoreClick(e, option)}
+              >
+                ···
+              </span>
+            </div>
+          );
+        })}
       </div>
       {editingOption && editAnchorRect && (
         <OptionEditPanel

@@ -29,7 +29,7 @@ export function TableRow({
   onRemoveOptionDef,
 }: TableRowProps) {
   return (
-    <tr className="csv-db-row" data-row-index={rowIdx}>
+    <tr className="csv-db-row" data-row-index={rowIdx} role="row">
       <td className="csv-db-row-drag-action">
         {canReorderRows && (
           <span
