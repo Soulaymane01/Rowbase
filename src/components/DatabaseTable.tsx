@@ -35,7 +35,7 @@ type Action =
   | { type: "REORDER_ROW"; fromRowIdx: number; toRowIdx: number; position: "before" | "after" }
   | { type: "ADD_COLUMN"; column: ColumnDef }
   | { type: "DELETE_COLUMN"; colIdx: number }
-  | { type: "UPDATE_COLUMN"; colIdx: number; name: string; colType: ColumnType; options: SelectOption[]; wrapContent: boolean; titleNoteEnabled: boolean; titleNoteFolder: string; relationTargetPath: string; relationMultiple: boolean; formula?: string; rollup?: ColumnDef["rollup"] }
+  | { type: "UPDATE_COLUMN"; colIdx: number; name: string; colType: ColumnType; options: SelectOption[]; wrapContent: boolean; titleNoteEnabled: boolean; titleNoteFolder: string; titleFolderEnabled: boolean; titleFolderPath: string; relationTargetPath: string; relationMultiple: boolean; formula?: string; rollup?: ColumnDef["rollup"] }
   | { type: "SET_COLUMN_WIDTH"; colIdx: number; width: number }
   | { type: "ADD_SELECT_OPTION"; colIdx: number; option: SelectOption }
   | { type: "UPDATE_SELECT_OPTION"; colIdx: number; oldValue: string; newOption: SelectOption | null }
@@ -252,6 +252,8 @@ function databaseReducer(state: DatabaseModel, action: Action): DatabaseModel {
             const updated = { ...col, type: "text" as const };
             delete updated.titleNoteEnabled;
             delete updated.titleNoteFolder;
+            delete updated.titleFolderEnabled;
+            delete updated.titleFolderPath;
             return updated;
           }
           return col;
@@ -270,9 +272,13 @@ function databaseReducer(state: DatabaseModel, action: Action): DatabaseModel {
         if (action.colType === "title") {
           updated.titleNoteEnabled = action.titleNoteEnabled;
           updated.titleNoteFolder = action.titleNoteFolder || undefined;
+          updated.titleFolderEnabled = action.titleFolderEnabled || undefined;
+          updated.titleFolderPath = action.titleFolderPath || undefined;
         } else {
           delete updated.titleNoteEnabled;
           delete updated.titleNoteFolder;
+          delete updated.titleFolderEnabled;
+          delete updated.titleFolderPath;
         }
         if (action.colType === "relation") {
           updated.relationTargetPath = action.relationTargetPath || undefined;
@@ -749,8 +755,8 @@ export function DatabaseTable({
         col,
         model.columns,
         databasePath,
-        (name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, relationTargetPath, relationMultiple, formula, rollup) => {
-          dispatch({ type: "UPDATE_COLUMN", colIdx: dataIdx, name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, relationTargetPath, relationMultiple, formula, rollup });
+        (name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup) => {
+          dispatch({ type: "UPDATE_COLUMN", colIdx: dataIdx, name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup });
         },
         () => {
           dispatch({ type: "DELETE_COLUMN", colIdx: dataIdx });

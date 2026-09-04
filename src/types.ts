@@ -13,6 +13,8 @@ export interface ColumnDef {
   options?: SelectOption[];
   titleNoteEnabled?: boolean;
   titleNoteFolder?: string;
+  titleFolderEnabled?: boolean;
+  titleFolderPath?: string;
   relationTargetPath?: string;
   relationMultiple?: boolean;
   width?: number;

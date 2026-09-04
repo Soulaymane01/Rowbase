@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ColumnDef } from "../types";
 import { useApp, useDatabasePath } from "../AppContext";
 import { openTitleNote, titleNoteExists } from "../title-utils";
+import { openTitleFolder, titleFolderExists } from "../folder-utils";
 
 interface TitleCellProps {
   value: string;
@@ -17,6 +18,8 @@ export function TitleCell({ value, column, onChange }: TitleCellProps) {
   const databasePath = useDatabasePath();
   const linkToNote = column.titleNoteEnabled !== false;
   const exists = linkToNote && titleNoteExists(app, value, column, databasePath);
+  const linkToFolder = column.titleFolderEnabled === true;
+  const folderExists = linkToFolder && titleFolderExists(app, value, column, databasePath);
 
   useEffect(() => {
     if (editing) {
@@ -39,6 +42,11 @@ export function TitleCell({ value, column, onChange }: TitleCellProps) {
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
     void openTitleNote(app, value, column, databasePath);
+  };
+
+  const handleOpenFolder = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    void openTitleFolder(app, value, column, databasePath);
   };
 
   if (editing) {
@@ -81,6 +89,14 @@ export function TitleCell({ value, column, onChange }: TitleCellProps) {
               onClick={handleOpen}
             >
               {exists ? "OPEN" : "CREATE"}
+            </button>
+          )}
+          {linkToFolder && (
+            <button
+              className={`csv-db-note-open-btn${folderExists ? "" : " is-create"}`}
+              onClick={handleOpenFolder}
+            >
+              {folderExists ? "FOLDER" : "CREATE"}
             </button>
           )}
         </span>

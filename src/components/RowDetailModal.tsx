@@ -15,6 +15,7 @@ import { getTypeIconElement } from "./TypeIcon";
 import { getNoteDisplayName, notePathExists, openNoteValue } from "../note-utils";
 import { loadRelationRecords, splitRelationValue } from "../relation-utils";
 import { openTitleNote, titleNoteExists } from "../title-utils";
+import { openTitleFolder, titleFolderExists } from "../folder-utils";
 
 interface RowDetailFieldProps {
   col: ColumnDef;
@@ -78,10 +79,18 @@ function RowDetailField({
         if (col.type === "title") {
           const linkToNote = col.titleNoteEnabled !== false;
           const exists = linkToNote && titleNoteExists(app, value, col, databasePath);
+          const linkToFolder = col.titleFolderEnabled === true;
+          const folderExists = linkToFolder && titleFolderExists(app, value, col, databasePath);
           const handleOpen = (e: React.MouseEvent) => {
             e.stopPropagation();
             if (value) {
               void openTitleNote(app, value, col, databasePath);
+            }
+          };
+          const handleOpenFolder = (e: React.MouseEvent) => {
+            e.stopPropagation();
+            if (value) {
+              void openTitleFolder(app, value, col, databasePath);
             }
           };
           return (
@@ -105,6 +114,14 @@ function RowDetailField({
                   onClick={handleOpen}
                 >
                   {exists ? "OPEN" : "CREATE"}
+                </button>
+              )}
+              {value && linkToFolder && (
+                <button
+                  className={`csv-db-note-open-btn${folderExists ? "" : " is-create"}`}
+                  onClick={handleOpenFolder}
+                >
+                  {folderExists ? "FOLDER" : "CREATE"}
                 </button>
               )}
             </div>
