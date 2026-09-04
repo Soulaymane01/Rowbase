@@ -2012,29 +2012,35 @@ body.csv-db-card-dragging {
 .csv-db-stats-bar { height: 100%; background: var(--interactive-accent); }
 .csv-db-stats-count { min-width: 24px; text-align: right; color: var(--text-muted); }
 .csv-db-stats-empty { color: var(--text-muted); padding: 24px; text-align: center; }
-.csv-db-timeline-v2 { display: flex; flex-direction: column; height: 100%; overflow: auto; padding: 12px; gap: 0; }
-.csv-db-timeline-header { display: flex; align-items: stretch; gap: 8px; padding: 6px 0 8px; border-bottom: 2px solid var(--background-modifier-border); position: sticky; top: 0; background: var(--background-primary); z-index: 1; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-.csv-db-timeline-header-label { min-width: 140px; }
-.csv-db-timeline-header-track { flex: 1; position: relative; height: 20px; }
-.csv-db-timeline-header-dates { min-width: 150px; text-align: right; }
-.csv-db-timeline-grid { position: absolute; inset: 0; }
-.csv-db-timeline-grid-line { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--background-modifier-border); opacity: 0.6; }
-.csv-db-timeline-ticks { position: absolute; inset: 0; }
-.csv-db-timeline-tick-label { position: absolute; top: 0; transform: translateX(-50%); font-size: 10px; color: var(--text-faint); white-space: nowrap; }
-.csv-db-timeline-now { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--color-red); opacity: 0.9; }
-.csv-db-timeline-now span { position: absolute; top: -4px; left: 4px; font-size: 9px; color: var(--color-red); font-weight: 700; white-space: nowrap; }
-.csv-db-timeline-body { display: flex; flex-direction: column; }
-.csv-db-timeline-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--background-modifier-border); cursor: pointer; }
-.csv-db-timeline-row:hover { background: var(--background-modifier-hover); }
-.csv-db-timeline-label { min-width: 140px; font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.csv-db-timeline-track { flex: 1; height: 28px; position: relative; display: flex; align-items: center; background: var(--background-secondary); border-radius: 6px; overflow: hidden; }
-.csv-db-timeline-grid-bg { position: absolute; inset: 0; }
-.csv-db-timeline-bar { position: absolute; top: 50%; transform: translateY(-50%); height: 18px; border-radius: 9px; display: flex; align-items: center; padding: 0 8px; font-size: 11px; color: white; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.15); overflow: hidden; white-space: nowrap; }
-.csv-db-timeline-bar.is-active { background: var(--interactive-accent); }
-.csv-db-timeline-bar.is-past { background: var(--text-faint); opacity: 0.85; }
-.csv-db-timeline-bar.is-future { background: var(--color-green); }
-.csv-db-timeline-bar-label { overflow: hidden; text-overflow: ellipsis; }
-.csv-db-timeline-dates { font-size: 11px; color: var(--text-faint); min-width: 150px; text-align: right; white-space: nowrap; }
+/* Timeline / Gantt */
+.csv-db-gantt { display: flex; flex-direction: column; height: 100%; overflow: hidden; font-size: 13px; }
+.csv-db-gantt-header { display: flex; border-bottom: 2px solid var(--background-modifier-border); position: sticky; top: 0; z-index: 2; background: var(--background-primary); }
+.csv-db-gantt-label-col { min-width: 160px; max-width: 200px; flex-shrink: 0; padding: 0 12px; display: flex; align-items: center; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+.csv-db-gantt-timeline-col { flex: 1; position: relative; overflow: hidden; }
+.csv-db-gantt-date-axis { position: relative; height: 32px; }
+.csv-db-gantt-tick { position: absolute; top: 0; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.csv-db-gantt-tick-text { font-size: 10px; color: var(--text-faint); white-space: nowrap; padding: 4px 0 2px; }
+.csv-db-gantt-tick-line { width: 1px; flex: 1; background: var(--background-modifier-border); }
+.csv-db-gantt-today-marker { position: absolute; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; z-index: 1; }
+.csv-db-gantt-today-label { font-size: 9px; font-weight: 700; color: var(--color-red); text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 0; white-space: nowrap; }
+.csv-db-gantt-today-marker::after { content: ""; width: 2px; flex: 1; background: var(--color-red); opacity: 0.7; }
+.csv-db-gantt-body { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.csv-db-gantt-row { display: flex; align-items: stretch; min-height: 36px; cursor: pointer; border-bottom: 1px solid var(--background-modifier-border); }
+.csv-db-gantt-row:hover { background: var(--background-modifier-hover); }
+.csv-db-gantt-row.even { background: transparent; }
+.csv-db-gantt-row.odd { background: var(--background-secondary); }
+.csv-db-gantt-row .csv-db-gantt-label-col { display: flex; align-items: center; border-right: 1px solid var(--background-modifier-border); }
+.csv-db-gantt-row-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.csv-db-gantt-row .csv-db-gantt-timeline-col { position: relative; }
+.csv-db-gantt-grid { position: absolute; inset: 0; pointer-events: none; }
+.csv-db-gantt-gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--background-modifier-border); opacity: 0.6; }
+.csv-db-gantt-today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--color-red); opacity: 0.5; z-index: 1; }
+.csv-db-gantt-bar { position: absolute; top: 50%; transform: translateY(-50%); height: 18px; border-radius: 9px; z-index: 2; cursor: grab; overflow: hidden; }
+.csv-db-gantt-bar:active { cursor: grabbing; }
+.csv-db-gantt-bar.active { background: var(--interactive-accent); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+.csv-db-gantt-bar.done { background: var(--text-faint); opacity: 0.7; }
+.csv-db-gantt-bar.future { background: var(--color-green); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+.csv-db-gantt-bar-text { position: absolute; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 600; color: white; white-space: nowrap; pointer-events: none; line-height: 18px; }
 
 /* — Polish: airy table and states — */
 .csv-db-table tbody tr:hover { background: var(--background-modifier-hover); }
