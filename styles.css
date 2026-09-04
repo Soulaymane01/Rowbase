@@ -2027,8 +2027,6 @@ body.csv-db-card-dragging {
 .csv-db-gantt-body { flex: 1; overflow-y: auto; overflow-x: hidden; }
 .csv-db-gantt-row { display: flex; align-items: stretch; min-height: 36px; cursor: pointer; border-bottom: 1px solid var(--background-modifier-border); }
 .csv-db-gantt-row:hover { background: var(--background-modifier-hover); }
-.csv-db-gantt-row.even { background: transparent; }
-.csv-db-gantt-row.odd { background: var(--background-secondary); }
 .csv-db-gantt-row .csv-db-gantt-label-col { display: flex; align-items: center; border-right: 1px solid var(--background-modifier-border); }
 .csv-db-gantt-row-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .csv-db-gantt-row-status { font-size: 10px; padding: 1px 6px; border-radius: 4px; background: var(--background-modifier-border); color: var(--text-muted); white-space: nowrap; margin-left: 6px; }
@@ -2039,6 +2037,13 @@ body.csv-db-card-dragging {
 .csv-db-gantt-bar { position: absolute; top: 50%; transform: translateY(-50%); height: 18px; border-radius: 9px; z-index: 2; cursor: grab; overflow: hidden; }
 .csv-db-gantt-bar:active { cursor: grabbing; }
 .csv-db-gantt-bar-text { position: absolute; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 600; color: white; white-space: nowrap; pointer-events: none; line-height: 18px; }
+.csv-db-gantt-group-header { display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none; border-bottom: 1px solid var(--background-modifier-border); background: var(--background-secondary); }
+.csv-db-gantt-group-header:hover { background: var(--background-modifier-hover); }
+.csv-db-gantt-group-arrow { font-size: 10px; width: 12px; text-align: center; }
+.csv-db-gantt-group-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.csv-db-gantt-group-name { flex: 1; }
+.csv-db-gantt-group-count { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: var(--background-modifier-border); color: var(--text-faint); }
+.csv-db-gantt-row.focused { outline: 2px solid var(--interactive-accent); outline-offset: -2px; border-radius: 4px; }
 
 /* — Polish: airy table and states — */
 .csv-db-table tbody tr:hover { background: var(--background-modifier-hover); }

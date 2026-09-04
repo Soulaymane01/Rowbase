@@ -1,7 +1,7 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { ColumnDef, SelectOption } from "../types";
 import { QueryResultRow } from "../query/record";
-import { buildTimelineItems } from "../query/timeline";
+import { buildTimelineItems, TimelineItem } from "../query/timeline";
 
 interface TimelineViewProps { rows: QueryResultRow[]; columns: ColumnDef[]; onCardClick: (idx:number)=>void; }
 
@@ -65,19 +65,27 @@ function resolveBarStyle(statusVal: string, now: number, start: number, end: num
   return { background: "var(--interactive-accent)" };
 }
 
+function groupByStatus(items: TimelineItem[], statusIdx: number): Map<string, TimelineItem[]> {
+  const groups = new Map<string, TimelineItem[]>();
+  for (const it of items) {
+    const key = statusIdx !== -1 ? it.row[statusIdx] || "—" : "All";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(it);
+  }
+  return groups;
+}
+
 export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const [focusedIdx, setFocusedIdx] = useState<number>(-1);
 
   const onHeaderScroll = useCallback(() => {
-    if (bodyRef.current && headerRef.current) {
-      bodyRef.current.scrollLeft = headerRef.current.scrollLeft;
-    }
+    if (bodyRef.current && headerRef.current) bodyRef.current.scrollLeft = headerRef.current.scrollLeft;
   }, []);
   const onBodyScroll = useCallback(() => {
-    if (bodyRef.current && headerRef.current) {
-      headerRef.current.scrollLeft = bodyRef.current.scrollLeft;
-    }
+    if (bodyRef.current && headerRef.current) headerRef.current.scrollLeft = bodyRef.current.scrollLeft;
   }, []);
 
   const startIdx = columns.findIndex((c)=>/^(start|from|begin)/i.test(c.name) || c.type==="date");
@@ -87,11 +95,11 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
   const labelIdx = 0;
 
   if (startIdx===-1 || endIdx===-1) return <div className="csv-db-stats-empty">Add Start and End/Due date columns to use Timeline.</div>;
-  const items = buildTimelineItems(rows, startIdx, endIdx, labelIdx);
-  if (items.length===0) return <div className="csv-db-stats-empty">No dated rows to show on Timeline.</div>;
+  const allItems = buildTimelineItems(rows, startIdx, endIdx, labelIdx);
+  if (allItems.length===0) return <div className="csv-db-stats-empty">No dated rows to show on Timeline.</div>;
 
-  const min = Math.min(...items.map((i)=>i.start.getTime()));
-  const max = Math.max(...items.map((i)=>i.end.getTime()));
+  const min = Math.min(...allItems.map((i)=>i.start.getTime()));
+  const max = Math.max(...allItems.map((i)=>i.end.getTime()));
   const pad = Math.max((max - min) * 0.04, 86400000);
   const pMin = min - pad;
   const pMax = max + pad;
@@ -100,12 +108,50 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
   const now = Date.now();
   const { unit, step } = getTickInterval(spanDays);
   const ticks = generateTicks(pMin, pMax, unit, step);
-
   const pct = (t: number) => ((t - pMin) / span) * 100;
   const todayPct = now >= pMin && now <= pMax ? pct(now) : -1;
 
+  const groups = groupByStatus(allItems, statusIdx);
+  const groupOrder = statusIdx !== -1
+    ? Array.from(groups.keys()).sort((a,b) => {
+        const aIdx = (columns[statusIdx].options || []).findIndex(o => o.value === a);
+        const bIdx = (columns[statusIdx].options || []).findIndex(o => o.value === b);
+        return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
+      })
+    : ["All"];
+
+  const toggleGroup = (g: string) => setCollapsedGroups(prev => {
+    const next = new Set(prev);
+    next.has(g) ? next.delete(g) : next.add(g);
+    return next;
+  });
+
+  // Build flat list of visible items for keyboard nav
+  const visibleItems: { item: TimelineItem; group: string }[] = [];
+  for (const g of groupOrder) {
+    const gi = groups.get(g) || [];
+    for (const it of gi) visibleItems.push({ item: it, group: g });
+  }
+
+  // Auto-scroll to today on mount
+  useEffect(() => {
+    if (todayPct > 0 && bodyRef.current) {
+      const el = bodyRef.current;
+      const target = (todayPct / 100) * el.scrollWidth - el.clientWidth / 2;
+      el.scrollLeft = Math.max(0, target);
+    }
+  }, []);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setFocusedIdx(prev => Math.min(prev + 1, visibleItems.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setFocusedIdx(prev => Math.max(prev - 1, 0)); }
+    else if (e.key === "Enter" && focusedIdx >= 0 && focusedIdx < visibleItems.length) {
+      onCardClick(visibleItems[focusedIdx].item.originalIndex);
+    }
+  }, [visibleItems.length, focusedIdx, onCardClick]);
+
   return (
-    <div className="csv-db-gantt">
+    <div className="csv-db-gantt" tabIndex={0} onKeyDown={handleKeyDown}>
       <div className="csv-db-gantt-header" ref={headerRef} onScroll={onHeaderScroll}>
         <div className="csv-db-gantt-label-col" />
         <div className="csv-db-gantt-timeline-col">
@@ -125,30 +171,46 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
         </div>
       </div>
       <div className="csv-db-gantt-body" ref={bodyRef} onScroll={onBodyScroll}>
-        {items.map((it, idx) => {
-          const left = pct(it.start.getTime());
-          const right = pct(it.end.getTime());
-          const width = Math.max(right - left, 0.6);
-          const days = Math.round((it.end.getTime() - it.start.getTime()) / 86400000);
-          const statusVal = statusIdx !== -1 ? it.row[statusIdx] || "" : "";
-          const barStyle = resolveBarStyle(statusVal, now, it.start.getTime(), it.end.getTime(), statusOpt);
+        {groupOrder.map((groupName) => {
+          const items = groups.get(groupName) || [];
+          const collapsed = collapsedGroups.has(groupName);
+          const colorKey = statusIdx !== -1 ? getStatusColor(groupName, statusOpt) : "";
+          const dotColor = colorKey && STATUS_COLORS[colorKey] ? STATUS_COLORS[colorKey] : "var(--text-muted)";
           return (
-            <div key={it.originalIndex} className={`csv-db-gantt-row ${idx % 2 === 0 ? "even" : "odd"}`} onClick={()=>onCardClick(it.originalIndex)}>
-              <div className="csv-db-gantt-label-col">
-                <span className="csv-db-gantt-row-label" title={it.label}>{it.label}</span>
-                {statusVal && <span className="csv-db-gantt-row-status">{statusVal}</span>}
+            <div key={groupName} className="csv-db-gantt-group">
+              <div className="csv-db-gantt-group-header" onClick={() => toggleGroup(groupName)}>
+                <span className="csv-db-gantt-group-arrow">{collapsed ? "▸" : "▾"}</span>
+                <span className="csv-db-gantt-group-dot" style={{ background: dotColor }} />
+                <span className="csv-db-gantt-group-name">{groupName}</span>
+                <span className="csv-db-gantt-group-count">{items.length}</span>
               </div>
-              <div className="csv-db-gantt-timeline-col">
-                <div className="csv-db-gantt-grid">
-                  {ticks.map((_,i)=>(<div key={i} className="csv-db-gantt-gridline" style={{ left: `${pct(ticks[i].t)}%` }} />))}
-                  {todayPct >= 0 && <div className="csv-db-gantt-today-line" style={{ left: `${todayPct}%` }} />}
-                </div>
-                <div className="csv-db-gantt-bar"
-                  style={{ left: `${left}%`, width: `${width}%`, ...barStyle }}
-                  title={`${it.start.toISOString().slice(0,10)} → ${it.end.toISOString().slice(0,10)} (${days}d)${statusVal ? " ["+statusVal+"]" : ""}`}>
-                  {width > 8 && <span className="csv-db-gantt-bar-text">{days > 0 ? `${days}d` : ""}</span>}
-                </div>
-              </div>
+              {!collapsed && items.map((it) => {
+                const left = pct(it.start.getTime());
+                const right = pct(it.end.getTime());
+                const width = Math.max(right - left, 0.6);
+                const days = Math.round((it.end.getTime() - it.start.getTime()) / 86400000);
+                const statusVal = statusIdx !== -1 ? it.row[statusIdx] || "" : "";
+                const barStyle = resolveBarStyle(statusVal, now, it.start.getTime(), it.end.getTime(), statusOpt);
+                const isFocused = focusedIdx >= 0 && visibleItems[focusedIdx]?.item.originalIndex === it.originalIndex;
+                return (
+                  <div key={it.originalIndex} className={`csv-db-gantt-row ${isFocused ? "focused" : ""}`} onClick={()=>onCardClick(it.originalIndex)}>
+                    <div className="csv-db-gantt-label-col">
+                      <span className="csv-db-gantt-row-label" title={it.label}>{it.label}</span>
+                    </div>
+                    <div className="csv-db-gantt-timeline-col">
+                      <div className="csv-db-gantt-grid">
+                        {ticks.map((_,i)=>(<div key={i} className="csv-db-gantt-gridline" style={{ left: `${pct(ticks[i].t)}%` }} />))}
+                        {todayPct >= 0 && <div className="csv-db-gantt-today-line" style={{ left: `${todayPct}%` }} />}
+                      </div>
+                      <div className="csv-db-gantt-bar"
+                        style={{ left: `${left}%`, width: `${width}%`, ...barStyle }}
+                        title={`${it.label}\n${it.start.toISOString().slice(0,10)} → ${it.end.toISOString().slice(0,10)} (${days}d)${statusVal ? "\nStatus: "+statusVal : ""}`}>
+                        {width > 8 && <span className="csv-db-gantt-bar-text">{days > 0 ? `${days}d` : ""}</span>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           );
         })}
