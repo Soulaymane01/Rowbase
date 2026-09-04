@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { parseCSV, serializeCSV } from "../src/csv-parser.ts";
 
-test("parses and round-trips the upstream csvdb format", () => {
+test("parses and round-trips the rbase format", () => {
   // Header cells are CSV-quoted with doubled inner quotes, exactly as
   // Papa.unparse (serializeCSV) emits them. The first column's header cell
   // carries the metadata (views + formatVersion).

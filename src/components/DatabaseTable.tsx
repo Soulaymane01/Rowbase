@@ -801,9 +801,9 @@ export function DatabaseTable({
         const newModel: DatabaseModel = { columns: cols, rows, views: [{ name: "Default", sorts: [], filters: [], hiddenColumns: [] }], formatVersion: 1 };
         const base = file.name.replace(/\.csv$/i, "");
         const folder = databasePath.includes("/") ? databasePath.substring(0, databasePath.lastIndexOf("/")) : "";
-        let path = normalizePath(folder ? `${folder}/${base}.csvdb` : `${base}.csvdb`);
+        let path = normalizePath(folder ? `${folder}/${base}.rbase` : `${base}.rbase`);
         let i = 1;
-        while (app.vault.getAbstractFileByPath(path)) { path = normalizePath(folder ? `${folder}/${base} ${i}.csvdb` : `${base} ${i}.csvdb`); i++; }
+        while (app.vault.getAbstractFileByPath(path)) { path = normalizePath(folder ? `${folder}/${base} ${i}.rbase` : `${base} ${i}.rbase`); i++; }
         await app.vault.create(path, serializeCSV(newModel));
         new Notice(`Created ${path}`);
       } else {
@@ -833,7 +833,7 @@ export function DatabaseTable({
     const headers = model.columns.map((c) => c.name);
     const content = format === "csv" ? exportToPlainCSV(headers, model.rows) : exportToJSON(model.columns, model.rows);
     const ext = format === "csv" ? "csv" : "json";
-    const base = databasePath.replace(/\.csvdb$/i, "");
+    const base = databasePath.replace(/\.rbase$/i, "");
     const path = normalizePath(`${base}.${ext}`);
     const existing = app.vault.getAbstractFileByPath(path);
     if (existing) await app.vault.delete(existing as any);

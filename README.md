@@ -1,59 +1,70 @@
 # Rowbase
 
-Rowbase is an [Obsidian](https://obsidian.md) plugin that provides an interactive database view backed by `.csvdb` files — each database is a single `.csvdb` file that stores its rows and column metadata in a human-readable CSV format. It supports multiple column types, inline editing, and more.
+Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style databases to your vault. Each database is a single `.rbase` file — a human-readable CSV with JSON column metadata — that opens in a rich, interactive view with multiple layouts, formulas, relations, and more.
 
-Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github.com/jysperm/obsidian-csv-database). The `.csvdb` extension is registered natively and opens in a dedicated Obsidian view, so databases are never embedded as SQL code blocks in your notes.
-
-<p align="center">
-  <img src="screenshots/overall.png" alt="Database view with multiple column types" /><br />
-  <span>Database view with multiple column types</span>
-</p>
+Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github.com/jysperm/obsidian-csv-database). The `.rbase` extension is registered natively and opens in a dedicated Obsidian view.
 
 <p align="center">
-  <img src="screenshots/views-and-filters.png" width="560" alt="Multiple views with sort and filter" /><br />
-  <span>Multiple views with sort and filter</span>
-</p>
-
-<p align="center">
-  <img src="screenshots/inline-editing.png" width="380" alt="Inline editing with multi-select dropdown" /><br />
-  <span>Inline editing with multi-select dropdown</span>
-</p>
-
-<p align="center">
-  <img src="screenshots/layout-kanban.png" width="680" alt="Board layout with drag-and-drop" /><br />
-  <span>Board layout with drag-and-drop</span>
+  <img src="assets/icon-128.png" alt="Rowbase icon" width="96" />
 </p>
 
 ## Features
 
-- **Rich column types**: text, number, date, checkbox, select, multi-select, note, title, and relation
-- **Inline editing**: click any cell to edit its value directly
-- **Manual row ordering**: drag rows to adjust their order
-- **Column management**: rename, change type, configure options, resize, reorder, and delete columns
-- **Wrap content**: per-column toggle to wrap cell content to multiple lines
-- **Select & multi-select**: color-coded tags with a dropdown picker
-- **Title & relation**: give each row a unique title and reference rows from other databases
-- **Multiple views**: create named views, each with its own sort, filter, and column visibility settings
-- **Board layout**: kanban-style board view grouped by a select column, with drag-and-drop between columns
-- **Sort & filter**: sort by multiple columns, filter with contains / does not contain / is empty / is not empty operators
-- **Auto-save**: all changes are saved back to the CSV file immediately
+### Views
+- **Table** — Full-featured spreadsheet with inline editing, sorting, filtering, column resizing, and row reordering
+- **Kanban** — Drag-and-drop board grouped by a select column
+- **List** — Compact grouped rows with collapsible sections
+- **Gallery** — Card grid with cover images and clickable detail modals
+- **Chart** — Bar, Line, Pie, and Area charts with aggregation and color-by options
+- **Stats** — Summary cards, numeric stats, select color distribution, and date distribution
+- **Timeline** — Gantt-style timeline with status colors, grid lines, today marker, zoom, and tooltips
+- **Dashboard** — Habit tracking with streaks, completion rings, and activity calendar heatmap
+
+### Column Types
+- Text, Number, Date, Checkbox, Select, Multi-select, Title, Note, Relation, Rollup, Formula
+
+### Data & Computation
+- **Formulas** — Safe expression evaluator with cell references and cross-relation aggregation (SUM, AVG, COUNT, MIN, MAX)
+- **Rollups** — Aggregate related rows (sum, count, avg, min, max) across relation columns
+- **Relations** — Link rows across databases; preloaded resolver with cache for fast cross-file lookups
+- **Sorting** — Multi-column sort with ascending/descending toggle
+- **Filtering** — Text (contains, starts with, is empty), Number (>, <, between), Date (before, after, between), Select (is, is not), Checkbox filters
+- **Grouping** — Group rows by any column with collapsible sections
+
+### UI/UX
+- **Inline editing** — Click any cell to edit; text, number, date, and select types all editable in place
+- **Undo/Redo** — Cmd+Z / Cmd+Shift+Z with 100-step history stack
+- **Column management** — Add, rename, resize (double-click to auto-fit), reorder, delete columns via context menu
+- **Title linking** — Open or create notes from title cells; configure note folder per column
+- **Folder linking** — Create folders directly from title cells; configure default folder per column
+- **Multi-select keyboard nav** — Arrow keys, Enter to select, Escape to close
+- **Empty states** — Friendly placeholder with icons when databases or views are empty
+- **Mobile responsive** — Optimized for tablets and phones with touch-friendly targets
+- **Import/Export** — Import CSV files into databases; export to CSV or JSON
+- **Plugin settings** — Default folder, template name, template columns, note/folder linking defaults
 
 ## Installation
 
-Rowbase is not yet in the Obsidian community plugin directory. Install it via [BRAT](https://github.com/TfTHacker/obsidian42-brat):
+### Community Plugin (recommended)
+1. Open **Settings** → **Community Plugins** → **Browse**
+2. Search for **Rowbase** and install it
+3. Enable **Rowbase** in **Settings** → **Community Plugins**
 
-1. Install the **BRAT** plugin from **Settings** → **Community Plugins** → **Browse**
-2. Open BRAT settings, click **Add Beta Plugin**
-3. Enter the repository URL for the Rowbase fork and click **Add Plugin**
+### Manual installation
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/Soulaymane01/rowbase/releases)
+2. Create a folder `rowbase` in your vault's `.obsidian/plugins/` directory
+3. Copy the three files into that folder
 4. Enable **Rowbase** in **Settings** → **Community Plugins**
 
 ## Usage
 
-1. Use the command palette (`Ctrl/Cmd + P`) and run **Create new database** to create a `.csvdb` file
+1. Use the command palette (`Ctrl/Cmd + P`) and run **Create new database** to create a `.rbase` file
 2. Add columns using the **+** button in the header row
 3. Add rows using the **+ New** button at the bottom
+4. Switch views using the view selector in the toolbar
+5. Sort, filter, and group rows using the toolbar controls
 
-The `.csvdb` file is a standard CSV file with column metadata encoded in the header row. It remains human-readable and can be opened with any text editor or spreadsheet application.
+The `.rbase` file is a standard CSV file with column metadata encoded in the header row. It remains human-readable and can be opened with any text editor or spreadsheet application.
 
 ## Development
 
@@ -81,16 +92,6 @@ npm run build            # produces main.js
 npm run test:offline     # scans src/ and main.js for network/dynamic-code behavior
 ```
 
-The audit (`test-offline-baseline.mjs`) rejects `fetch`, `XMLHttpRequest`,
-`WebSocket`, `http(s)://`, `127.0.0.1`, `localhost`, `eval`, and
-`new Function(` in Rowbase's runtime source and in the built bundle. It ignores
-fork documentation (`UPSTREAM.md`), README installation links, package-lock
-metadata, and comments that document the audit itself. Inert string constants
-and dead code paths carried inside the preserved bundled dependencies (for
-example React DOM's XML namespace identifiers and papaparse's unused remote
-download path) are permitted and documented in the test, since bundled
-dependencies are not removed.
-
 ## License
 
-The majority of this code was written by Claude Code (Opus), but all code has been thoroughly reviewed and tested by a human. The upstream project is by jysperm and is licensed under the MIT License; that license and attribution are preserved in [LICENSE](LICENSE). Rowbase is itself released under the [MIT License](LICENSE).
+The upstream project is by jysperm and is licensed under the MIT License; that license and attribution are preserved in [LICENSE](LICENSE). Rowbase is itself released under the [MIT License](LICENSE).

@@ -3,8 +3,8 @@
   "name": "Rowbase",
   "version": "0.3.0",
   "minAppVersion": "0.16.0",
-  "description": "Interactive Notion-style database for Obsidian — table, kanban, list, gallery, chart, timeline, stats, and dashboard views backed by human-readable .csvdb files. Supports formulas, rollups, relations, sorting, filtering, grouping, and import/export.",
+  "description": "Interactive Notion-style database for Obsidian — table, kanban, list, gallery, chart, timeline, stats, and dashboard views backed by human-readable .rbase files. Supports formulas, rollups, relations, sorting, filtering, grouping, and import/export.",
   "author": "soulaymane",
-  "authorUrl": "https://github.com/soulaymane",
+  "authorUrl": "https://github.com/Soulaymane01",
   "isDesktopOnly": false
 }

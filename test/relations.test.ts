@@ -79,7 +79,7 @@ const targetModel: DatabaseModel = {
 
 const sourceColumns: ColumnDef[] = [
   { name: "Name", type: "text" },
-  { name: "Tasks", type: "relation", relationTargetPath: "target.csvdb", relationMultiple: true },
+  { name: "Tasks", type: "relation", relationTargetPath: "target.rbase", relationMultiple: true },
   { name: "Total", type: "rollup", rollup: { relationColumn: "Tasks", targetColumn: "Amount", handler: "sum" } },
   { name: "TaskCount", type: "rollup", rollup: { relationColumn: "Tasks", targetColumn: "Amount", handler: "count" } },
 ];
@@ -96,7 +96,7 @@ const sourceModel: DatabaseModel = {
 
 function makeResolver(): RelationResolver {
   return (opts) => {
-    if (opts.targetPath === "target.csvdb") {
+    if (opts.targetPath === "target.rbase") {
       const allRows = targetModel.rows.map((r) => ({ row: r }));
       if (opts.value) {
         const keys = new Set(splitMultiSelect(opts.value));
@@ -139,7 +139,7 @@ test("runQuery rollup without resolver returns empty", () => {
 
 const formulaColumns: ColumnDef[] = [
   { name: "Name", type: "text" },
-  { name: "Tasks", type: "relation", relationTargetPath: "target.csvdb", relationMultiple: true },
+  { name: "Tasks", type: "relation", relationTargetPath: "target.rbase", relationMultiple: true },
   { name: "AvgAmount", type: "formula", formula: "AVG(Tasks.Amount)" },
 ];
 
@@ -162,7 +162,7 @@ test("runQuery formula AVG across relation", () => {
 test("runQuery formula SUM across relation", () => {
   const sumColumns: ColumnDef[] = [
     { name: "Name", type: "text" },
-    { name: "Tasks", type: "relation", relationTargetPath: "target.csvdb", relationMultiple: true },
+    { name: "Tasks", type: "relation", relationTargetPath: "target.rbase", relationMultiple: true },
     { name: "Total", type: "formula", formula: "SUM(Tasks.Amount)" },
   ];
   const sumModel: DatabaseModel = {

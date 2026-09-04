@@ -1,13 +1,13 @@
 {
   "name": "rowbase",
   "version": "0.3.0",
-  "description": "Rowbase — interactive database view backed by .csvdb files, with rich column types, multiple views, sort & filter.",
+  "description": "Rowbase — interactive Notion-style database for Obsidian with multiple views, formulas, rollups, relations, and more.",
   "main": "main.js",
   "license": "MIT",
-  "author": "jysperm",
+  "author": "soulaymane",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jysperm/obsidian-csv-database.git"
+    "url": "https://github.com/Soulaymane01/rowbase.git"
   },
   "scripts": {
     "dev": "node esbuild.config.mjs",
@@ -15,13 +15,13 @@
     "test:metadata": "node test-baseline-metadata.mjs",
     "test:offline": "node test-offline-baseline.mjs",
     "typecheck": "tsc --noEmit",
-    "test:csvdb": "tsx --test test/csv-parser.test.ts",
+    "test:rbase": "tsx --test test/csv-parser.test.ts",
     "test:chart": "tsx --test test/chart.test.ts",
     "test:query": "tsx --test test/group.test.ts test/query-resolve.test.ts test/query-compare.test.ts test/query-filter.test.ts test/query-sort.test.ts",
     "test:formula": "tsx --test test/formula.test.ts",
     "test:rollup": "tsx --test test/rollup.test.ts",
     "test:queryFormula": "tsx --test test/query-formula.test.ts",
-    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:csvdb && npm run test:query && npm run test:chart && npm run test:formula && npm run test:rollup && npm run test:queryFormula && npm run build && npm run test:offline"
+    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:rbase && npm run test:query && npm run test:chart && npm run test:formula && npm run test:rollup && npm run test:queryFormula && npm run build && npm run test:offline"
   },
   "devDependencies": {
     "@codemirror/state": "^6.5.0",

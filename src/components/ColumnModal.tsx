@@ -181,9 +181,9 @@ function ColumnModalContent({ app, column, columns, databasePath, onSave, onDele
     }
 
     let cancelled = false;
-    const csvdbFiles = app.vault.getFiles().filter((file) => file.extension === "csvdb");
+    const rbaseFiles = app.vault.getFiles().filter((file) => file.extension === "rbase");
     void Promise.all(
-      csvdbFiles.map(async (file) => ({
+      rbaseFiles.map(async (file) => ({
         file,
         hasTitle: file.path === databasePath
           ? columns.some((c) => c.type === "title")

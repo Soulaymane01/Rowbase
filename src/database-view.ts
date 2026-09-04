@@ -5,7 +5,7 @@ import { parseCSV, serializeCSV } from "./csv-parser";
 import { DatabaseModel } from "./types";
 import { DatabaseTable } from "./components/DatabaseTable";
 
-export const VIEW_TYPE_CSV_DATABASE = "csv-database-view";
+export const VIEW_TYPE_DATABASE = "rbase-database-view";
 
 export class DatabaseView extends TextFileView {
   private reactRoot: Root | null = null;
@@ -17,11 +17,11 @@ export class DatabaseView extends TextFileView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_CSV_DATABASE;
+    return VIEW_TYPE_DATABASE;
   }
 
   getDisplayText(): string {
-    return this.file?.basename ?? "CSV Database";
+    return this.file?.basename ?? "Database";
   }
 
   getViewData(): string {
@@ -48,7 +48,7 @@ export class DatabaseView extends TextFileView {
 
   private mountReact(): void {
     this.contentEl.empty();
-    this.contentEl.addClass("csv-database-container");
+    this.contentEl.addClass("rbase-container");
 
     this.reactRoot = createRoot(this.contentEl);
     this.reactRoot.render(

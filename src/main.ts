@@ -1,5 +1,5 @@
 import { Plugin, WorkspaceLeaf, TFile, Notice } from "obsidian";
-import { DatabaseView, VIEW_TYPE_CSV_DATABASE } from "./database-view";
+import { DatabaseView, VIEW_TYPE_DATABASE } from "./database-view";
 import { serializeCSV } from "./csv-parser";
 import { ColumnDef } from "./types";
 import { DatabasePluginSettings, DEFAULT_SETTINGS, SettingsTab } from "./settings";
@@ -10,11 +10,11 @@ export default class DatabasePlugin extends Plugin {
   async onload() {
     await this.loadSettings();
 
-    this.registerView(VIEW_TYPE_CSV_DATABASE, (leaf: WorkspaceLeaf) => {
+    this.registerView(VIEW_TYPE_DATABASE, (leaf: WorkspaceLeaf) => {
       return new DatabaseView(leaf);
     });
 
-    this.registerExtensions(["csvdb"], VIEW_TYPE_CSV_DATABASE);
+    this.registerExtensions(["rbase"], VIEW_TYPE_DATABASE);
 
     this.addRibbonIcon("table", "New database", () => {
       this.createNewDatabase();
@@ -75,14 +75,14 @@ export default class DatabasePlugin extends Plugin {
     }
 
     const templateName = this.settings.defaultTemplateName.trim() || "Untitled Database";
-    let fileName = `${templateName}.csvdb`;
+    let         fileName = `${templateName}.rbase`;
     let counter = 1;
 
     while (this.app.vault.getAbstractFileByPath(
       folderPath ? `${folderPath}/${fileName}` : fileName
     )) {
       counter++;
-      fileName = `${templateName} ${counter}.csvdb`;
+      fileName = `${templateName} ${counter}.rbase`;
     }
 
     const filePath = folderPath ? `${folderPath}/${fileName}` : fileName;

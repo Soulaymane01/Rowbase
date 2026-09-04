@@ -10,3 +10,4 @@ dist/
 .obsidian/
 .trash/
 .release/
+data.json

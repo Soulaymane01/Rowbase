@@ -47,7 +47,7 @@ async function loadModel(app: App, filePath: string): Promise<DatabaseModel | nu
 }
 
 /**
- * Creates a RelationResolver that loads target .csvdb files from the vault.
+ * Creates a RelationResolver that loads target .rbase files from the vault.
  * The resolver is async-compatible: it returns cached models synchronously
  * when possible, and loads from disk on cache miss.
  *

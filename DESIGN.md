@@ -1,6 +1,6 @@
 # CSV Database Plugin
 
-## .csvdb File Format
+## .rbase File Format
 
 ### Format Version
 
@@ -103,9 +103,9 @@ Stored values may include the `.md` suffix or omit it. Existence checks and open
 
 Each database can have at most one `title` column. Title values are kept unique within the database by appending a numeric suffix when needed. A database must have a title column before it can be selected as a `relation` target.
 
-Title columns have a `Link to note` setting, enabled by default. When enabled, title cells show an `OPEN` / `CREATE` action and resolve notes from the title value. `titleNoteFolder` controls where those notes live and is preserved even when `Link to note` is disabled: folder paths starting with `/` are relative to the vault root, while other folder paths are relative to the current `.csvdb` file's folder. When `Link to note` is disabled, the title is only a unique row label and no note path is resolved.
+Title columns have a `Link to note` setting, enabled by default. When enabled, title cells show an `OPEN` / `CREATE` action and resolve notes from the title value. `titleNoteFolder` controls where those notes live and is preserved even when `Link to note` is disabled: folder paths starting with `/` are relative to the vault root, while other folder paths are relative to the current `.rbase` file's folder. When `Link to note` is disabled, the title is only a unique row label and no note path is resolved.
 
-Relation columns store the target row's title value. Multi-relation columns use the same pipe-separated escaping format as multiselect columns. The relation picker lists rows from the target database's title column. `relationTargetPath` uses the same path rules as `titleNoteFolder`: paths starting with `/` are relative to the vault root, while other paths are relative to the current `.csvdb` file's folder.
+Relation columns store the target row's title value. Multi-relation columns use the same pipe-separated escaping format as multiselect columns. The relation picker lists rows from the target database's title column. `relationTargetPath` uses the same path rules as `titleNoteFolder`: paths starting with `/` are relative to the vault root, while other paths are relative to the current `.rbase` file's folder.
 
 Self-relations are allowed. When a relation targets the current database, candidates are read from the in-memory model rather than re-reading the current file from disk.
 
@@ -121,7 +121,7 @@ Multiselect values are separated by `|`. To support literal `|` and `\` characte
 
 When encoding, each value has `\` escaped to `\\` and `|` escaped to `\|`, then values are joined with `|`. When decoding, the string is scanned character by character; `\` followed by any character produces that literal character; unescaped `|` splits values.
 
-See the `examples/` directory for sample `.csvdb` files.
+See the `examples/` directory for sample `.rbase` files.
 
 ## Features
 
