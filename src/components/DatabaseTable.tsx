@@ -895,7 +895,7 @@ export function DatabaseTable({
       ) : activeLayout === "stats" ? (
         <StatsView rows={filteredSortedRows} columns={model.columns} />
       ) : activeLayout === "timeline" ? (
-        <TimelineView rows={filteredSortedRows} columns={model.columns} onCardClick={handleCardClick} />
+        <TimelineView rows={filteredSortedRows} columns={model.columns} onCardClick={handleCardClick} onSetCell={handleSetCell} onDeleteRow={handleDeleteRow} />
       ) : (
         tableView
       )}

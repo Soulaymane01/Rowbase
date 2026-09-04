@@ -2051,6 +2051,12 @@ body.csv-db-card-dragging {
 .csv-db-gantt-tooltip-dates span { color: var(--text-faint); }
 .csv-db-gantt-tooltip-status { color: var(--text-muted); margin-top: 2px; }
 .csv-db-gantt-tooltip-progress { color: var(--interactive-accent); margin-top: 2px; font-weight: 500; }
+.csv-db-gantt-ctx { position: fixed; z-index: 1000; background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 8px; padding: 4px 0; box-shadow: 0 4px 16px rgba(0,0,0,0.2); min-width: 140px; }
+.csv-db-gantt-ctx-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.csv-db-gantt-ctx-item:hover { background: var(--background-modifier-hover); }
+.csv-db-gantt-ctx-item.csv-db-gantt-ctx-danger { color: var(--color-red); }
+.csv-db-gantt-ctx-sep { height: 1px; background: var(--background-modifier-border); margin: 4px 0; }
+.csv-db-gantt-ctx-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
 /* — Polish: airy table and states — */
 .csv-db-table tbody tr:hover { background: var(--background-modifier-hover); }

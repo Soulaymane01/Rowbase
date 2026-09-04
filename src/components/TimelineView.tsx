@@ -3,7 +3,12 @@ import { ColumnDef, SelectOption } from "../types";
 import { QueryResultRow } from "../query/record";
 import { buildTimelineItems, TimelineItem } from "../query/timeline";
 
-interface TimelineViewProps { rows: QueryResultRow[]; columns: ColumnDef[]; onCardClick: (idx:number)=>void; }
+interface TimelineViewProps {
+  rows: QueryResultRow[]; columns: ColumnDef[];
+  onCardClick: (idx: number) => void;
+  onSetCell: (rowIdx: number, colIdx: number, value: string) => void;
+  onDeleteRow: (rowIdx: number) => void;
+}
 
 function getTickInterval(spanDays: number) {
   if (spanDays > 365) return { unit: "month" as const, step: 3 };
@@ -76,13 +81,16 @@ function groupByStatus(items: TimelineItem[], statusIdx: number): Map<string, Ti
 }
 
 interface TooltipState { x: number; y: number; item: TimelineItem; days: number; progress?: number; statusVal: string; }
+interface ContextMenuState { x: number; y: number; item: TimelineItem; }
 
-export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) {
+export function TimelineView({ rows, columns, onCardClick, onSetCell, onDeleteRow }: TimelineViewProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [focusedIdx, setFocusedIdx] = useState<number>(-1);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [ctxMenu, setCtxMenu] = useState<ContextMenuState | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   const onHeaderScroll = useCallback(() => {
     if (bodyRef.current && headerRef.current) bodyRef.current.scrollLeft = headerRef.current.scrollLeft;
@@ -152,18 +160,33 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
     }
   }, [visibleItems.length, focusedIdx, onCardClick]);
 
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      setZoomLevel(prev => Math.min(3, Math.max(0.3, prev + (e.deltaY > 0 ? -0.1 : 0.1))));
+    }
+  }, []);
+
   const showTooltip = (e: React.MouseEvent, it: TimelineItem, days: number, statusVal: string) => {
     const progress = progressIdx !== -1 ? Number(it.row[progressIdx]) : undefined;
     setTooltip({ x: e.clientX, y: e.clientY, item: it, days, progress: Number.isNaN(progress) ? undefined : progress, statusVal });
   };
   const hideTooltip = () => setTooltip(null);
 
+  const showCtxMenu = (e: React.MouseEvent, it: TimelineItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCtxMenu({ x: e.clientX, y: e.clientY, item: it });
+  };
+  const closeCtxMenu = () => setCtxMenu(null);
+  const ctxStatusCol = statusIdx !== -1 ? columns[statusIdx] : null;
+
   return (
-    <div className="csv-db-gantt" tabIndex={0} onKeyDown={handleKeyDown}>
+    <div className="csv-db-gantt" tabIndex={0} onKeyDown={handleKeyDown} onWheel={handleWheel} onClick={closeCtxMenu}>
       <div className="csv-db-gantt-header" ref={headerRef} onScroll={onHeaderScroll}>
         <div className="csv-db-gantt-label-col" />
         <div className="csv-db-gantt-timeline-col">
-          <div className="csv-db-gantt-date-axis">
+          <div className="csv-db-gantt-date-axis" style={{ minWidth: `${100 * zoomLevel}%` }}>
             {ticks.map((tk,i)=>(
               <div key={i} className="csv-db-gantt-tick" style={{ left: `${pct(tk.t)}%` }}>
                 <span className="csv-db-gantt-tick-text">{tk.label}</span>
@@ -207,7 +230,7 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
                       <span className="csv-db-gantt-row-label" title={it.label}>{it.label}</span>
                     </div>
                     <div className="csv-db-gantt-timeline-col">
-                      <div className="csv-db-gantt-grid">
+                      <div className="csv-db-gantt-grid" style={{ minWidth: `${100 * zoomLevel}%` }}>
                         {ticks.map((_,i)=>(<div key={i} className="csv-db-gantt-gridline" style={{ left: `${pct(ticks[i].t)}%` }} />))}
                         {todayPct >= 0 && <div className="csv-db-gantt-today-line" style={{ left: `${todayPct}%` }} />}
                       </div>
@@ -215,7 +238,8 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
                         style={{ left: `${left}%`, width: `${width}%`, ...barStyle }}
                         onMouseEnter={(e)=>showTooltip(e, it, days, statusVal)}
                         onMouseMove={(e)=>setTooltip(prev=>prev ? {...prev, x: e.clientX, y: e.clientY} : null)}
-                        onMouseLeave={hideTooltip}>
+                        onMouseLeave={hideTooltip}
+                        onContextMenu={(e)=>showCtxMenu(e, it)}>
                         {progress !== undefined && <div className="csv-db-gantt-bar-progress" style={{ width: `${progress}%` }} />}
                         {width > 8 && <span className="csv-db-gantt-bar-text">{days > 0 ? `${days}d` : ""}{progress !== undefined ? ` · ${progress}%` : ""}</span>}
                       </div>
@@ -233,6 +257,21 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
           <div className="csv-db-gantt-tooltip-dates">{tooltip.item.start.toISOString().slice(0,10)} → {tooltip.item.end.toISOString().slice(0,10)} <span>({tooltip.days}d)</span></div>
           {tooltip.statusVal && <div className="csv-db-gantt-tooltip-status">Status: {tooltip.statusVal}</div>}
           {tooltip.progress !== undefined && <div className="csv-db-gantt-tooltip-progress">Progress: {tooltip.progress}%</div>}
+        </div>
+      )}
+      {ctxMenu && (
+        <div className="csv-db-gantt-ctx" style={{ left: ctxMenu.x, top: ctxMenu.y }} onClick={(e)=>e.stopPropagation()}>
+          <div className="csv-db-gantt-ctx-item" onClick={()=>{closeCtxMenu(); onCardClick(ctxMenu.item.originalIndex);}}>Open</div>
+          {ctxStatusCol && ctxStatusCol.options && (
+            <div className="csv-db-gantt-ctx-sep" />
+          )}
+          {ctxStatusCol && ctxStatusCol.options && ctxStatusCol.options.map((opt) => (
+            <div key={opt.value} className="csv-db-gantt-ctx-item" onClick={()=>{closeCtxMenu(); onSetCell(ctxMenu.item.originalIndex, statusIdx, opt.value);}}>
+              <span className="csv-db-gantt-ctx-dot" style={{ background: opt.color ? STATUS_COLORS[opt.color] || "var(--text-muted)" : "var(--text-muted)" }} />{opt.value}
+            </div>
+          ))}
+          <div className="csv-db-gantt-ctx-sep" />
+          <div className="csv-db-gantt-ctx-item csv-db-gantt-ctx-danger" onClick={()=>{closeCtxMenu(); onDeleteRow(ctxMenu.item.originalIndex);}}>Delete</div>
         </div>
       )}
     </div>
