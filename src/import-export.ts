@@ -1,5 +1,5 @@
 import * as Papa from "papaparse";
-import { ColumnDef } from "./types";
+import { ColumnDef, TagColor } from "./types";
 import { TAG_COLORS } from "./constants";
 
 function isDateString(v: string): boolean {
@@ -37,7 +37,7 @@ export function inferColumns(headers: string[], rows: string[][]): ColumnDef[] {
     const col: ColumnDef = { name: name || `Column ${idx + 1}`, type, columnIndex: idx };
     if (type === "select") {
       const distinct = Array.from(new Set(colValues.filter(Boolean).map((v) => v.trim()))).slice(0, 20);
-      col.options = distinct.map((v, i) => ({ value: v, color: (Object.keys(TAG_COLORS)[i % 9] as any) || "gray" }));
+      col.options = distinct.map((v, i) => ({ value: v, color: (Object.keys(TAG_COLORS) as TagColor[])[i % 9] || "gray" }));
     }
     return col;
   });

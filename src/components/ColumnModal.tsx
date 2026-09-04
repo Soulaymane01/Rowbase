@@ -449,7 +449,7 @@ function ColumnModalContent({ app, column, columns, databasePath, onSave, onDele
               className="csv-db-modal-input"
               value={rollup?.targetColumn || ""}
               placeholder="Column in related database"
-              onChange={(e) => setRollup({ ...(rollup || { relationColumn: "", handler: "count" as const }), targetColumn: e.target.value } as any)}
+              onChange={(e) => setRollup({ ...(rollup || { relationColumn: "", handler: "count" as const }), targetColumn: e.target.value })}
             />
           </div>
           <div className="csv-db-modal-field">
@@ -458,7 +458,7 @@ function ColumnModalContent({ app, column, columns, databasePath, onSave, onDele
               <select
                 className="csv-db-modal-select"
                 value={rollup?.handler || "count"}
-                onChange={(e) => setRollup({ ...(rollup || { relationColumn: "", targetColumn: "" }), handler: e.target.value as any } as any)}
+                onChange={(e) => setRollup({ ...(rollup || { relationColumn: "", targetColumn: "" }), handler: e.target.value as "count" | "sum" | "avg" | "min" | "max" | "list" })}
               >
                 <option value="count">Count</option>
                 <option value="sum">Sum</option>

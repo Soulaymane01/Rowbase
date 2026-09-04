@@ -17,7 +17,7 @@ export default class DatabasePlugin extends Plugin {
     this.registerExtensions(["rbase"], VIEW_TYPE_DATABASE);
 
     this.addRibbonIcon("table", "New database", () => {
-      this.createNewDatabase();
+      void this.createNewDatabase();
     });
 
     this.addCommand({
@@ -30,7 +30,7 @@ export default class DatabasePlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<DatabasePluginSettings>);
   }
 
   async saveSettings() {
@@ -70,7 +70,6 @@ export default class DatabasePlugin extends Plugin {
     if (folderPath) {
       const existing = this.app.vault.getAbstractFileByPath(folderPath);
       if (!existing) {
-        // eslint-disable-next-line obsidianmd/no-unsupported-api
         await this.app.vault.createFolder(folderPath);
       }
     }

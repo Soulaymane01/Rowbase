@@ -94,7 +94,7 @@ export function useCardDrag({ onCardMove }: UseCardDragOptions) {
 
         doc.body.classList.remove("csv-db-card-dragging");
         justDraggedRef.current = true;
-        requestAnimationFrame(() => { justDraggedRef.current = false; });
+        window.requestAnimationFrame(() => { justDraggedRef.current = false; });
 
         // Clean up ghost
         if (dragRef.current?.ghost) {

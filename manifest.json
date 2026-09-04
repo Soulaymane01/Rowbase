@@ -2,7 +2,7 @@
   "id": "rowbase",
   "name": "Rowbase",
   "version": "0.1.0",
-  "minAppVersion": "0.16.0",
+  "minAppVersion": "1.0.0",
   "description": "Interactive database plugin — table, kanban, list, gallery, chart, timeline, stats, and dashboard views backed by human-readable .rbase files. Supports formulas, rollups, relations, sorting, filtering, grouping, and import/export.",
   "author": "soulaymane",
   "authorUrl": "https://github.com/Soulaymane01",

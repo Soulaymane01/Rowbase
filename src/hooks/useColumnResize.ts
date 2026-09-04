@@ -9,7 +9,7 @@ function measureColumnMaxWidth(colIdx: number): number {
   if (!table) return 180;
 
   const bodyRows = table.querySelectorAll("tbody tr");
-  const span = document.createElement("span");
+  const span = document.body.createEl("span");
   span.className = "csv-db-measure-span";
   document.body.appendChild(span);
 

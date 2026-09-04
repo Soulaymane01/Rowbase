@@ -13,6 +13,8 @@ export type FormulaCell =
 type Tok = { kind: "num"; v: number } | { kind: "str"; v: string } | { kind: "id"; v: string }
   | { kind: "op"; v: string } | { kind: "lparen" } | { kind: "rparen" } | { kind: "comma" };
 
+type ExprValue = number | string | boolean | null;
+
 function tokenize(src: string): Tok[] {
   const out: Tok[] = [];
   let i = 0;
@@ -68,20 +70,20 @@ export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
     const peek = () => tokens[pos] ?? null;
     const next = () => tokens[pos++];
 
-    function parseExpr(): number | string | boolean {
+    function parseExpr(): ExprValue {
       let left = parseOr();
       for (;;) {
         const t = peek();
         if (t?.kind === "op" && (t.v === "&")) {
           next();
           const right = parseOr();
-          left = String(left as any) + String(right as any);
+          left = String(left) + String(right);
         } else break;
       }
-      return left as any;
+      return left;
     }
 
-    function parseOr(): any {
+    function parseOr(): ExprValue {
       let left = parseAnd();
       for (;;) {
         const t = peek();
@@ -91,7 +93,7 @@ export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
       return left;
     }
 
-    function parseAnd(): any {
+    function parseAnd(): ExprValue {
       let left = parseCmp();
       for (;;) {
         const t = peek();
@@ -101,47 +103,47 @@ export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
       return left;
     }
 
-    function parseCmp(): any {
+    function parseCmp(): ExprValue {
       let left = parseAdd();
       for (;;) {
         const t = peek();
         if (t?.kind === "op" && ["=", "!=", "<", ">", "<=", ">="].includes(t.v)) {
           next();
           const right = parseAdd();
-          const lt = left as any, rt = right as any;
-          left = t.v === "=" ? lt === rt
-            : t.v === "!=" ? lt !== rt
-            : t.v === "<" ? lt < rt
-            : t.v === ">" ? lt > rt
-            : t.v === "<=" ? lt <= rt
-            : lt >= rt;
+          const l = left ?? "", r = right ?? "";
+          left = t.v === "=" ? l === r
+            : t.v === "!=" ? l !== r
+            : t.v === "<" ? l < r
+            : t.v === ">" ? l > r
+            : t.v === "<=" ? l <= r
+            : l >= r;
         } else break;
       }
       return left;
     }
 
-    function parseAdd(): any {
+    function parseAdd(): ExprValue {
       let left = parseMul();
       for (;;) {
         const t = peek();
         if (t?.kind === "op" && (t.v === "+" || t.v === "-")) {
           next();
           const right = parseMul();
-          const lt = left as any, rt = right as any;
+          const lt = Number(left), rt = Number(right);
           left = t.v === "+" ? lt + rt : lt - rt;
         } else break;
       }
       return left;
     }
 
-    function parseMul(): any {
+    function parseMul(): ExprValue {
       let left = parseUnary();
       for (;;) {
         const t = peek();
         if (t?.kind === "op" && (t.v === "*" || t.v === "/")) {
           next();
           const right = parseUnary();
-          const lt = left as any, rt = right as any;
+          const lt = Number(left), rt = Number(right);
           if (t.v === "/") {
             if (rt === 0) throw new Error("division by zero");
             left = lt / rt;
@@ -151,19 +153,19 @@ export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
       return left;
     }
 
-    function parseUnary(): any {
+    function parseUnary(): ExprValue {
       const t = peek();
-      if (t?.kind === "op" && t.v === "-") { next(); const v = parseUnary(); return -toNumber(v as any); }
+      if (t?.kind === "op" && t.v === "-") { next(); const v = parseUnary(); return -toNumber(v); }
       if (t?.kind === "op" && t.v === "+") { next(); return parseUnary(); }
       return parsePostfix();
     }
 
-    function parsePostfix(): any {
+    function parsePostfix(): ExprValue {
       let base = parseAtom();
-      return base as any;
+      return base;
     }
 
-    function truthy(v: any): boolean {
+    function truthy(v: ExprValue): boolean {
       if (v === null) return false;
       if (typeof v === "string") return v.length > 0;
       if (typeof v === "number") return v !== 0;
@@ -195,7 +197,7 @@ export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
       }
     }
 
-    function parseAtom(): any {
+    function parseAtom(): ExprValue {
       const t = next();
       if (!t) throw new Error("unexpected end");
       if (t.kind === "num") return t.v;

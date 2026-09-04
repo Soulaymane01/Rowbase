@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { App } from "obsidian";
 import { ColumnDef, DisplayColumn, ViewDef } from "../types";
 import { QueryResultRow } from "../query/record";

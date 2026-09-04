@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useRef, useCallback, useMemo, useState } from "react";
-import { App } from "obsidian";
+import { App, TFile } from "obsidian";
 import { DatabaseModel, ColumnDef, ColumnType, SelectOption, DisplayColumn, ViewDef, SortRule, FilterRule } from "../types";
 import { splitMultiSelect, joinMultiSelect } from "../csv-parser";
 import { runQuery } from "../query";
@@ -12,7 +12,7 @@ import { Toolbar } from "./Toolbar";
 import { FilterSortBar } from "./FilterSortBar";
 import { ColumnModalWrapper } from "./ColumnModal";
 import { RowDetailModalWrapper } from "./RowDetailModal";
-import { useColumnResize, measureColumnMaxWidth } from "../hooks/useColumnResize";
+import { useColumnResize } from "../hooks/useColumnResize";
 import { useColumnDrag } from "../hooks/useColumnDrag";
 import { KanbanView } from "./KanbanView";
 import { ListView } from "./ListView";
@@ -471,8 +471,6 @@ export function DatabaseTable({
     future: [],
   });
   const model = history.present;
-  const canUndo = history.past.length > 0;
-  const canRedo = history.future.length > 0;
 
   const dispatch = useCallback((action: Action) => {
     rawDispatch(action);
@@ -496,7 +494,7 @@ export function DatabaseTable({
   const [relationReady, setRelationReady] = useState(false);
   useEffect(() => {
     let cancelled = false;
-    preloadRelationTargets(app, databasePath, model.columns).then(() => {
+    void preloadRelationTargets(app, databasePath, model.columns).then(() => {
       if (!cancelled) setRelationReady(true);
     });
     return () => { cancelled = true; };
@@ -787,7 +785,7 @@ export function DatabaseTable({
   }, [app, model, allDisplayColumns, handleSetCell, handleAddSelectOption, handleUpdateSelectOption, handleRemoveOptionDef, databasePath]);
 
   const handleImportCSV = useCallback((mode: "new" | "append") => {
-    const input = document.createElement("input");
+    const input = document.body.createEl("input");
     input.type = "file";
     input.accept = ".csv,text/csv";
     input.onchange = async () => {
@@ -811,7 +809,6 @@ export function DatabaseTable({
         const newCols = headers.filter((h) => !existingHeaders.includes(h));
         let nextModel = model;
         for (const h of newCols) {
-          const colVals = rows.map((r) => r[headers.indexOf(h)] ?? "");
           const inferred = inferColumns([h], rows.map((r) => [r[headers.indexOf(h)] ?? ""]))[0];
           nextModel = { ...nextModel, columns: [...nextModel.columns, { ...inferred, name: h, columnIndex: nextModel.columns.length }], rows: nextModel.rows.map((r) => [...r, ""]) };
         }
@@ -836,7 +833,7 @@ export function DatabaseTable({
     const base = databasePath.replace(/\.rbase$/i, "");
     const path = normalizePath(`${base}.${ext}`);
     const existing = app.vault.getAbstractFileByPath(path);
-    if (existing) await app.vault.delete(existing as any);
+    if (existing) await app.fileManager.trashFile(existing as TFile);
     await app.vault.create(path, content);
     new Notice(`Exported to ${path}`);
   }, [app, model, databasePath]);
