@@ -11,6 +11,7 @@ Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github
 ## Features
 
 ### Views
+
 - **Table** — Full-featured spreadsheet with inline editing, sorting, filtering, column resizing, and row reordering
 - **Kanban** — Drag-and-drop board grouped by a select column
 - **List** — Compact grouped rows with collapsible sections
@@ -21,9 +22,11 @@ Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github
 - **Dashboard** — Habit tracking with streaks, completion rings, and activity calendar heatmap
 
 ### Column Types
+
 - Text, Number, Date, Checkbox, Select, Multi-select, Title, Note, Relation, Rollup, Formula
 
 ### Data & Computation
+
 - **Formulas** — Safe expression evaluator with cell references and cross-relation aggregation (SUM, AVG, COUNT, MIN, MAX)
 - **Rollups** — Aggregate related rows (sum, count, avg, min, max) across relation columns
 - **Relations** — Link rows across databases; preloaded resolver with cache for fast cross-file lookups
@@ -32,6 +35,7 @@ Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github
 - **Grouping** — Group rows by any column with collapsible sections
 
 ### UI/UX
+
 - **Inline editing** — Click any cell to edit; text, number, date, and select types all editable in place
 - **Undo/Redo** — Cmd+Z / Cmd+Shift+Z with 100-step history stack
 - **Column management** — Add, rename, resize (double-click to auto-fit), reorder, delete columns via context menu
@@ -43,14 +47,60 @@ Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github
 - **Import/Export** — Import CSV files into databases; export to CSV or JSON
 - **Plugin settings** — Default folder, template name, template columns, note/folder linking defaults
 
+## Screenshots
+
+### Table View
+
+<p align="center">
+  <img src="screenshots/Table-projects.png" alt="Table view with projects" width="800" />
+</p>
+
+### Kanban Board
+
+<p align="center">
+  <img src="screenshots/board-projects.png" alt="Kanban board view" width="800" />
+</p>
+
+### Chart View
+
+<p align="center">
+  <img src="screenshots/sales-chart.png" alt="Sales chart with data visualization" width="800" />
+</p>
+
+### Timeline View
+
+<p align="center">
+  <img src="screenshots/timeline-project.png" alt="Timeline Gantt chart" width="800" />
+</p>
+
+### Stats View
+
+<p align="center">
+  <img src="screenshots/Stats-projects.png" alt="Statistics dashboard" width="800" />
+</p>
+
+### Dashboard View
+
+<p align="center">
+  <img src="screenshots/Dashboard-habits.png" alt="Habit tracking dashboard" width="800" />
+</p>
+
+### Inline Editing
+
+<p align="center">
+  <img src="screenshots/inline-editing.png" alt="Inline cell editing" width="600" />
+</p>
+
 ## Installation
 
 ### Community Plugin (recommended)
+
 1. Open **Settings** → **Community Plugins** → **Browse**
 2. Search for **Rowbase** and install it
 3. Enable **Rowbase** in **Settings** → **Community Plugins**
 
 ### Manual installation
+
 1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/Soulaymane01/rowbase/releases)
 2. Create a folder `rowbase` in your vault's `.obsidian/plugins/` directory
 3. Copy the three files into that folder
@@ -82,16 +132,13 @@ ln -s /path/to/rowbase /path/to/vault/.obsidian/plugins/rowbase
 
 ## Offline baseline
 
-Rowbase's runtime is fully offline. It makes no HTTP requests, WebSocket
-connections, telemetry, CDN asset fetches, or remote service calls; everything
-reads from and writes to the local Obsidian vault. Its runtime source and the
-production bundle are audited against that policy by:
+Rowbase's runtime is fully offline. It makes no HTTP requests, WebSocket connections, telemetry, CDN asset fetches, or remote service calls; everything reads from and writes to the local Obsidian vault. Its runtime source and the production bundle are audited against that policy by:
 
 ```bash
 npm run build            # produces main.js
 npm run test:offline     # scans src/ and main.js for network/dynamic-code behavior
 ```
 
-## License
+## Credits
 
-The upstream project is by jysperm and is licensed under the MIT License; that license and attribution are preserved in [LICENSE](LICENSE). Rowbase is itself released under the [MIT License](LICENSE).
+Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github.com/jysperm/obsidian-csv-database). The upstream project is licensed under the MIT License; that license and attribution are preserved in [LICENSE](LICENSE). Rowbase is itself released under the [MIT License](LICENSE).
