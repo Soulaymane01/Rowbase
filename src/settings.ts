@@ -40,7 +40,7 @@ export class SettingsTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.createEl("h2", { text: "Rowbase Settings" });
+    new Setting(containerEl).setHeading().setName("Rowbase Settings");
 
     new Setting(containerEl)
       .setName("Default folder")

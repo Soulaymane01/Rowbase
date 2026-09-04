@@ -10,12 +10,7 @@ function measureColumnMaxWidth(colIdx: number): number {
 
   const bodyRows = table.querySelectorAll("tbody tr");
   const span = document.createElement("span");
-  span.style.visibility = "hidden";
-  span.style.position = "absolute";
-  span.style.whiteSpace = "nowrap";
-  span.style.fontSize = "14px";
-  span.style.fontFamily =
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
+  span.className = "csv-db-measure-span";
   document.body.appendChild(span);
 
   let maxW = 0;
