@@ -6,6 +6,6 @@ const pkg = JSON.parse(await readFile("package.json", "utf8"));
 
 assert.equal(manifest.id, "rowbase");
 assert.equal(manifest.name, "Rowbase");
-assert.equal(manifest.isDesktopOnly, true);
+assert.equal(manifest.isDesktopOnly, false);
 assert.equal(pkg.name, "rowbase");
 assert.equal(pkg.main, "main.js");
