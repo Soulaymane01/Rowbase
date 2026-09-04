@@ -2,11 +2,10 @@
 
 Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style databases to your vault. Each database is a single `.rbase` file — a human-readable CSV with JSON column metadata — that opens in a rich, interactive view with multiple layouts, formulas, relations, and more.
 
-Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github.com/jysperm/obsidian-csv-database). The `.rbase` extension is registered natively and opens in a dedicated Obsidian view.
-
 <p align="center">
-  <img src="assets/icon-128.png" alt="Rowbase icon" width="96" />
+  <img src="assets/lockup-primary.png" alt="Rowbase icon"  />
 </p>
+
 
 ## Features
 
@@ -92,12 +91,6 @@ Rowbase is an engineering fork of [jysperm/obsidian-csv-database](https://github
 </p>
 
 ## Installation
-
-### Community Plugin (recommended)
-
-1. Open **Settings** → **Community Plugins** → **Browse**
-2. Search for **Rowbase** and install it
-3. Enable **Rowbase** in **Settings** → **Community Plugins**
 
 ### Manual installation
 
