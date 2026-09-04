@@ -384,6 +384,13 @@ function ViewMenu({
         <span className="csv-db-view-menu-check">{activeLayout === "timeline" ? "✓" : "\u00A0\u00A0"}</span>
         {" "}Timeline
       </div>
+      <div
+        className="csv-db-view-menu-item"
+        onClick={() => setLayout("dashboard")}
+      >
+        <span className="csv-db-view-menu-check">{activeLayout === "dashboard" ? "✓" : "\u00A0\u00A0"}</span>
+        {" "}Dashboard
+      </div>
 
       {/* Group by section (kanban & list) */}
       {(activeLayout === "kanban" || activeLayout === "list") && (
