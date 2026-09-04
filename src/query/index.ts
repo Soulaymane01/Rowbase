@@ -22,7 +22,7 @@ export type { FormulaCell, FormulaValue, FormulaEnv } from "./formula";
 export { computeRollup } from "./rollup";
 export type { RollupHandler, RollupValue } from "./rollup";
 
-export type RelationResolver = (opts: { targetPath: string; column: string; valueColumn?: string }) => { rows: Array<{ row: string[] }>; columns: ColumnDef[] };
+export type RelationResolver = (opts: { targetPath: string; column: string; value?: string; valueColumn?: string }) => { rows: Array<{ row: string[] }>; columns: ColumnDef[] };
 
 function typedToFormulaValue(v: TypedValue): FormulaValue {
   if (v.kind === "number") return v.number;
@@ -47,10 +47,12 @@ function computeComputed(
           return row.values[idx] !== undefined ? typedToFormulaValue(row.values[idx]) : null;
         },
         getRelatedNumbers: (relationColumn, valueColumn) => {
-          const relCol = model.columns.find((c) => c.name === relationColumn);
-          if (!relCol || !resolveRelation) return [];
+          const relIdx = model.columns.findIndex((c) => c.name === relationColumn);
+          if (relIdx === -1 || !resolveRelation) return [];
+          const relCol = model.columns[relIdx];
           const targetPath = relCol.relationTargetPath ?? "";
-          const { rows, columns } = resolveRelation({ targetPath, column: relationColumn, valueColumn });
+          const relValue = row.row[relIdx] ?? "";
+          const { rows, columns } = resolveRelation({ targetPath, column: relationColumn, value: relValue, valueColumn });
           const vi = columns.findIndex((c) => c.name === valueColumn);
           if (vi === -1) return [];
           return rows.map((r) => {
@@ -63,9 +65,11 @@ function computeComputed(
       const cell = evaluateFormula(col.formula, env);
       computed[colIdx] = cell.kind === "error" ? `#ERROR: ${cell.message}` : String(cell.value);
     } else if (col.type === "rollup" && col.rollup && resolveRelation) {
-      const relCol = model.columns.find((c) => c.name === col.rollup!.relationColumn);
-      if (relCol) {
-        const related = resolveRelation({ targetPath: relCol.relationTargetPath ?? "", column: relCol.name });
+      const relIdx = model.columns.findIndex((c) => c.name === col.rollup!.relationColumn);
+      if (relIdx !== -1) {
+        const relCol = model.columns[relIdx];
+        const relValue = row.row[relIdx] ?? "";
+        const related = resolveRelation({ targetPath: relCol.relationTargetPath ?? "", column: relCol.name, value: relValue });
         const targetIndex = related.columns?.findIndex((c) => c.name === col.rollup!.targetColumn) ?? -1;
         const filter = col.rollup!.targetFilter
           ? { index: related.columns?.findIndex((c) => c.name === col.rollup!.targetFilter!.column) ?? -1, equals: col.rollup!.targetFilter!.equals }

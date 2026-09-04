@@ -3,6 +3,7 @@ import { App } from "obsidian";
 import { DatabaseModel, ColumnDef, ColumnType, SelectOption, DisplayColumn, ViewDef, SortRule, FilterRule } from "../types";
 import { splitMultiSelect, joinMultiSelect } from "../csv-parser";
 import { runQuery } from "../query";
+import { createRelationResolver, preloadRelationTargets } from "../relation-resolver";
 import { TableHeader } from "./TableHeader";
 import { TableBody } from "./TableBody";
 import { NewRowButton } from "./NewRowButton";
@@ -429,6 +430,21 @@ export function DatabaseTable({
   const safeViewIndex = (activeViewIndex >= 0 && activeViewIndex < model.views.length) ? activeViewIndex : 0;
   const activeView = model.views[safeViewIndex];
 
+  // Relation resolver — preload targets, then pass to runQuery
+  const [relationReady, setRelationReady] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    preloadRelationTargets(app, databasePath, model.columns).then(() => {
+      if (!cancelled) setRelationReady(true);
+    });
+    return () => { cancelled = true; };
+  }, [app, databasePath, model.columns]);
+
+  const resolveRelation = useMemo(
+    () => createRelationResolver(app, databasePath, model),
+    [app, databasePath, model],
+  );
+
   // Determine if draft differs from saved view
   const isDirty = useMemo(() => {
     if (!barVisible) return false;
@@ -456,8 +472,8 @@ export function DatabaseTable({
   const effectiveFilters = barVisible ? draftFilters : activeView.filters;
 
   const filteredSortedRows = useMemo(() => {
-    return runQuery(model, { ...activeView, sorts: effectiveSorts, filters: effectiveFilters });
-  }, [model, activeView, effectiveSorts, effectiveFilters]);
+    return runQuery(model, { ...activeView, sorts: effectiveSorts, filters: effectiveFilters }, resolveRelation);
+  }, [model, activeView, effectiveSorts, effectiveFilters, resolveRelation, relationReady]);
 
   // Ref for stable access in callbacks
   const displayColumnsRef = useRef(displayColumns);
