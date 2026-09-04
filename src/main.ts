@@ -1,10 +1,8 @@
-import { Plugin, WorkspaceLeaf, TFile, Notice, addIcon } from "obsidian";
+import { Plugin, WorkspaceLeaf, TFile, Notice } from "obsidian";
 import { DatabaseView, VIEW_TYPE_CSV_DATABASE } from "./database-view";
 import { serializeCSV } from "./csv-parser";
 import { ColumnDef } from "./types";
 import { DatabasePluginSettings, DEFAULT_SETTINGS, SettingsTab } from "./settings";
-
-const ROWBASE_ICON = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4zm0 6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2zm0 6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2z"/></svg>`;
 
 export default class DatabasePlugin extends Plugin {
   settings: DatabasePluginSettings = DEFAULT_SETTINGS;
@@ -12,15 +10,13 @@ export default class DatabasePlugin extends Plugin {
   async onload() {
     await this.loadSettings();
 
-    addIcon("rowbase", ROWBASE_ICON);
-
     this.registerView(VIEW_TYPE_CSV_DATABASE, (leaf: WorkspaceLeaf) => {
       return new DatabaseView(leaf);
     });
 
     this.registerExtensions(["csvdb"], VIEW_TYPE_CSV_DATABASE);
 
-    this.addRibbonIcon("rowbase", "New database", () => {
+    this.addRibbonIcon("table", "New database", () => {
       this.createNewDatabase();
     });
 
