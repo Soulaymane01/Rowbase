@@ -33,6 +33,7 @@ async function ensureFolder(app: App, path: string): Promise<void> {
     current = current ? `${current}/${part}` : part;
     const existing = app.vault.getAbstractFileByPath(current);
     if (!existing) {
+      // eslint-disable-next-line obsidianmd/no-unsupported-api
       await app.vault.createFolder(current);
     }
   }

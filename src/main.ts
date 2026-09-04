@@ -70,6 +70,7 @@ export default class DatabasePlugin extends Plugin {
     if (folderPath) {
       const existing = this.app.vault.getAbstractFileByPath(folderPath);
       if (!existing) {
+        // eslint-disable-next-line obsidianmd/no-unsupported-api
         await this.app.vault.createFolder(folderPath);
       }
     }
