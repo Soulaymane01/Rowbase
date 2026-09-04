@@ -1,44 +1,102 @@
-import { ColumnDef } from "../types";
+import { ColumnDef, SelectOption } from "../types";
 import { QueryResultRow } from "./record";
 
+export interface StatGroup {
+  label: string;
+  count: number;
+  color?: string;
+}
+
+export interface NumericStat {
+  name: string;
+  count: number;
+  sum: number;
+  avg: number;
+  min: number;
+  max: number;
+  median: number;
+}
+
+export interface DateGroup {
+  label: string;
+  count: number;
+  date: string;
+}
+
 export interface StatsData {
-  byStatus: { label: string; count: number }[];
-  byCategory: { label: string; count: number }[];
-  avgByNumeric: { name: string; avg: number }[];
+  totalRows: number;
+  bySelect: Map<string, StatGroup[]>;
+  numericStats: NumericStat[];
+  dateByMonth: DateGroup[];
+}
+
+function median(nums: number[]): number {
+  if (nums.length === 0) return 0;
+  const s = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(s.length / 2);
+  return s.length % 2 !== 0 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+}
+
+function resolveColor(val: string, options?: SelectOption[]): string | undefined {
+  if (!options) return undefined;
+  return options.find((o) => o.value.toLowerCase() === val.toLowerCase())?.color;
 }
 
 export function buildStatsData(rows: QueryResultRow[], columns: ColumnDef[]): StatsData {
-  const byStatus: Map<string, number> = new Map();
-  const byCategory: Map<string, number> = new Map();
-  const numericSums: Map<string, { sum: number; n: number }> = new Map();
+  const bySelect = new Map<string, StatGroup[]>();
+  const numericStats: NumericStat[] = [];
+  const dateByMonth = new Map<string, number>();
 
-  const statusIdx = columns.findIndex((c) => c.name.toLowerCase() === "status" || c.type === "select");
-  const categoryIdx = columns.findIndex((c) => c.name.toLowerCase() === "category" || c.name.toLowerCase() === "type");
+  const selectCols = columns.map((c, i) => ({ c, i })).filter(({ c }) => c.type === "select");
   const numericCols = columns.map((c, i) => ({ c, i })).filter(({ c }) => c.type === "number");
+  const dateCols = columns.map((c, i) => ({ c, i })).filter(({ c }) => c.type === "date");
 
-  for (const r of rows) {
-    if (statusIdx !== -1) {
-      const v = r.row[statusIdx] || "—";
-      byStatus.set(v, (byStatus.get(v) || 0) + 1);
+  for (const { c, i } of selectCols) {
+    const counts = new Map<string, number>();
+    for (const r of rows) {
+      const v = r.row[i] || "—";
+      counts.set(v, (counts.get(v) || 0) + 1);
     }
-    if (categoryIdx !== -1) {
-      const v = r.row[categoryIdx] || "—";
-      byCategory.set(v, (byCategory.get(v) || 0) + 1);
-    }
-    for (const { c, i } of numericCols) {
+    const groups: StatGroup[] = Array.from(counts.entries()).map(([label, count]) => ({
+      label, count, color: resolveColor(label, c.options),
+    }));
+    groups.sort((a, b) => b.count - a.count);
+    bySelect.set(c.name, groups);
+  }
+
+  for (const { c, i } of numericCols) {
+    const nums: number[] = [];
+    for (const r of rows) {
       const raw = r.row[i];
       const n = Number(raw);
-      if (raw !== "" && !Number.isNaN(n)) {
-        const cur = numericSums.get(c.name) || { sum: 0, n: 0 };
-        cur.sum += n; cur.n += 1;
-        numericSums.set(c.name, cur);
-      }
+      if (raw !== "" && !Number.isNaN(n)) nums.push(n);
+    }
+    const sum = nums.reduce((a, b) => a + b, 0);
+    numericStats.push({
+      name: c.name,
+      count: nums.length,
+      sum,
+      avg: nums.length ? sum / nums.length : 0,
+      min: nums.length ? Math.min(...nums) : 0,
+      max: nums.length ? Math.max(...nums) : 0,
+      median: median(nums),
+    });
+  }
+
+  for (const { i } of dateCols) {
+    for (const r of rows) {
+      const raw = r.row[i];
+      if (!raw) continue;
+      const d = new Date(raw);
+      if (Number.isNaN(d.getTime())) continue;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      dateByMonth.set(key, (dateByMonth.get(key) || 0) + 1);
     }
   }
 
-  return {
-    byStatus: Array.from(byStatus.entries()).map(([label, count]) => ({ label, count })),
-    byCategory: Array.from(byCategory.entries()).map(([label, count]) => ({ label, count })),
-    avgByNumeric: Array.from(numericSums.entries()).map(([name, v]) => ({ name, avg: v.n ? v.sum / v.n : 0 })),
-  };
+  const dateGroups: DateGroup[] = Array.from(dateByMonth.entries())
+    .map(([key, count]) => ({ label: key, count, date: key }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  return { totalRows: rows.length, bySelect, numericStats, dateByMonth: dateGroups };
 }

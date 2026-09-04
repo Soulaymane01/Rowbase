@@ -2004,13 +2004,34 @@ body.csv-db-card-dragging {
 
 .csv-db-cell-computed { font-style: italic; color: var(--text-muted); font-weight: 500; }
 .csv-db-cell-computed-value { white-space: nowrap; }
-.csv-db-stats { padding: 12px; display: flex; flex-direction: column; gap: 16px; max-width: 600px; }
-.csv-db-stats-section h4 { margin: 0 0 8px; font-size: 13px; color: var(--text-muted); }
-.csv-db-stats-bar-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-.csv-db-stats-label { min-width: 80px; }
-.csv-db-stats-bar-track { flex: 1; height: 8px; background: var(--background-modifier-border); border-radius: 4px; overflow: hidden; }
-.csv-db-stats-bar { height: 100%; background: var(--interactive-accent); }
-.csv-db-stats-count { min-width: 24px; text-align: right; color: var(--text-muted); }
+.csv-db-stats-v2 { padding: 16px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; height: 100%; }
+.csv-db-stats-summary { display: flex; gap: 12px; flex-wrap: wrap; }
+.csv-db-stats-summary-card { background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 10px; padding: 14px 20px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 100px; flex: 1; }
+.csv-db-stats-summary-value { font-size: 26px; font-weight: 700; color: var(--text-normal); }
+.csv-db-stats-summary-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+.csv-db-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.csv-db-stats-card { background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 10px; padding: 14px 16px; }
+.csv-db-stats-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.csv-db-stats-card-header h4 { margin: 0; font-size: 13px; font-weight: 600; color: var(--text-normal); }
+.csv-db-stats-card-total { font-size: 11px; color: var(--text-muted); background: var(--background-modifier-border); border-radius: 6px; padding: 1px 7px; }
+.csv-db-stats-bars { display: flex; flex-direction: column; gap: 6px; }
+.csv-db-stats-bar-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.csv-db-stats-label { width: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-normal); }
+.csv-db-stats-bar-track { flex: 1; height: 10px; background: var(--background-modifier-border); border-radius: 5px; overflow: hidden; }
+.csv-db-stats-bar { height: 100%; border-radius: 5px; transition: width 0.3s ease; }
+.csv-db-stats-count { min-width: 22px; text-align: right; color: var(--text-normal); font-weight: 500; font-variant-numeric: tabular-nums; }
+.csv-db-stats-pct { min-width: 32px; text-align: right; color: var(--text-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.csv-db-stats-num-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+.csv-db-stats-num-col { flex: 1; min-width: 100px; }
+.csv-db-stats-num-name { font-weight: 600; font-size: 12px; margin-bottom: 6px; color: var(--text-normal); }
+.csv-db-stats-num-row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; color: var(--text-muted); }
+.csv-db-stats-num-row span:last-child { color: var(--text-normal); font-weight: 500; font-variant-numeric: tabular-nums; }
+.csv-db-stats-date-bars { display: flex; align-items: flex-end; gap: 4px; height: 80px; }
+.csv-db-stats-date-col { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; min-width: 0; }
+.csv-db-stats-date-bar-track { width: 100%; height: 56px; display: flex; align-items: flex-end; }
+.csv-db-stats-date-bar { width: 100%; background: var(--interactive-accent); border-radius: 3px 3px 0 0; transition: height 0.3s ease; }
+.csv-db-stats-date-label { font-size: 9px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center; }
+.csv-db-stats-date-count { font-size: 10px; color: var(--text-normal); font-weight: 500; }
 .csv-db-stats-empty { color: var(--text-muted); padding: 24px; text-align: center; }
 /* Timeline / Gantt */
 .csv-db-gantt { display: flex; flex-direction: column; height: 100%; overflow: hidden; font-size: 13px; }
