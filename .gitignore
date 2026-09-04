@@ -11,3 +11,6 @@ dist/
 .trash/
 .release/
 data.json
+
+# Documentation
+docs/
