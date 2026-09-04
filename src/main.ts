@@ -3,8 +3,7 @@ import { DatabaseView, VIEW_TYPE_CSV_DATABASE } from "./database-view";
 import { serializeCSV } from "./csv-parser";
 import { ColumnDef } from "./types";
 import { DatabasePluginSettings, DEFAULT_SETTINGS, SettingsTab } from "./settings";
-
-const ROWBASE_ICON = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>`;
+import { ROWBASE_ICON } from "./icon-data";
 
 export default class DatabasePlugin extends Plugin {
   settings: DatabasePluginSettings = DEFAULT_SETTINGS;

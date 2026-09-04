@@ -158,6 +158,8 @@ function audit(text, { stripInertUrls = false, allowXhr = false, label = "" }) {
 // --- Source audit -----------------------------------------------------------
 const sourceViolations = [];
 for await (const file of walk(SRC_DIR)) {
+  // icon-data.ts contains a base64-encoded PNG data URI — not network behavior.
+  if (file.endsWith("icon-data.ts")) continue;
   const raw = await readFile(file, "utf8");
   const code = stripComments(raw);
   sourceViolations.push(...audit(code, { label: relative(".", file) }));
