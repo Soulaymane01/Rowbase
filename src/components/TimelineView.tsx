@@ -75,11 +75,14 @@ function groupByStatus(items: TimelineItem[], statusIdx: number): Map<string, Ti
   return groups;
 }
 
+interface TooltipState { x: number; y: number; item: TimelineItem; days: number; progress?: number; statusVal: string; }
+
 export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [focusedIdx, setFocusedIdx] = useState<number>(-1);
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const onHeaderScroll = useCallback(() => {
     if (bodyRef.current && headerRef.current) bodyRef.current.scrollLeft = headerRef.current.scrollLeft;
@@ -92,6 +95,7 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
   const endIdx = columns.findIndex((c,i)=>i!==startIdx && (/^(end|due|to|finish)/i.test(c.name) || c.type==="date"));
   const statusIdx = columns.findIndex((c)=>/^(status|state)/i.test(c.name) || c.type==="select");
   const statusOpt = statusIdx !== -1 ? columns[statusIdx].options : undefined;
+  const progressIdx = columns.findIndex((c)=>/^(progress|percent|completion)/i.test(c.name) || c.type==="number");
   const labelIdx = 0;
 
   if (startIdx===-1 || endIdx===-1) return <div className="csv-db-stats-empty">Add Start and End/Due date columns to use Timeline.</div>;
@@ -126,14 +130,12 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
     return next;
   });
 
-  // Build flat list of visible items for keyboard nav
   const visibleItems: { item: TimelineItem; group: string }[] = [];
   for (const g of groupOrder) {
     const gi = groups.get(g) || [];
     for (const it of gi) visibleItems.push({ item: it, group: g });
   }
 
-  // Auto-scroll to today on mount
   useEffect(() => {
     if (todayPct > 0 && bodyRef.current) {
       const el = bodyRef.current;
@@ -149,6 +151,12 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
       onCardClick(visibleItems[focusedIdx].item.originalIndex);
     }
   }, [visibleItems.length, focusedIdx, onCardClick]);
+
+  const showTooltip = (e: React.MouseEvent, it: TimelineItem, days: number, statusVal: string) => {
+    const progress = progressIdx !== -1 ? Number(it.row[progressIdx]) : undefined;
+    setTooltip({ x: e.clientX, y: e.clientY, item: it, days, progress: Number.isNaN(progress) ? undefined : progress, statusVal });
+  };
+  const hideTooltip = () => setTooltip(null);
 
   return (
     <div className="csv-db-gantt" tabIndex={0} onKeyDown={handleKeyDown}>
@@ -192,6 +200,7 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
                 const statusVal = statusIdx !== -1 ? it.row[statusIdx] || "" : "";
                 const barStyle = resolveBarStyle(statusVal, now, it.start.getTime(), it.end.getTime(), statusOpt);
                 const isFocused = focusedIdx >= 0 && visibleItems[focusedIdx]?.item.originalIndex === it.originalIndex;
+                const progress = progressIdx !== -1 ? Math.min(100, Math.max(0, Number(it.row[progressIdx]) || 0)) : undefined;
                 return (
                   <div key={it.originalIndex} className={`csv-db-gantt-row ${isFocused ? "focused" : ""}`} onClick={()=>onCardClick(it.originalIndex)}>
                     <div className="csv-db-gantt-label-col">
@@ -204,8 +213,11 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
                       </div>
                       <div className="csv-db-gantt-bar"
                         style={{ left: `${left}%`, width: `${width}%`, ...barStyle }}
-                        title={`${it.label}\n${it.start.toISOString().slice(0,10)} → ${it.end.toISOString().slice(0,10)} (${days}d)${statusVal ? "\nStatus: "+statusVal : ""}`}>
-                        {width > 8 && <span className="csv-db-gantt-bar-text">{days > 0 ? `${days}d` : ""}</span>}
+                        onMouseEnter={(e)=>showTooltip(e, it, days, statusVal)}
+                        onMouseMove={(e)=>setTooltip(prev=>prev ? {...prev, x: e.clientX, y: e.clientY} : null)}
+                        onMouseLeave={hideTooltip}>
+                        {progress !== undefined && <div className="csv-db-gantt-bar-progress" style={{ width: `${progress}%` }} />}
+                        {width > 8 && <span className="csv-db-gantt-bar-text">{days > 0 ? `${days}d` : ""}{progress !== undefined ? ` · ${progress}%` : ""}</span>}
                       </div>
                     </div>
                   </div>
@@ -215,6 +227,14 @@ export function TimelineView({ rows, columns, onCardClick }: TimelineViewProps) 
           );
         })}
       </div>
+      {tooltip && (
+        <div className="csv-db-gantt-tooltip" style={{ left: tooltip.x + 12, top: tooltip.y - 8 }}>
+          <div className="csv-db-gantt-tooltip-title">{tooltip.item.label}</div>
+          <div className="csv-db-gantt-tooltip-dates">{tooltip.item.start.toISOString().slice(0,10)} → {tooltip.item.end.toISOString().slice(0,10)} <span>({tooltip.days}d)</span></div>
+          {tooltip.statusVal && <div className="csv-db-gantt-tooltip-status">Status: {tooltip.statusVal}</div>}
+          {tooltip.progress !== undefined && <div className="csv-db-gantt-tooltip-progress">Progress: {tooltip.progress}%</div>}
+        </div>
+      )}
     </div>
   );
 }

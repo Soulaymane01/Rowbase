@@ -2044,6 +2044,13 @@ body.csv-db-card-dragging {
 .csv-db-gantt-group-name { flex: 1; }
 .csv-db-gantt-group-count { font-size: 11px; padding: 1px 6px; border-radius: 8px; background: var(--background-modifier-border); color: var(--text-faint); }
 .csv-db-gantt-row.focused { outline: 2px solid var(--interactive-accent); outline-offset: -2px; border-radius: 4px; }
+.csv-db-gantt-bar-progress { position: absolute; top: 0; left: 0; height: 100%; background: rgba(255,255,255,0.25); border-radius: 9px 0 0 9px; pointer-events: none; }
+.csv-db-gantt-tooltip { position: fixed; z-index: 1000; background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 8px; padding: 8px 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); pointer-events: none; font-size: 12px; max-width: 260px; }
+.csv-db-gantt-tooltip-title { font-weight: 600; margin-bottom: 4px; }
+.csv-db-gantt-tooltip-dates { color: var(--text-muted); }
+.csv-db-gantt-tooltip-dates span { color: var(--text-faint); }
+.csv-db-gantt-tooltip-status { color: var(--text-muted); margin-top: 2px; }
+.csv-db-gantt-tooltip-progress { color: var(--interactive-accent); margin-top: 2px; font-weight: 500; }
 
 /* — Polish: airy table and states — */
 .csv-db-table tbody tr:hover { background: var(--background-modifier-hover); }
