@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useRef, useCallback, useMemo, useState } from "react";
-import { App, TFile } from "obsidian";
+import { App } from "obsidian";
 import { DatabaseModel, ColumnDef, ColumnType, SelectOption, DisplayColumn, ViewDef, SortRule, FilterRule } from "../types";
 import { splitMultiSelect, joinMultiSelect } from "../csv-parser";
 import { runQuery } from "../query";
@@ -788,7 +788,8 @@ export function DatabaseTable({
     const input = document.body.createEl("input");
     input.type = "file";
     input.accept = ".csv,text/csv";
-    input.onchange = async () => {
+    input.onchange = () => {
+      void (async () => {
       const file = input.files?.[0];
       if (!file) return;
       const text = await file.text();
@@ -814,7 +815,10 @@ export function DatabaseTable({
         }
         const colIndexByName = new Map(nextModel.columns.map((c, idx) => [c.name, idx]));
         const newRows: string[][] = rows.map((r) => {
-          const out = Array(nextModel.columns.length).fill("");
+          const out: string[] = Array.from(
+            { length: nextModel.columns.length },
+            () => "",
+          );
           headers.forEach((h, hi) => { const idx = colIndexByName.get(h); if (idx !== undefined) out[idx] = r[hi] ?? ""; });
           return out;
         });
@@ -822,6 +826,10 @@ export function DatabaseTable({
         dispatch({ type: "SET_MODEL", model: merged });
         new Notice(`Appended ${rows.length} rows`);
       }
+      })().catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : "Unknown error";
+        new Notice(`Could not import CSV: ${message}`);
+      });
     };
     input.click();
   }, [app, model, databasePath]);
@@ -833,7 +841,7 @@ export function DatabaseTable({
     const base = databasePath.replace(/\.rbase$/i, "");
     const path = normalizePath(`${base}.${ext}`);
     const existing = app.vault.getAbstractFileByPath(path);
-    if (existing) await app.fileManager.trashFile(existing as TFile);
+    if (existing) await app.fileManager.trashFile(existing);
     await app.vault.create(path, content);
     new Notice(`Exported to ${path}`);
   }, [app, model, databasePath]);
@@ -941,7 +949,12 @@ export function DatabaseTable({
           onToggleBar={handleToggleBar}
           app={app}
           onImportCSV={handleImportCSV}
-          onExport={handleExport}
+          onExport={(format) => {
+            void handleExport(format).catch((error: unknown) => {
+              const message = error instanceof Error ? error.message : "Unknown error";
+              new Notice(`Could not export data: ${message}`);
+            });
+          }}
         />
       </div>
       {barVisible && (

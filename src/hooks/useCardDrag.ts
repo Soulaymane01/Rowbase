@@ -49,9 +49,11 @@ export function useCardDrag({ onCardMove }: UseCardDragOptions) {
           const ghost = cardEl.cloneNode(true) as HTMLElement;
           const rect = cardEl.getBoundingClientRect();
           ghost.className = "csv-db-kanban-card-ghost";
-          ghost.style.width = `${rect.width}px`;
-          ghost.style.left = `${rect.left}px`;
-          ghost.style.top = `${rect.top}px`;
+          ghost.setCssProps({
+            width: `${rect.width}px`,
+            left: `${rect.left}px`,
+            top: `${rect.top}px`,
+          });
           doc.body.appendChild(ghost);
 
           ghostOffsetX = rect.left - startX;
@@ -70,8 +72,10 @@ export function useCardDrag({ onCardMove }: UseCardDragOptions) {
         }
 
         if (dragRef.current?.ghost) {
-          dragRef.current.ghost.style.left = `${ev.clientX + ghostOffsetX}px`;
-          dragRef.current.ghost.style.top = `${ev.clientY + ghostOffsetY}px`;
+          dragRef.current.ghost.setCssProps({
+            left: `${ev.clientX + ghostOffsetX}px`,
+            top: `${ev.clientY + ghostOffsetY}px`,
+          });
         }
 
         // Highlight target column (scoped to the current board)

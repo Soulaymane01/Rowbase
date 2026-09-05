@@ -76,7 +76,7 @@ export function useColumnDrag({ onReorder, tableRef }: UseColumnDragOptions) {
 
         // Animate columns sliding into swapped positions
         cells.forEach(({ el, delta }) => {
-          el.style.setProperty("--csv-db-swap-offset", `${delta}px`);
+          el.setCssProps({ "--csv-db-swap-offset": `${delta}px` });
           el.classList.add("csv-db-col-swapping");
         });
 
@@ -87,7 +87,7 @@ export function useColumnDrag({ onReorder, tableRef }: UseColumnDragOptions) {
         win.setTimeout(() => {
           cells.forEach(({ el }) => {
             el.classList.remove("csv-db-col-swapping");
-            el.style.removeProperty("--csv-db-swap-offset");
+            el.setCssProps({ "--csv-db-swap-offset": "" });
           });
           flushSync(() => {
             onReorder(fromIdx, reorderToIdx);

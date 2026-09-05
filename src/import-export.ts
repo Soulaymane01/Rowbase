@@ -45,7 +45,7 @@ export function inferColumns(headers: string[], rows: string[][]): ColumnDef[] {
 
 export function parsePlainCSV(text: string): { headers: string[]; rows: string[][] } {
   const result = Papa.parse<string[]>(text, { skipEmptyLines: true });
-  const data = result.data as string[][];
+  const data = result.data;
   if (data.length === 0) return { headers: [], rows: [] };
   const headers = (data[0] || []).map((h) => h.trim());
   const rows = data.slice(1).map((row) => {

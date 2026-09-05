@@ -5,11 +5,11 @@ interface UseColumnResizeOptions {
 }
 
 function measureColumnMaxWidth(colIdx: number): number {
-  const table = document.querySelector(".csv-db-table") as HTMLTableElement | null;
+  const table = document.querySelector(".csv-db-table");
   if (!table) return 180;
 
   const bodyRows = table.querySelectorAll("tbody tr");
-  const span = document.body.createEl("span");
+  const span = document.body.createSpan();
   span.className = "csv-db-measure-span";
   document.body.appendChild(span);
 
@@ -50,7 +50,7 @@ export function useColumnResize({ onResizeEnd }: UseColumnResizeOptions) {
       if (!colEl) return;
 
       const width = measureColumnMaxWidth(colIdx);
-      colEl.style.width = `${width}px`;
+      colEl.setCssProps({ width: `${width}px` });
 
       justResizedRef.current = true;
       onResizeEnd(colIdx, width);
@@ -80,7 +80,7 @@ export function useColumnResize({ onResizeEnd }: UseColumnResizeOptions) {
       const onMove = (ev: MouseEvent) => {
         const delta = ev.clientX - startX;
         const newWidth = Math.max(80, startWidth + delta);
-        colEl.style.width = `${newWidth}px`;
+        colEl.setCssProps({ width: `${newWidth}px` });
       };
 
       const onUp = () => {

@@ -14,7 +14,6 @@
 .csv-db-scroll-area {
   overflow: auto;
   max-height: calc(100vh - 120px);
-  scrollbar-width: thin;
 }
 
 .csv-db-wrapper {
@@ -82,19 +81,19 @@ body:not(.csv-db-dragging) .csv-db-resize-handle:hover,
 }
 
 body.csv-db-resizing {
-  cursor: col-resize !important;
-  user-select: none !important;
+  cursor: col-resize;
+  user-select: none;
 }
 
 /* Column drag-to-reorder */
 body.csv-db-dragging {
-  cursor: grabbing !important;
-  user-select: none !important;
+  cursor: grabbing;
+  user-select: none;
 }
 
 body.csv-db-row-dragging {
-  cursor: grabbing !important;
-  user-select: none !important;
+  cursor: grabbing;
+  user-select: none;
 }
 
 .csv-db-col-swapping {
@@ -977,12 +976,12 @@ body.theme-dark {
   border-color: var(--background-modifier-border);
 }
 
-.csv-db-toolbar-btn-active {
-  color: var(--interactive-accent) !important;
+.csv-db-toolbar .csv-db-toolbar-btn-active {
+  color: var(--interactive-accent);
 }
 
-.csv-db-toolbar-btn-active:hover {
-  color: var(--interactive-accent) !important;
+.csv-db-toolbar .csv-db-toolbar-btn-active:hover {
+  color: var(--interactive-accent);
 }
 
 /* ========== View Menu ========== */
@@ -1284,7 +1283,7 @@ body.theme-dark {
 
 /* ========== FilterSortBar ========== */
 .csv-db-filtersortbar button {
-  box-shadow: none !important;
+  box-shadow: none;
 }
 
 .csv-db-filtersortbar {
@@ -1578,7 +1577,7 @@ body.theme-dark {
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 
 .csv-db-note-open-btn:hover {
@@ -1610,7 +1609,7 @@ body.theme-dark {
   color: var(--text-muted);
   cursor: pointer;
   flex-shrink: 0;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 
 .csv-db-note-clear-btn:hover {
@@ -1818,8 +1817,8 @@ body.theme-dark {
 
 /* Kanban drag-and-drop */
 body.csv-db-card-dragging {
-  cursor: grabbing !important;
-  user-select: none !important;
+  cursor: grabbing;
+  user-select: none;
 }
 
 .csv-db-kanban-card-ghost {

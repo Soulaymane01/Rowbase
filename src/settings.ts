@@ -37,17 +37,59 @@ export class SettingsTab extends PluginSettingTab {
     this.plugin = plugin;
   }
 
+  // Obsidian 1.13+ uses these searchable definitions. Older versions ignore
+  // this method and continue to render the compatible display() fallback.
+  getSettingDefinitions(): unknown[] {
+    return [
+      {
+        name: "Default folder",
+        desc: "Where new databases are created. Leave empty for vault root.",
+        control: { type: "text", key: "defaultFolder", placeholder: "e.g. Databases" },
+      },
+      {
+        name: "Default template name",
+        desc: "Name used when creating a new database.",
+        control: { type: "text", key: "defaultTemplateName", placeholder: "Untitled database" },
+      },
+      {
+        name: "Default columns (JSON)",
+        desc: "Columns for new databases. Edit the JSON directly.",
+        render: (setting: Setting) => {
+          setting.addTextArea((text) =>
+            text
+              .setPlaceholder('[{"name":"Name","type":"text"}]')
+              .setValue(this.plugin.settings.defaultTemplateColumns)
+              .onChange((value) => {
+                this.plugin.settings.defaultTemplateColumns = value;
+                void this.plugin.saveSettings();
+              })
+          );
+        },
+      },
+      {
+        name: "Enable note linking by default",
+        desc: "New title columns will have 'link to note' enabled.",
+        control: { type: "toggle", key: "noteLinkingDefault" },
+      },
+      {
+        name: "Enable folder linking by default",
+        desc: "New title columns will have 'link to folder' enabled.",
+        control: { type: "toggle", key: "folderLinkingDefault" },
+      },
+    ];
+  }
+
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    new Setting(containerEl).setHeading().setName("Rowbase Settings");
+    new Setting(containerEl).setHeading().setName("Rowbase settings");
 
     new Setting(containerEl)
       .setName("Default folder")
       .setDesc("Where new databases are created. Leave empty for vault root.")
       .addText((text) =>
         text
-          .setPlaceholder("e.g. Databases")
+          .setPlaceholder("E.g. Databases")
           .setValue(this.plugin.settings.defaultFolder)
           .onChange(async (value) => {
             this.plugin.settings.defaultFolder = value;
@@ -60,7 +102,7 @@ export class SettingsTab extends PluginSettingTab {
       .setDesc("Name used when creating a new database.")
       .addText((text) =>
         text
-          .setPlaceholder("Untitled Database")
+          .setPlaceholder("Untitled database")
           .setValue(this.plugin.settings.defaultTemplateName)
           .onChange(async (value) => {
             this.plugin.settings.defaultTemplateName = value;
@@ -83,7 +125,7 @@ export class SettingsTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Enable note linking by default")
-      .setDesc("New title columns will have 'Link to note' enabled.")
+      .setDesc("New title columns will have 'link to note' enabled.")
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.noteLinkingDefault)
@@ -95,7 +137,7 @@ export class SettingsTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Enable folder linking by default")
-      .setDesc("New title columns will have 'Link to folder' enabled.")
+      .setDesc("New title columns will have 'link to folder' enabled.")
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.folderLinkingDefault)

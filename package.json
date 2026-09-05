@@ -1,7 +1,7 @@
 {
   "name": "rowbase",
-  "version": "0.1.0",
-  "description": "Rowbase — interactive Notion-style database for Obsidian with multiple views, formulas, rollups, relations, and more.",
+  "version": "0.1.1",
+  "description": "Rowbase — interactive Notion-style database with multiple views, formulas, rollups, relations, and more.",
   "main": "main.js",
   "license": "MIT",
   "author": "soulaymane",
@@ -15,6 +15,7 @@
     "test:metadata": "node test-baseline-metadata.mjs",
     "test:offline": "node test-offline-baseline.mjs",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
     "test:rbase": "tsx --test test/csv-parser.test.ts",
     "test:chart": "tsx --test test/chart.test.ts",
     "test:query": "tsx --test test/group.test.ts test/query-resolve.test.ts test/query-compare.test.ts test/query-filter.test.ts test/query-sort.test.ts",
@@ -26,15 +27,20 @@
   "devDependencies": {
     "@codemirror/state": "^6.5.0",
     "@codemirror/view": "^6.38.6",
+    "@eslint/js": "^9.39.5",
+    "@eslint/json": "^0.14.0",
     "@types/node": "^16.11.6",
     "@types/papaparse": "^5.3.14",
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "esbuild": "0.17.3",
+    "eslint": "^9.39.5",
+    "eslint-plugin-obsidianmd": "^0.4.2",
     "obsidian": "latest",
     "tslib": "2.4.0",
     "tsx": "^4.23.13",
-    "typescript": "4.7.4"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.69.0"
   },
   "dependencies": {
     "papaparse": "^5.4.1",

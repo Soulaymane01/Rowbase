@@ -4,6 +4,12 @@ import { serializeCSV } from "./csv-parser";
 import { ColumnDef } from "./types";
 import { DatabasePluginSettings, DEFAULT_SETTINGS, SettingsTab } from "./settings";
 
+function isColumnDef(value: unknown): value is ColumnDef {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.name === "string" && typeof candidate.type === "string";
+}
+
 export default class DatabasePlugin extends Plugin {
   settings: DatabasePluginSettings = DEFAULT_SETTINGS;
 
@@ -30,7 +36,12 @@ export default class DatabasePlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<DatabasePluginSettings>);
+    const savedSettings: unknown = await this.loadData();
+    if (savedSettings && typeof savedSettings === "object" && !Array.isArray(savedSettings)) {
+      this.settings = { ...DEFAULT_SETTINGS, ...savedSettings as Partial<DatabasePluginSettings> };
+      return;
+    }
+    this.settings = { ...DEFAULT_SETTINGS };
   }
 
   async saveSettings() {
@@ -40,8 +51,9 @@ export default class DatabasePlugin extends Plugin {
   async createNewDatabase() {
     let defaultColumns: ColumnDef[];
     try {
-      defaultColumns = JSON.parse(this.settings.defaultTemplateColumns);
-      if (!Array.isArray(defaultColumns)) throw new Error();
+      const parsed: unknown = JSON.parse(this.settings.defaultTemplateColumns);
+      if (!Array.isArray(parsed) || !parsed.every(isColumnDef)) throw new Error();
+      defaultColumns = parsed;
     } catch {
       defaultColumns = [
         { name: "Name", type: "text" },

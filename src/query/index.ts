@@ -1,5 +1,5 @@
 import { ColumnDef, DatabaseModel, ViewDef } from "../types";
-import { QueryResultRow, buildRow, resolveRow, getDisplayValue } from "./record";
+import { QueryResultRow, buildRow, resolveRow } from "./record";
 import { matchesFilter } from "./filter";
 import { sortRows } from "./sort";
 import { evaluateFormula, FormulaEnv, FormulaValue } from "./formula";
@@ -71,11 +71,11 @@ function computeComputed(
         const relValue = row.row[relIdx] ?? "";
         const related = resolveRelation({ targetPath: relCol.relationTargetPath ?? "", column: relCol.name, value: relValue });
         const targetIndex = related.columns?.findIndex((c) => c.name === col.rollup!.targetColumn) ?? -1;
-        const filter = col.rollup!.targetFilter
-          ? { index: related.columns?.findIndex((c) => c.name === col.rollup!.targetFilter!.column) ?? -1, equals: col.rollup!.targetFilter!.equals }
+        const filter = col.rollup.targetFilter
+          ? { index: related.columns?.findIndex((c) => c.name === col.rollup!.targetFilter!.column) ?? -1, equals: col.rollup.targetFilter.equals }
           : undefined;
         if (targetIndex !== -1) {
-          const value = computeRollup(related.rows as any, targetIndex, filter, col.rollup!.handler);
+          const value = computeRollup(related.rows, targetIndex, filter, col.rollup.handler);
           computed[colIdx] = value === null ? "" : String(value);
         }
       }
