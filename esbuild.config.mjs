@@ -15,5 +15,10 @@ esbuild
     treeShaking: true,
     outfile: "main.js",
     minify: prod,
+    alias: {
+      react: "preact/compat",
+      "react-dom": "preact/compat",
+      "react/jsx-runtime": "preact/jsx-runtime",
+    },
   })
   .catch(() => process.exit(1));

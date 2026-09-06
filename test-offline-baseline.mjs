@@ -24,7 +24,7 @@ const SRC_DIR = "src";
 const BUNDLE = "main.js";
 
 // ---------------------------------------------------------------------------
-// Inert artifacts from PRESERVED bundled dependencies (react, react-dom,
+// Inert artifacts from PRESERVED bundled dependencies (preact/compat,
 // papaparse). These are string literals or dead library code paths that are
 // NOT runtime network behavior performed by Rowbase, and they cannot be
 // removed without stripping bundled dependencies (which the task forbids).
@@ -33,13 +33,13 @@ const BUNDLE = "main.js";
 
 // URLs embedded by bundled dependencies as inert string constants. They are
 // never fetched at runtime:
-//   http://www.w3.org/...  — XML/SVG/MathML namespace identifiers used by
-//                          React DOM for createElementNS (not network).
-//   https://react.dev/errors/  — React dev-mode error help URL (never fetched).
+//   http://www.w3.org/...  — XML/SVG/MathML/XHTML namespace identifiers used
+//                          by Preact DOM for createElementNS (not network).
 //   https://github.com/mholt/PapaParse  — papaparse attribution URL.
 const allowedBundleUrls = new Set([
   "http://www.w3.org/2000/svg",
   "http://www.w3.org/1998/Math/MathML",
+  "http://www.w3.org/1999/xhtml",
   "http://www.w3.org/1999/xlink",
   "http://www.w3.org/XML/1998/namespace",
   "https://react.dev/errors/",
