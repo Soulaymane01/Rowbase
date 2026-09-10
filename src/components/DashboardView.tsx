@@ -1,3 +1,4 @@
+import { useCallback, useRef, useState } from "react";
 import { ColumnDef } from "../types";
 import { QueryResultRow } from "../query/record";
 import { buildDashboardData, HabitInfo, DayActivity, dayKey, localTodayKey } from "../query/dashboard";
@@ -9,7 +10,6 @@ interface DashboardViewProps {
   onCardClick: (idx: number) => void;
 }
 
-const CELL = 13;
 const GAP = 3;
 const DAY_MS = 86400000;
 
@@ -81,6 +81,22 @@ function HabitCard({ habit, todayRowIndex, todayLabel, onSetCell }: {
 }
 
 function ActivityGrid({ activity, dateRange, today }: { activity: DayActivity[]; dateRange: { start: string; end: string } | null; today: string }) {
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const [width, setWidth] = useState(900);
+
+  const setRef = useCallback((el: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
+    if (!el) return;
+    const update = () => setWidth(Math.max(240, el.clientWidth));
+    update();
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(update);
+      ro.observe(el);
+      observerRef.current = ro;
+    }
+  }, []);
+
   if (!dateRange || activity.length === 0) {
     return (
       <div className="csv-db-empty">
@@ -115,6 +131,13 @@ function ActivityGrid({ activity, dateRange, today }: { activity: DayActivity[];
   const countMap = new Map(activity.map((a) => [a.date, a.count]));
   const maxCount = Math.max(1, ...activity.map((a) => a.count));
 
+  // Size cells to fill the available width (clamped so short ranges stay sane).
+  const n = Math.max(1, weeks.length);
+  const dayColWidth = 30;
+  const cell = Math.max(9, Math.min(22, (width - dayColWidth - (n - 1) * GAP) / n));
+  const gridW = n * cell + (n - 1) * GAP;
+  const gridH = 7 * cell + 6 * GAP;
+
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const monthLabels: { label: string; x: number }[] = [];
   let lastMonth = -1;
@@ -123,54 +146,56 @@ function ActivityGrid({ activity, dateRange, today }: { activity: DayActivity[];
     if (!first) return;
     const m = new Date(parseKey(first)).getUTCMonth();
     if (m !== lastMonth) {
-      monthLabels.push({ label: months[m], x: wi * (CELL + GAP) });
+      monthLabels.push({ label: months[m], x: wi * (cell + GAP) });
       lastMonth = m;
     }
   });
 
   return (
-    <div className="csv-db-dash-calendar">
-      <div className="csv-db-dash-calendar-months">
-        {monthLabels.map((ml) => (
-          <span key={`${ml.label}-${ml.x}`} style={{ left: ml.x }}>{ml.label}</span>
-        ))}
-      </div>
-      <div className="csv-db-dash-calendar-grid">
-        <div className="csv-db-dash-calendar-days">
-          {["", "M", "", "W", "", "F", ""].map((d, i) => <span key={i}>{d}</span>)}
+    <div className="csv-db-dash-calendar" ref={setRef}>
+      <div className="csv-db-dash-calendar-inner">
+        <div className="csv-db-dash-calendar-months" style={{ marginLeft: `${dayColWidth}px`, width: `${gridW}px` }}>
+          {monthLabels.map((ml) => (
+            <span key={`${ml.label}-${ml.x}`} style={{ left: ml.x }}>{ml.label}</span>
+          ))}
         </div>
-        <svg width={weeks.length * (CELL + GAP)} height={7 * (CELL + GAP)} className="csv-db-dash-calendar-svg">
-          {weeks.map((week, wi) =>
-            week.map((key, di) => {
-              const count = countMap.get(key) || 0;
-              const future = key > today;
-              const opacity = future ? 0.04 : count > 0 ? 0.25 + 0.75 * (count / maxCount) : 0.08;
-              const isToday = key === today;
-              return (
-                <rect
-                  key={key}
-                  x={wi * (CELL + GAP)}
-                  y={di * (CELL + GAP)}
-                  width={CELL}
-                  height={CELL}
-                  rx={3}
-                  fill={count > 0 ? "var(--interactive-accent)" : "var(--text-muted)"}
-                  opacity={opacity}
-                  className={`csv-db-dash-cal-cell${isToday ? " is-today" : ""}`}
-                >
-                  <title>{`${key}: ${count}`}</title>
-                </rect>
-              );
-            })
-          )}
-        </svg>
-      </div>
-      <div className="csv-db-dash-legend">
-        <span className="csv-db-dash-legend-label">Less</span>
-        {[0.08, 0.3, 0.5, 0.7, 1].map((o) => (
-          <span key={o} className="csv-db-dash-legend-cell" style={{ opacity: o }} />
-        ))}
-        <span className="csv-db-dash-legend-label">More</span>
+        <div className="csv-db-dash-calendar-grid">
+          <div className="csv-db-dash-calendar-days" style={{ gap: `${GAP}px` }}>
+            {["", "M", "", "W", "", "F", ""].map((d, i) => <span key={i} style={{ height: `${cell}px` }}>{d}</span>)}
+          </div>
+          <svg width={gridW} height={gridH} className="csv-db-dash-calendar-svg">
+            {weeks.map((week, wi) =>
+              week.map((key, di) => {
+                const count = countMap.get(key) || 0;
+                const future = key > today;
+                const opacity = future ? 0.04 : count > 0 ? 0.25 + 0.75 * (count / maxCount) : 0.08;
+                const isToday = key === today;
+                return (
+                  <rect
+                    key={key}
+                    x={wi * (cell + GAP)}
+                    y={di * (cell + GAP)}
+                    width={cell}
+                    height={cell}
+                    rx={Math.max(2, Math.round(cell * 0.22))}
+                    fill={count > 0 ? "var(--interactive-accent)" : "var(--text-muted)"}
+                    opacity={opacity}
+                    className={`csv-db-dash-cal-cell${isToday ? " is-today" : ""}`}
+                  >
+                    <title>{`${key}: ${count}`}</title>
+                  </rect>
+                );
+              })
+            )}
+          </svg>
+        </div>
+        <div className="csv-db-dash-legend">
+          <span className="csv-db-dash-legend-label">Less</span>
+          {[0.08, 0.3, 0.5, 0.7, 1].map((o) => (
+            <span key={o} className="csv-db-dash-legend-cell" style={{ opacity: o }} />
+          ))}
+          <span className="csv-db-dash-legend-label">More</span>
+        </div>
       </div>
     </div>
   );

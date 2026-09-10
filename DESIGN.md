@@ -304,7 +304,7 @@ A habit tracker computed over the visible rows.
 - **Habit detection**: checkbox columns and select columns (≤ 6 options) that have a done-like option (`Done`/`Completed`/`Yes`/`True`/`✓`/`x`/`1`).
 - **Summary**: rows, habits, average completion, "done today", and (when a date column exists) active days and current activity streak.
 - **Habit cards**: completion ring (all-time), current and best streak, done/total, last-30-entries percentage, a last-7-entries strip, and a toggle button. The toggle writes to today's row — the row dated today when a date column exists, otherwise the latest row; the card highlights when today is done.
-- **Activity calendar**: GitHub-style heatmap for the first date column, capped to the last 53 weeks and extended to today. Days are computed in UTC (so date-only strings don't shift by timezone) while "today" uses the local calendar date; today's cell is outlined. A Less→More legend, total entries, and best day are shown.
+- **Activity calendar**: GitHub-style heatmap for the first date column, capped to the last 53 weeks and extended to today. Cells are sized from the measured container width so the grid fills the available width (clamped to 9–22px so short ranges don't get oversized squares; the container scrolls horizontally if a very narrow viewport can't fit the minimum). Days are computed in UTC (so date-only strings don't shift by timezone) while "today" uses the local calendar date; today's cell is outlined. A Less→More legend, total entries, and best day are shown.
 - Streaks count trailing consecutive done entries in row order; activity streak counts consecutive days ending today with at least one entry.
 
 ### UI Components
