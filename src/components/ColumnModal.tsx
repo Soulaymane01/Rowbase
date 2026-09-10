@@ -80,7 +80,7 @@ interface ColumnModalContentProps {
   column: ColumnDef;
   columns: ColumnDef[];
   databasePath: string;
-  onSave: (name: string, type: ColumnType, options: SelectOption[], wrapContent: boolean, titleNoteEnabled: boolean, titleNoteFolder: string, titleFolderEnabled: boolean, titleFolderPath: string, relationTargetPath: string, relationMultiple: boolean, formula: string, rollup: ColumnDef["rollup"]) => void;
+  onSave: (name: string, type: ColumnType, options: SelectOption[], wrapContent: boolean, titleNoteEnabled: boolean, titleNoteFolder: string, titleFolderEnabled: boolean, titleFolderPath: string, relationTargetPath: string, relationMultiple: boolean, formula: string, rollup: ColumnDef["rollup"], progressStyle: "bar" | "ring") => void;
   onDelete: () => void;
   onRemoveOption: (value: string, removeData: boolean) => void;
 }
@@ -167,6 +167,7 @@ function ColumnModalContent({ app, column, columns, databasePath, onSave, onDele
   const [relationDatabaseFiles, setRelationDatabaseFiles] = useState<TFile[]>([]);
   const [formula, setFormula] = useState(column.formula || "");
   const [rollup, setRollup] = useState<ColumnDef["rollup"]>(column.rollup ? { ...column.rollup } : undefined);
+  const [progressStyle, setProgressStyle] = useState<"bar" | "ring">(column.progressStyle === "ring" ? "ring" : "bar");
 
   const availableTypes = COLUMN_TYPES.filter((t) =>
     t.value !== "title" ||
@@ -205,7 +206,7 @@ function ColumnModalContent({ app, column, columns, databasePath, onSave, onDele
   }, [app, columns, databasePath, type]);
 
   const handleSave = () => {
-    onSave(name, type, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup);
+    onSave(name, type, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup, progressStyle);
   };
 
   const handleDelete = () => {
@@ -426,6 +427,25 @@ function ColumnModalContent({ app, column, columns, databasePath, onSave, onDele
         </div>
       )}
 
+      {type === "progress" && (
+        <div className="csv-db-modal-field">
+          <label className="csv-db-modal-label">Display style</label>
+          <div className="csv-db-select-wrapper">
+            <select
+              className="csv-db-modal-select"
+              value={progressStyle}
+              onChange={(e) => setProgressStyle(e.target.value as "bar" | "ring")}
+            >
+              <option value="bar">Bar</option>
+              <option value="ring">Ring</option>
+            </select>
+          </div>
+          <div className="csv-db-modal-help">
+            Cells store a number from 0 to 100.
+          </div>
+        </div>
+      )}
+
       {type === "rollup" && (
         <>
           <div className="csv-db-modal-field">
@@ -492,7 +512,7 @@ export class ColumnModalWrapper extends Modal {
   private column: ColumnDef;
   private columns: ColumnDef[];
   private databasePath: string;
-  private onSaveCallback: (name: string, type: ColumnType, options: SelectOption[], wrapContent: boolean, titleNoteEnabled: boolean, titleNoteFolder: string, titleFolderEnabled: boolean, titleFolderPath: string, relationTargetPath: string, relationMultiple: boolean, formula: string, rollup: ColumnDef["rollup"]) => void;
+  private onSaveCallback: (name: string, type: ColumnType, options: SelectOption[], wrapContent: boolean, titleNoteEnabled: boolean, titleNoteFolder: string, titleFolderEnabled: boolean, titleFolderPath: string, relationTargetPath: string, relationMultiple: boolean, formula: string, rollup: ColumnDef["rollup"], progressStyle: "bar" | "ring") => void;
   private onDeleteCallback: () => void;
   private onRemoveOptionCallback: (value: string, removeData: boolean) => void;
   private reactRoot: Root | null = null;
@@ -502,7 +522,7 @@ export class ColumnModalWrapper extends Modal {
     column: ColumnDef,
     columns: ColumnDef[],
     databasePath: string,
-    onSave: (name: string, type: ColumnType, options: SelectOption[], wrapContent: boolean, titleNoteEnabled: boolean, titleNoteFolder: string, titleFolderEnabled: boolean, titleFolderPath: string, relationTargetPath: string, relationMultiple: boolean, formula: string, rollup: ColumnDef["rollup"]) => void,
+    onSave: (name: string, type: ColumnType, options: SelectOption[], wrapContent: boolean, titleNoteEnabled: boolean, titleNoteFolder: string, titleFolderEnabled: boolean, titleFolderPath: string, relationTargetPath: string, relationMultiple: boolean, formula: string, rollup: ColumnDef["rollup"], progressStyle: "bar" | "ring") => void,
     onDelete: () => void,
     onRemoveOption: (value: string, removeData: boolean) => void
   ) {
@@ -524,8 +544,8 @@ export class ColumnModalWrapper extends Modal {
         column={this.column}
         columns={this.columns}
         databasePath={this.databasePath}
-        onSave={(name, type, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup) => {
-          this.onSaveCallback(name, type, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup);
+        onSave={(name, type, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup, progressStyle) => {
+          this.onSaveCallback(name, type, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup, progressStyle);
           this.close();
         }}
         onDelete={() => {

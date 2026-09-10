@@ -48,7 +48,7 @@ export function buildStatsData(rows: QueryResultRow[], columns: ColumnDef[]): St
   const dateByMonth = new Map<string, number>();
 
   const selectCols = columns.map((c, i) => ({ c, i })).filter(({ c }) => c.type === "select");
-  const numericCols = columns.map((c, i) => ({ c, i })).filter(({ c }) => c.type === "number");
+  const numericCols = columns.map((c, i) => ({ c, i })).filter(({ c }) => c.type === "number" || c.type === "progress");
   const dateCols = columns.map((c, i) => ({ c, i })).filter(({ c }) => c.type === "date");
 
   for (const { c, i } of selectCols) {

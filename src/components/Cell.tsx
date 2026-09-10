@@ -6,6 +6,7 @@ import { MultiSelectCell } from "./MultiSelectCell";
 import { NoteCell } from "./NoteCell";
 import { TitleCell } from "./TitleCell";
 import { RelationCell } from "./RelationCell";
+import { ProgressCell } from "./ProgressCell";
 
 interface CellProps {
   value: string;
@@ -61,6 +62,10 @@ export function Cell({ value, column, onChange, onAddOption, onUpdateOption, onR
 
   if (column.type === "relation") {
     return <RelationCell value={value} column={column} onChange={onChange} />;
+  }
+
+  if (column.type === "progress") {
+    return <ProgressCell value={value} column={column} onChange={onChange} />;
   }
 
   if (column.type === "formula" || column.type === "rollup") {

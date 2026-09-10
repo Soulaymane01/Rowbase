@@ -10,7 +10,7 @@ export type TypedValue =
 
 export function resolveValue(cell: string | undefined, type: ColumnType): TypedValue {
   const raw = cell ?? "";
-  if (type === "number") {
+  if (type === "number" || type === "progress") {
     const n = Number(raw);
     return raw === "" || Number.isNaN(n) ? { kind: "empty" } : { kind: "number", number: n };
   }

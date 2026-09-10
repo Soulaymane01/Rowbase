@@ -16,6 +16,7 @@ import { getNoteDisplayName, notePathExists, openNoteValue } from "../note-utils
 import { loadRelationRecords, splitRelationValue } from "../relation-utils";
 import { openTitleNote, titleNoteExists } from "../title-utils";
 import { openTitleFolder, titleFolderExists } from "../folder-utils";
+import { ProgressDisplay, ProgressEditor, parseProgressPercent } from "./ProgressCell";
 
 interface RowDetailFieldProps {
   col: ColumnDef;
@@ -40,6 +41,8 @@ function RowDetailField({
 }: RowDetailFieldProps) {
   const [selectOpen, setSelectOpen] = useState(false);
   const selectAnchorRef = useRef<HTMLDivElement>(null);
+  const [progressOpen, setProgressOpen] = useState(false);
+  const progressAnchorRef = useRef<HTMLDivElement>(null);
   const app = useApp();
   const databasePath = useDatabasePath();
   const databaseModel = useDatabaseModel();
@@ -140,6 +143,28 @@ function RowDetailField({
               }
             }}
           />
+        );
+      }
+
+      case "progress": {
+        const progressAnchor = progressAnchorRef.current?.getBoundingClientRect() ?? null;
+        return (
+          <div
+            ref={progressAnchorRef}
+            className="csv-db-row-detail-progress"
+            onClick={() => setProgressOpen(true)}
+            title="Click to edit"
+          >
+            <ProgressDisplay column={col} value={value} />
+            {progressOpen && progressAnchor && (
+              <ProgressEditor
+                value={parseProgressPercent(value)}
+                anchorRect={progressAnchor}
+                onChange={(v) => onSetCell(rowOriginalIndex, dataIdx, v)}
+                onClose={() => setProgressOpen(false)}
+              />
+            )}
+          </div>
         );
       }
 

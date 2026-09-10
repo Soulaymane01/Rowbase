@@ -23,7 +23,7 @@ const AGGS: { value: ChartAgg; label: string }[] = [
 
 export function ChartConfigPopover({ activeView, columns, onUpdateView, onClose }: ChartConfigPopoverProps) {
   const textCols = useMemo(() => columns, [columns]);
-  const numCols = useMemo(() => columns.filter((c) => c.type === "number"), [columns]);
+  const numCols = useMemo(() => columns.filter((c) => c.type === "number" || c.type === "progress"), [columns]);
 
   const set = (patch: Partial<ViewDef>) => {
     onUpdateView({ ...activeView, ...patch });
