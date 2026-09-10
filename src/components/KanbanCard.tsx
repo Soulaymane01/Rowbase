@@ -3,6 +3,7 @@ import { splitMultiSelect } from "../csv-parser";
 import { splitRelationValue } from "../relation-utils";
 import { RelationPill } from "./RelationPill";
 import { Tag } from "./Tag";
+import { ProgressDisplay } from "./ProgressCell";
 
 interface KanbanCardProps {
   row: string[];
@@ -68,6 +69,10 @@ function renderCardProperty(value: string, col: ColumnDef): React.ReactNode {
         ))}
       </span>
     );
+  }
+
+  if (col.type === "progress") {
+    return <ProgressDisplay column={col} value={value} />;
   }
 
   return <span>{value}</span>;

@@ -2,6 +2,7 @@ import { useCallback, useMemo } from "react";
 import { ColumnDef, DisplayColumn, ViewDef } from "../types";
 import { KanbanColumn } from "./KanbanColumn";
 import { useCardDrag } from "../hooks/useCardDrag";
+import { useBoardColumnDrag } from "../hooks/useBoardColumnDrag";
 import { groupRowsBySelect } from "../query/group";
 import { QueryResultRow } from "../query/record";
 
@@ -14,6 +15,8 @@ interface KanbanViewProps {
   onDeleteRow: (rowIdx: number) => void;
   onAddRowWithValues: (values: { colIdx: number; value: string }[]) => void;
   onCardClick: (rowOriginalIndex: number) => void;
+  onUpdateView: (view: ViewDef) => void;
+  onReorderBoardColumn: (groupColIdx: number, fromIdx: number, insertAt: number) => void;
 }
 
 export function KanbanView({
@@ -25,8 +28,11 @@ export function KanbanView({
   onDeleteRow,
   onAddRowWithValues,
   onCardClick,
+  onUpdateView,
+  onReorderBoardColumn,
 }: KanbanViewProps) {
   const groupByColumn = activeView.groupByColumn;
+  const hiddenGroups = useMemo(() => activeView.hiddenGroups ?? [], [activeView.hiddenGroups]);
 
   // Resolve groupByColumn to column def + dataIdx
   const groupByInfo = useMemo(() => {
@@ -43,10 +49,31 @@ export function KanbanView({
     return groupRowsBySelect(rows, columns, groupByColumn);
   }, [rows, columns, groupByColumn]);
 
+  const visibleGroups = useMemo(
+    () => groups.filter((g) => !hiddenGroups.includes(g.groupValue)),
+    [groups, hiddenGroups]
+  );
+
   const handleCardMove = useCallback((rowOriginalIndex: number, targetGroupValue: string) => {
     if (!groupByInfo) return;
     onSetCell(rowOriginalIndex, groupByInfo.dataIdx, targetGroupValue);
   }, [groupByInfo, onSetCell]);
+
+  const handleReorderColumn = useCallback(
+    (fromGroupValue: string, toGroupValue: string, position: "before" | "after") => {
+      if (!groupByInfo) return;
+      const options = groupByInfo.col.options || [];
+      const fromIdx = options.findIndex((o) => o.value === fromGroupValue);
+      const toIdx = options.findIndex((o) => o.value === toGroupValue);
+      if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
+      let insertAt = position === "before" ? toIdx : toIdx + 1;
+      if (insertAt > fromIdx) insertAt -= 1;
+      onReorderBoardColumn(groupByInfo.dataIdx, fromIdx, insertAt);
+    },
+    [groupByInfo, onReorderBoardColumn]
+  );
+
+  const { onHeaderMouseDown } = useBoardColumnDrag({ onReorder: handleReorderColumn });
 
   const { onCardMouseDown, consumeJustDragged } = useCardDrag({ onCardMove: handleCardMove });
 
@@ -54,6 +81,20 @@ export function KanbanView({
     if (consumeJustDragged()) return;
     onCardClick(rowOriginalIndex);
   }, [consumeJustDragged, onCardClick]);
+
+  const handleHideColumn = useCallback((groupValue: string) => {
+    if (hiddenGroups.includes(groupValue)) return;
+    onUpdateView({ ...activeView, hiddenGroups: [...hiddenGroups, groupValue] });
+  }, [activeView, hiddenGroups, onUpdateView]);
+
+  const handleShowColumn = useCallback((groupValue: string) => {
+    const next = hiddenGroups.filter((h) => h !== groupValue);
+    onUpdateView({ ...activeView, hiddenGroups: next.length > 0 ? next : undefined });
+  }, [activeView, hiddenGroups, onUpdateView]);
+
+  const handleShowAllColumns = useCallback(() => {
+    onUpdateView({ ...activeView, hiddenGroups: undefined });
+  }, [activeView, onUpdateView]);
 
   if (!groupByInfo) {
     return (
@@ -73,8 +114,32 @@ export function KanbanView({
 
   return (
     <div className="csv-db-kanban-scroll">
+      {hiddenGroups.length > 0 && (
+        <div className="csv-db-kanban-hidden-bar">
+          <span className="csv-db-kanban-hidden-label">
+            {hiddenGroups.length} hidden {hiddenGroups.length === 1 ? "column" : "columns"}
+          </span>
+          {hiddenGroups.map((value) => (
+            <button
+              key={value}
+              className="csv-db-kanban-hidden-chip"
+              onClick={() => handleShowColumn(value)}
+              title="Show column"
+            >
+              {value || "No value"}
+            </button>
+          ))}
+          <button
+            className="csv-db-kanban-hidden-chip csv-db-kanban-hidden-chip-all"
+            onClick={handleShowAllColumns}
+            title="Show all columns"
+          >
+            Show all
+          </button>
+        </div>
+      )}
       <div className="csv-db-kanban-board">
-        {groups.map(({ groupValue, option, rows: groupRows }) => (
+        {visibleGroups.map(({ groupValue, option, rows: groupRows }) => (
           <KanbanColumn
             key={groupValue}
             groupValue={groupValue}
@@ -86,6 +151,8 @@ export function KanbanView({
             onAddRowWithValues={onAddRowWithValues}
             onCardMouseDown={onCardMouseDown}
             onCardClick={handleCardClickGuarded}
+            onHeaderMouseDown={onHeaderMouseDown}
+            onHideColumn={handleHideColumn}
           />
         ))}
       </div>
