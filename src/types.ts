@@ -1,4 +1,4 @@
-export type ColumnType = "text" | "number" | "date" | "checkbox" | "select" | "multiselect" | "note" | "title" | "relation" | "url" | "link" | "formula" | "rollup";
+export type ColumnType = "text" | "number" | "date" | "checkbox" | "select" | "multiselect" | "note" | "title" | "relation" | "url" | "link" | "formula" | "rollup" | "progress";
 
 export type TagColor = "gray" | "brown" | "orange" | "yellow" | "green" | "blue" | "purple" | "pink" | "red";
 
@@ -20,6 +20,8 @@ export interface ColumnDef {
   width?: number;
   columnIndex?: number;
   wrapContent?: boolean;
+  progressStyle?: "bar" | "ring";
+  aggregate?: string;
   formula?: string;
   rollup?: { relationColumn: string; targetColumn: string; handler: "count" | "sum" | "avg" | "min" | "max" | "list"; targetFilter?: { column: string; equals: string } };
 }
@@ -55,12 +57,18 @@ export interface ViewDef {
   sorts: SortRule[];
   filters: FilterRule[];
   hiddenColumns: string[];
+  hiddenGroups?: string[];
   groupByColumn?: string;
   chartType?: "bar" | "line" | "pie" | "area";
   chartXColumn?: string;
   chartYColumn?: string;
   chartAgg?: "count" | "sum" | "avg";
   chartColorByColumn?: string;
+  timelineStartColumn?: string;
+  timelineEndColumn?: string;
+  timelineGroupBy?: string;
+  timelineStatusColumn?: string;
+  timelineLabelColumn?: string;
 }
 
 export interface DatabaseModel {

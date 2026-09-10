@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useApp, usePortalContainer } from "../AppContext";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { normalizeNoteValue } from "../note-utils";
+import { useDropdownFlip, dropdownStyle } from "../hooks/useDropdownFlip";
 
 interface NoteDropdownProps {
   currentValue: string;
@@ -67,6 +68,7 @@ export function NoteDropdown({
   }, [candidatePath, currentValue, handleCommitPath, normalizedCurrentValue, onClose, onSelect]);
 
   useClickOutside([dropdownRef], handleDismiss);
+  const placement = useDropdownFlip(anchorRect, dropdownRef);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -83,11 +85,7 @@ export function NoteDropdown({
       onMouseUpCapture={() => {
         pointerDownInsideRef.current = false;
       }}
-      style={{
-        top: `${anchorRect.top}px`,
-        left: `${anchorRect.left}px`,
-        width: `${anchorRect.width}px`,
-      }}
+      style={dropdownStyle(anchorRect, placement)}
     >
       <div
         className="csv-db-dropdown-input-area"

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { ColumnDef } from "../types";
 import { useApp, useDatabaseModel, useDatabasePath, usePortalContainer } from "../AppContext";
 import { useClickOutside } from "../hooks/useClickOutside";
+import { useDropdownFlip, dropdownStyle } from "../hooks/useDropdownFlip";
 import { joinRelationValue, loadRelationRecords, RelationRecord, splitRelationValue } from "../relation-utils";
 import { RelationPill } from "./RelationPill";
 
@@ -35,6 +36,7 @@ export function RelationDropdown({
   }, [onClose]);
 
   useClickOutside([dropdownRef], handleClose);
+  const placement = useDropdownFlip(anchorRect, dropdownRef);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,11 +79,7 @@ export function RelationDropdown({
       className="csv-db-dropdown csv-db-relation-dropdown"
       aria-expanded="true"
       aria-haspopup="listbox"
-      style={{
-        top: `${anchorRect.top}px`,
-        left: `${anchorRect.left}px`,
-        width: `${anchorRect.width}px`,
-      }}
+      style={dropdownStyle(anchorRect, placement)}
     >
       <div
         className="csv-db-dropdown-input-area"

@@ -80,10 +80,12 @@ interface ToolbarProps {
   allDisplayColumns: DisplayColumn[];
   onUpdateView: (viewIndex: number, view: ViewDef) => void;
   onAddView: () => void;
+  onDuplicateView: () => void;
   onDeleteView: (index: number) => void;
   onRenameView: (index: number, name: string) => void;
   onToggleBar: () => void;
   app: App;
+  onPickRandomNote?: () => void;
   onImportCSV?: (mode: "new" | "append") => void;
   onExport?: (format: "csv" | "json") => void;
 }
@@ -98,19 +100,19 @@ export function Toolbar({
   allDisplayColumns,
   onUpdateView,
   onAddView,
+  onDuplicateView,
   onDeleteView,
   onRenameView,
   onToggleBar,
   app,
+  onPickRandomNote,
   onImportCSV,
   onExport,
 }: ToolbarProps) {
   const [openPopover, setOpenPopover] = useState<PopoverType>(null);
   const [chartConfigOpen, setChartConfigOpen] = useState(false);
-  const [dataMenuOpen, setDataMenuOpen] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const chartSettingsRef = useRef<HTMLDivElement>(null);
-  const dataMenuRef = useRef<HTMLDivElement>(null);
 
   const activeLayout: ViewLayout = activeView.layout || "table";
 
@@ -154,23 +156,10 @@ export function Toolbar({
     };
   }, [openPopover]);
 
-  useEffect(() => {
-    if (!dataMenuOpen) return;
-    const doc = activeDocument;
-    const handleClick = (e: MouseEvent) => {
-      if (dataMenuRef.current && !dataMenuRef.current.contains(e.target as Node)) setDataMenuOpen(false);
-    };
-    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDataMenuOpen(false); };
-    doc.addEventListener("mousedown", handleClick);
-    doc.addEventListener("keydown", handleKey);
-    return () => { doc.removeEventListener("mousedown", handleClick); doc.removeEventListener("keydown", handleKey); };
-  }, [dataMenuOpen]);
-
   // Close popover when view changes
   useEffect(() => {
     setOpenPopover(null);
     setChartConfigOpen(false);
-    setDataMenuOpen(false);
   }, [activeViewIndex]);
 
   const togglePopover = useCallback((type: PopoverType) => {
@@ -203,6 +192,7 @@ export function Toolbar({
           <path d="M10 4V12M10 4L8 6M10 4L12 6" />
         </svg>
       </button>
+      <div className="csv-db-toolbar-separator" />
       <button
         className={`csv-db-toolbar-btn${activeView.hiddenColumns.length > 0 ? " csv-db-toolbar-btn-active" : ""}`}
         onClick={() => togglePopover("visibility")}
@@ -213,6 +203,19 @@ export function Toolbar({
           <circle cx="8" cy="8" r="2.5" />
         </svg>
       </button>
+      <div className="csv-db-toolbar-separator" />
+      <button
+        className="csv-db-toolbar-btn"
+        onClick={() => onPickRandomNote?.()}
+        title="Pick random row"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+          <rect x="1.5" y="1.5" width="11" height="11" rx="2.5" />
+          <circle cx="4.7" cy="4.7" r="0.9" fill="currentColor" stroke="none" />
+          <circle cx="9.3" cy="9.3" r="0.9" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+      <div className="csv-db-toolbar-separator" />
       <button
         className="csv-db-toolbar-btn"
         onClick={() => togglePopover("viewMenu")}
@@ -224,23 +227,6 @@ export function Toolbar({
           <circle cx="11" cy="7" r="1.2" />
         </svg>
       </button>
-
-      <div className="csv-db-toolbar-data-anchor" ref={dataMenuRef} style={{ position: "relative" }}>
-        <button className="csv-db-toolbar-btn" onClick={() => setDataMenuOpen((v) => !v)} title="Data">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 2h5l3 3v7a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M9 2v3h3"/></svg>
-        </button>
-        {dataMenuOpen && (
-          <div className="csv-db-popover csv-db-data-popover" style={{ position: "absolute", top: "100%", right: 0, minWidth: "180px" }}>
-            <div className="csv-db-view-menu-section-label">Import</div>
-            <div className="csv-db-view-menu-item" onClick={() => { setDataMenuOpen(false); onImportCSV?.("new"); }}>CSV → New database</div>
-            <div className="csv-db-view-menu-item" onClick={() => { setDataMenuOpen(false); onImportCSV?.("append"); }}>CSV → Append to current</div>
-            <div className="csv-db-view-menu-separator" />
-            <div className="csv-db-view-menu-section-label">Export</div>
-            <div className="csv-db-view-menu-item" onClick={() => { setDataMenuOpen(false); onExport?.("csv"); }}>Export as CSV</div>
-            <div className="csv-db-view-menu-item" onClick={() => { setDataMenuOpen(false); onExport?.("json"); }}>Export as JSON</div>
-          </div>
-        )}
-      </div>
 
       {/* Chart settings trigger (chart layout only) */}
       {activeLayout === "chart" && (
@@ -284,7 +270,11 @@ export function Toolbar({
           columns={columns}
           onUpdateView={onUpdateView}
           onAddView={() => { setOpenPopover(null); onAddView(); }}
+          onDuplicateView={() => { setOpenPopover(null); onDuplicateView(); }}
           onDeleteView={() => { setOpenPopover(null); onDeleteView(activeViewIndex); }}
+          onRequestClose={() => setOpenPopover(null)}
+          onImportCSV={onImportCSV}
+          onExport={onExport}
           onRename={() => {
             setOpenPopover(null);
             new RenameViewModal(app, activeView.name, (name) => {
@@ -306,8 +296,12 @@ interface ViewMenuProps {
   columns: ColumnDef[];
   onUpdateView: (viewIndex: number, view: ViewDef) => void;
   onAddView: () => void;
+  onDuplicateView: () => void;
   onDeleteView: () => void;
   onRename: () => void;
+  onRequestClose: () => void;
+  onImportCSV?: (mode: "new" | "append") => void;
+  onExport?: (format: "csv" | "json") => void;
 }
 
 function ViewMenu({
@@ -317,8 +311,12 @@ function ViewMenu({
   columns,
   onUpdateView,
   onAddView,
+  onDuplicateView,
   onDeleteView,
   onRename,
+  onRequestClose,
+  onImportCSV,
+  onExport,
 }: ViewMenuProps) {
   const activeLayout: ViewLayout = activeView.layout || "table";
   const selectColumns = columns.filter((c) => c.type === "select");
@@ -421,6 +419,9 @@ function ViewMenu({
       <div className="csv-db-view-menu-item" onClick={onAddView}>
         New view
       </div>
+      <div className="csv-db-view-menu-item" onClick={onDuplicateView}>
+        Duplicate "{activeView.name}"
+      </div>
       <div className="csv-db-view-menu-item" onClick={onRename}>
         Rename
       </div>
@@ -432,6 +433,24 @@ function ViewMenu({
           Delete "{activeView.name}"
         </div>
       )}
+
+      {/* Data section */}
+      <div className="csv-db-view-menu-separator" />
+      <div className="csv-db-view-menu-section-label">Import</div>
+      <div className="csv-db-view-menu-item" onClick={() => { onRequestClose(); onImportCSV?.("new"); }}>
+        CSV → New database
+      </div>
+      <div className="csv-db-view-menu-item" onClick={() => { onRequestClose(); onImportCSV?.("append"); }}>
+        CSV → Append to current
+      </div>
+      <div className="csv-db-view-menu-separator" />
+      <div className="csv-db-view-menu-section-label">Export</div>
+      <div className="csv-db-view-menu-item" onClick={() => { onRequestClose(); onExport?.("csv"); }}>
+        Export as CSV
+      </div>
+      <div className="csv-db-view-menu-item" onClick={() => { onRequestClose(); onExport?.("json"); }}>
+        Export as JSON
+      </div>
     </div>
   );
 }

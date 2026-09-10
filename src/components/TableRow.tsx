@@ -7,9 +7,12 @@ interface TableRowProps {
   computed?: Record<number, string>;
   displayColumns: DisplayColumn[];
   onSetCell: (rowIdx: number, colIdx: number, value: string) => void;
-  onDeleteRow: (rowIdx: number) => void;
   onReorderRow: (fromRowIdx: number, toRowIdx: number, position: "before" | "after") => void;
   canReorderRows: boolean;
+  selected: boolean;
+  onToggleRowSelect: (rowIdx: number) => void;
+  showRowNumbers: boolean;
+  rowNumber: number;
   onAddSelectOption: (colIdx: number, option: SelectOption) => void;
   onUpdateSelectOption: (colIdx: number, oldValue: string, newOption: SelectOption | null) => void;
   onRemoveOptionDef: (colIdx: number, value: string) => void;
@@ -21,16 +24,31 @@ export function TableRow({
   computed,
   displayColumns,
   onSetCell,
-  onDeleteRow,
   onReorderRow,
   canReorderRows,
+  selected,
+  onToggleRowSelect,
+  showRowNumbers,
+  rowNumber,
   onAddSelectOption,
   onUpdateSelectOption,
   onRemoveOptionDef,
 }: TableRowProps) {
   return (
-    <tr className="csv-db-row" data-row-index={rowIdx} role="row">
-      <td className="csv-db-row-drag-action">
+    <tr
+      className={`csv-db-row${selected ? " csv-db-row-selected" : ""}`}
+      data-row-index={rowIdx}
+      role="row"
+    >
+      <td
+        className="csv-db-row-select-action"
+        onClick={showRowNumbers ? (e) => { e.stopPropagation(); onToggleRowSelect(rowIdx); } : undefined}
+      >
+        {showRowNumbers && (
+          <span className="csv-db-row-number" aria-hidden="true">
+            {rowNumber}
+          </span>
+        )}
         {canReorderRows && (
           <span
             className="csv-db-row-drag-handle"
@@ -45,6 +63,14 @@ export function TableRow({
             <span />
           </span>
         )}
+        <input
+          type="checkbox"
+          className="csv-db-checkbox csv-db-row-select-checkbox"
+          checked={selected}
+          onClick={(e) => e.stopPropagation()}
+          onChange={() => onToggleRowSelect(rowIdx)}
+          aria-label="Select row"
+        />
       </td>
       {displayColumns.map(({ col, dataIdx }) => {
         const displayValue = computed?.[dataIdx] ?? row[dataIdx] ?? "";
@@ -61,14 +87,6 @@ export function TableRow({
         );
       })}
       <td className="csv-db-cell csv-db-cell-spacer" />
-      <td className="csv-db-row-action">
-        <span
-          className="csv-db-row-delete"
-          onClick={() => onDeleteRow(rowIdx)}
-        >
-          ✕
-        </span>
-      </td>
     </tr>
   );
 }

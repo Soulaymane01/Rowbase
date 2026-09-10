@@ -1,8 +1,10 @@
-import { Plugin, WorkspaceLeaf, TFile, Notice } from "obsidian";
+import { Plugin, WorkspaceLeaf, TFile, TFolder, Notice } from "obsidian";
 import { DatabaseView, VIEW_TYPE_DATABASE } from "./database-view";
 import { serializeCSV } from "./csv-parser";
 import { ColumnDef } from "./types";
 import { DatabasePluginSettings, DEFAULT_SETTINGS, SettingsTab } from "./settings";
+
+export const SETTINGS_CHANGED_EVENT = "rowbase:settings-changed";
 
 function isColumnDef(value: unknown): value is ColumnDef {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
@@ -17,7 +19,7 @@ export default class DatabasePlugin extends Plugin {
     await this.loadSettings();
 
     this.registerView(VIEW_TYPE_DATABASE, (leaf: WorkspaceLeaf) => {
-      return new DatabaseView(leaf);
+      return new DatabaseView(leaf, this);
     });
 
     this.registerExtensions(["rbase"], VIEW_TYPE_DATABASE);
@@ -31,6 +33,21 @@ export default class DatabasePlugin extends Plugin {
       name: "Create new database",
       callback: () => this.createNewDatabase(),
     });
+
+    // Right-click a folder in the file explorer to create a database in it
+    this.registerEvent(
+      this.app.workspace.on("file-menu", (menu, file) => {
+        if (!(file instanceof TFolder)) return;
+        menu.addItem((item) => {
+          item
+            .setTitle("New database")
+            .setIcon("table")
+            .onClick(() => {
+              void this.createNewDatabase(file.path);
+            });
+        });
+      })
+    );
 
     this.addSettingTab(new SettingsTab(this.app, this));
   }
@@ -46,9 +63,11 @@ export default class DatabasePlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+    // Let open database views re-render with the new settings
+    this.app.workspace.trigger(SETTINGS_CHANGED_EVENT);
   }
 
-  async createNewDatabase() {
+  async createNewDatabase(targetFolder?: string) {
     let defaultColumns: ColumnDef[];
     try {
       const parsed: unknown = JSON.parse(this.settings.defaultTemplateColumns);
@@ -77,7 +96,8 @@ export default class DatabasePlugin extends Plugin {
       formatVersion: 1,
     });
 
-    const folderPath = this.settings.defaultFolder.trim().replace(/^\/+|\/+$/g, "");
+    const folderPath = targetFolder
+      ?? this.settings.defaultFolder.trim().replace(/^\/+|\/+$/g, "");
 
     if (folderPath) {
       const existing = this.app.vault.getAbstractFileByPath(folderPath);

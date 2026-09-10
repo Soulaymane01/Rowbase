@@ -5,9 +5,11 @@ interface TableBodyProps {
   rows: Array<{ row: string[]; originalIndex: number; computed?: Record<number, string> }>;
   displayColumns: DisplayColumn[];
   onSetCell: (rowIdx: number, colIdx: number, value: string) => void;
-  onDeleteRow: (rowIdx: number) => void;
   onReorderRow: (fromRowIdx: number, toRowIdx: number, position: "before" | "after") => void;
   canReorderRows: boolean;
+  selectedRows: Set<number>;
+  onToggleRowSelect: (rowIdx: number) => void;
+  showRowNumbers: boolean;
   onAddSelectOption: (colIdx: number, option: SelectOption) => void;
   onUpdateSelectOption: (colIdx: number, oldValue: string, newOption: SelectOption | null) => void;
   onRemoveOptionDef: (colIdx: number, value: string) => void;
@@ -17,16 +19,18 @@ export function TableBody({
   rows,
   displayColumns,
   onSetCell,
-  onDeleteRow,
   onReorderRow,
   canReorderRows,
+  selectedRows,
+  onToggleRowSelect,
+  showRowNumbers,
   onAddSelectOption,
   onUpdateSelectOption,
   onRemoveOptionDef,
 }: TableBodyProps) {
   return (
     <tbody>
-      {rows.map(({ row, originalIndex, computed }) => (
+      {rows.map(({ row, originalIndex, computed }, displayIdx) => (
         <TableRow
           key={originalIndex}
           rowIdx={originalIndex}
@@ -34,9 +38,12 @@ export function TableBody({
           computed={computed}
           displayColumns={displayColumns}
           onSetCell={onSetCell}
-          onDeleteRow={onDeleteRow}
           onReorderRow={onReorderRow}
           canReorderRows={canReorderRows}
+          selected={selectedRows.has(originalIndex)}
+          onToggleRowSelect={onToggleRowSelect}
+          showRowNumbers={showRowNumbers}
+          rowNumber={displayIdx + 1}
           onAddSelectOption={onAddSelectOption}
           onUpdateSelectOption={onUpdateSelectOption}
           onRemoveOptionDef={onRemoveOptionDef}

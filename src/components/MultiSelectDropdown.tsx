@@ -6,6 +6,7 @@ import { Tag } from "./Tag";
 import { OptionEditPanel } from "./OptionEditPanel";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { usePortalContainer } from "../AppContext";
+import { useDropdownFlip, dropdownStyle } from "../hooks/useDropdownFlip";
 
 interface MultiSelectDropdownProps {
   column: ColumnDef;
@@ -42,6 +43,7 @@ export function MultiSelectDropdown({
   }, [onClose]);
 
   useClickOutside([dropdownRef, popoverRef], handleClose);
+  const placement = useDropdownFlip(anchorRect, dropdownRef);
 
   const options = column.options || [];
   const lower = search.toLowerCase();
@@ -143,12 +145,7 @@ export function MultiSelectDropdown({
       className="csv-db-dropdown"
       aria-expanded="true"
       aria-haspopup="listbox"
-      style={{
-        // Align with the cell's top edge so the input area overlays the cell being edited
-        top: `${anchorRect.top}px`,
-        left: `${anchorRect.left}px`,
-        width: `${anchorRect.width}px`,
-      }}
+      style={dropdownStyle(anchorRect, placement)}
     >
       <div className="csv-db-dropdown-input-area" onClick={() => {
         const input = dropdownRef.current?.querySelector<HTMLInputElement>(".csv-db-dropdown-search");

@@ -4,6 +4,7 @@ import { createElement } from "react";
 import { parseCSV, serializeCSV } from "./csv-parser";
 import { DatabaseModel } from "./types";
 import { DatabaseTable } from "./components/DatabaseTable";
+import type DatabasePlugin from "./main";
 
 export const VIEW_TYPE_DATABASE = "rbase-database-view";
 
@@ -11,9 +12,11 @@ export class DatabaseView extends TextFileView {
   private reactRoot: Root | null = null;
   private model: DatabaseModel = { columns: [], rows: [], views: [{ name: "Default", sorts: [], filters: [], hiddenColumns: [] }], formatVersion: 1 };
   private pushModel: ((model: DatabaseModel) => void) | null = null;
+  private plugin: DatabasePlugin | null;
 
-  constructor(leaf: WorkspaceLeaf) {
+  constructor(leaf: WorkspaceLeaf, plugin?: DatabasePlugin) {
     super(leaf);
+    this.plugin = plugin ?? null;
   }
 
   getViewType(): string {
@@ -63,6 +66,7 @@ export class DatabaseView extends TextFileView {
         },
         app: this.app,
         databasePath: this.file?.path || "",
+        plugin: this.plugin,
       })
     );
   }

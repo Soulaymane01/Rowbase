@@ -26,6 +26,7 @@ export const COLUMN_TYPES: { value: ColumnType; label: string }[] = [
   { value: "link", label: "Link" },
   { value: "formula", label: "Formula" },
   { value: "rollup", label: "Rollup" },
+  { value: "progress", label: "Progress" },
 ];
 
 export const TAG_COLOR_OPTIONS: TagColor[] = [
@@ -52,6 +53,7 @@ export function getTypeIcon(type: string): string {
     case "link": return "🔗";
     case "formula": return "ƒ";
     case "rollup": return "Σ";
+    case "progress": return "◐";
     default: return "Aa";
   }
 }

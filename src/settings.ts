@@ -7,6 +7,7 @@ export interface DatabasePluginSettings {
   defaultTemplateColumns: string;
   noteLinkingDefault: boolean;
   folderLinkingDefault: boolean;
+  showRowNumbers: boolean;
 }
 
 export const DEFAULT_SETTINGS: DatabasePluginSettings = {
@@ -27,6 +28,7 @@ export const DEFAULT_SETTINGS: DatabasePluginSettings = {
   ]),
   noteLinkingDefault: true,
   folderLinkingDefault: false,
+  showRowNumbers: false,
 };
 
 export class SettingsTab extends PluginSettingTab {
@@ -75,6 +77,11 @@ export class SettingsTab extends PluginSettingTab {
         name: "Enable folder linking by default",
         desc: "New title columns will have 'link to folder' enabled.",
         control: { type: "toggle", key: "folderLinkingDefault" },
+      },
+      {
+        name: "Show row numbers",
+        desc: "Show a row number on every database row.",
+        control: { type: "toggle", key: "showRowNumbers" },
       },
     ];
   }
@@ -143,6 +150,18 @@ export class SettingsTab extends PluginSettingTab {
           .setValue(this.plugin.settings.folderLinkingDefault)
           .onChange(async (value) => {
             this.plugin.settings.folderLinkingDefault = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Show row numbers")
+      .setDesc("Show a row number on every database row.")
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.showRowNumbers)
+          .onChange(async (value) => {
+            this.plugin.settings.showRowNumbers = value;
             await this.plugin.saveSettings();
           })
       );
