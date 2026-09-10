@@ -2601,18 +2601,41 @@ body.csv-db-card-dragging {
 
 /* ========== Chart View ========== */
 .csv-db-chart-scroll { overflow: auto; height: 100%; padding: 0; }
-.csv-db-chart { padding: 12px; display: flex; justify-content: center; }
-.csv-db-chart-svg { max-width: 100%; height: auto; }
-.csv-db-chart-axis-label { font-size: 11px; fill: var(--text-muted); }
+.csv-db-chart-wrap { position: relative; padding: 16px; box-sizing: border-box; }
+.csv-db-chart-canvas { display: flex; justify-content: center; }
+.csv-db-chart-svg { display: block; overflow: visible; }
+.csv-db-chart-gridline { stroke: var(--background-modifier-border); stroke-width: 1; opacity: 0.7; }
+.csv-db-chart-axis-line { stroke: var(--text-faint); stroke-width: 1; }
+.csv-db-chart-axis-label { font-size: 10px; fill: var(--text-muted); }
+.csv-db-chart-value-label { font-size: 10px; fill: var(--text-muted); font-variant-numeric: tabular-nums; }
+.csv-db-chart-bar { transition: opacity 0.1s ease; }
+.csv-db-chart-bar:hover { opacity: 0.8; }
+.csv-db-chart-point { cursor: pointer; }
+.csv-db-chart-slice { cursor: pointer; transition: opacity 0.1s ease; }
+.csv-db-chart-slice:hover { opacity: 0.85; }
+.csv-db-chart-donut-total { font-size: 16px; font-weight: 700; fill: var(--text-normal); }
+
+.csv-db-chart-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; padding: 4px 16px 16px; }
+.csv-db-chart-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+.csv-db-chart-legend-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.csv-db-chart-legend-label { color: var(--text-normal); }
+.csv-db-chart-legend-value { color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+.csv-db-chart-tooltip { position: absolute; z-index: 20; display: flex; align-items: flex-start; gap: 8px; background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 8px; padding: 6px 10px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); pointer-events: none; max-width: 240px; }
+.csv-db-chart-tooltip-swatch { width: 10px; height: 10px; border-radius: 3px; margin-top: 3px; flex-shrink: 0; }
+.csv-db-chart-tooltip-title { font-size: 12px; font-weight: 600; color: var(--text-normal); }
+.csv-db-chart-tooltip-series { font-size: 11px; color: var(--text-muted); }
+.csv-db-chart-tooltip-value { font-size: 12px; color: var(--text-normal); font-variant-numeric: tabular-nums; }
 .csv-db-chart-empty { color: var(--text-muted); text-align: center; padding: 40px; }
 
-.csv-db-chart-config { width: 260px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.csv-db-chart-config { width: 270px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 .csv-db-chart-config-section-label { font-weight: 600; font-size: 0.85em; color: var(--text-muted); }
 .csv-db-chart-config-row { display: flex; gap: 6px; }
 .csv-db-chart-config-type { flex: 1; padding: 6px 4px; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); cursor: pointer; }
 .csv-db-chart-config-type.is-active { border-color: var(--interactive-accent); background: var(--background-secondary); }
 .csv-db-chart-config-field { display: flex; flex-direction: column; gap: 4px; }
 .csv-db-chart-config-label { font-size: 0.85em; color: var(--text-muted); }
+.csv-db-chart-config-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85em; color: var(--text-normal); cursor: pointer; }
 .csv-db-chart-config-done { align-self: flex-end; padding: 6px 12px; border-radius: 4px; border: 1px solid var(--background-modifier-border); background: var(--background-primary); cursor: pointer; }
 
 .csv-db-cell-computed { font-style: italic; color: var(--text-muted); font-weight: 500; }

@@ -275,6 +275,16 @@ Cards are laid out in a responsive grid (min 260px wide on desktop, 220px on tab
 - **Delete**: an icon button overlay (top-right, revealed on hover).
 - **Empty state**: a friendly "No cards yet" placeholder.
 
+### Chart Layout
+
+Charts are dependency-free SVG rendered at the container's measured width (ResizeObserver), with a proper value axis.
+
+- **Types**: bar, line, area, pie (donut). Bar/line/area share a cartesian renderer with nice-number Y ticks, horizontal gridlines, a zero baseline (negatives supported), and X labels that auto-rotate when crowded. Pie is a donut with a center total.
+- **Data**: X is any column; the aggregation is count, sum, average, min, max, or median over an optional numeric Y column. "Color by" splits into one series per value of a select/multiselect column. Category order defaults to natural order (numeric/date X columns are sorted), or can be sorted by value ascending/descending. Bars can be grouped or stacked.
+- **Readability**: a legend appears for multi-series and pie charts (with values and percentages for pie), bar value labels show when there is room, and hovering a bar/point/slice shows a tooltip with the label, series, and value.
+- **Config**: the chart settings popover (toolbar) selects type, X, aggregation, Y, color-by, category sort, stacked bars, and value labels. Settings persist on the view (`chartType`, `chartXColumn`, `chartYColumn`, `chartAgg`, `chartColorByColumn`, `chartSort`, `chartStacked`, `chartShowValues`).
+- **Empty states**: distinct messages for "Configure chart" (no X column) and "No data" (no matching rows).
+
 ### UI Components
 
 The view bar and toolbar share a single horizontal row above the content: view tabs on the left, icon buttons on the right. The bar has a bottom hairline border and the tab strip scrolls horizontally (hidden scrollbar) when there are many views.

@@ -77,8 +77,44 @@ test("line/area with color-by splits into one series per color value", () => {
   assert.deepEqual(data.series[1].values, [0, 2]);
 });
 
-test("missing xColumn yields empty labels; non-numeric values skipped", () => {
+test("min, max and median aggregations", () => {
+  const min = buildChartData(rows, columns, { type: "bar", xColumn: "Category", yColumn: "Amount", agg: "min" });
+  assert.deepEqual(min.series[0].values, [10, 20]);
+  const max = buildChartData(rows, columns, { type: "bar", xColumn: "Category", yColumn: "Amount", agg: "max" });
+  assert.deepEqual(max.series[0].values, [30, 20]);
+  const median = buildChartData(rows, columns, { type: "bar", xColumn: "Category", yColumn: "Amount", agg: "median" });
+  assert.deepEqual(median.series[0].values, [20, 20]);
+});
+
+test("sort by value asc/desc", () => {
+  const asc = buildChartData(rows, columns, { type: "bar", xColumn: "Category", yColumn: "Amount", agg: "sum", sort: "asc" });
+  assert.deepEqual(asc.labels, ["Travel", "Food"]);
+  assert.deepEqual(asc.series[0].values, [20, 40]);
+  const desc = buildChartData(rows, columns, { type: "bar", xColumn: "Category", yColumn: "Amount", agg: "sum", sort: "desc" });
+  assert.deepEqual(desc.labels, ["Food", "Travel"]);
+  assert.deepEqual(desc.series[0].values, [40, 20]);
+});
+
+test("date X column is sorted naturally by default", () => {
+  const cols: ColumnDef[] = [
+    { name: "Date", type: "date" },
+    { name: "Amount", type: "number" },
+  ];
+  const r = (vals: string[], i: number) => resolveRow(buildRow(vals, i), cols);
+  const data = buildChartData(
+    [
+      r(["2024-03-01", "1"], 0),
+      r(["2024-01-01", "2"], 1),
+      r(["2024-02-01", "3"], 2),
+    ],
+    cols,
+    { type: "bar", xColumn: "Date", yColumn: "Amount", agg: "count" },
+  );
+  assert.deepEqual(data.labels, ["2024-01-01", "2024-02-01", "2024-03-01"]);
+});
+
+test("missing xColumn yields empty labels and series", () => {
   const data = buildChartData(rows, columns, { type: "bar", xColumn: "Nonexistent", yColumn: "Amount", agg: "sum" });
   assert.deepEqual(data.labels, []);
-  assert.deepEqual(data.series[0].values, [] as number[]);
+  assert.equal(data.series.length, 0);
 });

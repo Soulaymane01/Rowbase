@@ -62,8 +62,11 @@ export interface ViewDef {
   chartType?: "bar" | "line" | "pie" | "area";
   chartXColumn?: string;
   chartYColumn?: string;
-  chartAgg?: "count" | "sum" | "avg";
+  chartAgg?: "count" | "sum" | "avg" | "min" | "max" | "median";
   chartColorByColumn?: string;
+  chartSort?: "none" | "asc" | "desc";
+  chartStacked?: boolean;
+  chartShowValues?: boolean;
   timelineStartColumn?: string;
   timelineEndColumn?: string;
   timelineGroupBy?: string;

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { ColumnDef, ViewDef } from "../types";
-import { ChartConfig, ChartKind, ChartAgg } from "../query/chart";
+import { ChartConfig, ChartKind, ChartAgg, ChartSort } from "../query/chart";
 
 interface ChartConfigPopoverProps {
   activeView: ViewDef;
@@ -19,11 +19,25 @@ const AGGS: { value: ChartAgg; label: string }[] = [
   { value: "count", label: "Count" },
   { value: "sum", label: "Sum" },
   { value: "avg", label: "Average" },
+  { value: "min", label: "Min" },
+  { value: "max", label: "Max" },
+  { value: "median", label: "Median" },
+];
+const SORTS: { value: ChartSort; label: string }[] = [
+  { value: "none", label: "Natural order" },
+  { value: "asc", label: "Value ↑" },
+  { value: "desc", label: "Value ↓" },
 ];
 
 export function ChartConfigPopover({ activeView, columns, onUpdateView, onClose }: ChartConfigPopoverProps) {
-  const textCols = useMemo(() => columns, [columns]);
-  const numCols = useMemo(() => columns.filter((c) => c.type === "number" || c.type === "progress"), [columns]);
+  const numCols = useMemo(
+    () => columns.filter((c) => c.type === "number" || c.type === "progress" || c.type === "formula" || c.type === "rollup"),
+    [columns]
+  );
+  const groupCols = useMemo(
+    () => columns.filter((c) => c.type === "select" || c.type === "multiselect"),
+    [columns]
+  );
 
   const set = (patch: Partial<ViewDef>) => {
     onUpdateView({ ...activeView, ...patch });
@@ -35,6 +49,7 @@ export function ChartConfigPopover({ activeView, columns, onUpdateView, onClose 
     yColumn: activeView.chartYColumn || "",
     agg: activeView.chartAgg || "count",
     colorByColumn: activeView.chartColorByColumn,
+    sort: activeView.chartSort,
   };
 
   return (
@@ -56,7 +71,14 @@ export function ChartConfigPopover({ activeView, columns, onUpdateView, onClose 
         <label className="csv-db-chart-config-label">X (categories / dates)</label>
         <select className="csv-db-popover-select" value={config.xColumn} onChange={(e) => set({ chartXColumn: e.target.value })}>
           <option value="">—</option>
-          {textCols.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+          {columns.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
+        </select>
+      </div>
+
+      <div className="csv-db-chart-config-field">
+        <label className="csv-db-chart-config-label">Aggregation</label>
+        <select className="csv-db-popover-select" value={config.agg} onChange={(e) => set({ chartAgg: e.target.value as ChartAgg })}>
+          {AGGS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
         </select>
       </div>
 
@@ -71,13 +93,6 @@ export function ChartConfigPopover({ activeView, columns, onUpdateView, onClose 
       )}
 
       <div className="csv-db-chart-config-field">
-        <label className="csv-db-chart-config-label">Aggregation</label>
-        <select className="csv-db-popover-select" value={config.agg} onChange={(e) => set({ chartAgg: e.target.value as ChartAgg })}>
-          {AGGS.map((a) => <option key={a.value} value={a.value}>{a.label}</option>)}
-        </select>
-      </div>
-
-      <div className="csv-db-chart-config-field">
         <label className="csv-db-chart-config-label">Color by</label>
         <select
           className="csv-db-popover-select"
@@ -85,11 +100,38 @@ export function ChartConfigPopover({ activeView, columns, onUpdateView, onClose 
           onChange={(e) => set({ chartColorByColumn: e.target.value || undefined })}
         >
           <option value="">—</option>
-          {columns.filter((c) => c.type === "select" || c.type === "multiselect").map((c) => (
-            <option key={c.name} value={c.name}>{c.name}</option>
-          ))}
+          {groupCols.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
         </select>
       </div>
+
+      <div className="csv-db-chart-config-field">
+        <label className="csv-db-chart-config-label">Sort categories</label>
+        <select className="csv-db-popover-select" value={config.sort || "none"} onChange={(e) => set({ chartSort: e.target.value as ChartSort })}>
+          {SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+        </select>
+      </div>
+
+      {config.type === "bar" && (
+        <label className="csv-db-chart-config-toggle">
+          <input
+            type="checkbox"
+            checked={activeView.chartStacked === true}
+            onChange={(e) => set({ chartStacked: e.target.checked || undefined })}
+          />
+          Stacked bars
+        </label>
+      )}
+
+      {config.type === "bar" && (
+        <label className="csv-db-chart-config-toggle">
+          <input
+            type="checkbox"
+            checked={activeView.chartShowValues !== false}
+            onChange={(e) => set({ chartShowValues: e.target.checked ? undefined : false })}
+          />
+          Show values
+        </label>
+      )}
 
       <button className="csv-db-chart-config-done" onClick={onClose}>Done</button>
     </div>
