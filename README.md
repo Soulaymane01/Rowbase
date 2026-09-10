@@ -109,6 +109,8 @@ Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style da
 
 The `.rbase` file is a standard CSV file with column metadata encoded in the header row. It remains human-readable and can be opened with any text editor or spreadsheet application.
 
+The complete file-format reference for AI agents lives in [SKILL.md](SKILL.md) — it documents everything needed to create and edit `.rbase` files through direct file manipulation.
+
 ## Development
 
 ```bash
