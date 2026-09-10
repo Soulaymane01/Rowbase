@@ -24,10 +24,6 @@ export default class DatabasePlugin extends Plugin {
 
     this.registerExtensions(["rbase"], VIEW_TYPE_DATABASE);
 
-    this.addRibbonIcon("table", "New database", () => {
-      void this.createNewDatabase();
-    });
-
     this.addCommand({
       id: "create-new-database",
       name: "Create new database",

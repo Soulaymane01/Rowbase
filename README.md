@@ -44,7 +44,7 @@ Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style da
 - **Empty states** — Friendly placeholder with icons when databases or views are empty
 - **Mobile responsive** — Optimized for tablets and phones with touch-friendly targets
 - **Import/Export** — Import CSV files into databases; export to CSV or JSON
-- **Plugin settings** — Default folder, template name, template columns, note/folder linking defaults
+- **Plugin settings** — Default folder, template name, a validated template-columns editor, note/folder linking defaults, and show-row-numbers
 
 ## Screenshots
 

@@ -307,6 +307,10 @@ A habit tracker computed over the visible rows.
 - **Activity calendar**: GitHub-style heatmap for the first date column, capped to the last 53 weeks and extended to today. Cells are sized from the measured container width so the grid fills the available width (clamped to 9–22px so short ranges don't get oversized squares; the container scrolls horizontally if a very narrow viewport can't fit the minimum). Days are computed in UTC (so date-only strings don't shift by timezone) while "today" uses the local calendar date; today's cell is outlined. A Less→More legend, total entries, and best day are shown.
 - Streaks count trailing consecutive done entries in row order; activity streak counts consecutive days ending today with at least one entry.
 
+### Settings
+
+Settings → Rowbase is grouped into sections: **General** (default folder, default template name), **New database template**, **Linking defaults** (note/folder linking), and **Display** (show row numbers). The template-columns editor shows a JSON textarea with live validation (valid/invalid status + error message), a preview list of the parsed columns, and **Format** / **Reset to default** buttons. Every change persists through `saveSettings` and broadcasts the `rowbase:settings-changed` workspace event so open views re-render. New databases are created from the command palette or by right-clicking a folder in the file explorer (there is no ribbon icon).
+
 ### UI Components
 
 The view bar and toolbar share a single horizontal row above the content: view tabs on the left, icon buttons on the right. The bar has a bottom hairline border and the tab strip scrolls horizontally (hidden scrollbar) when there are many views.
