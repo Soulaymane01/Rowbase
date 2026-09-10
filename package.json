@@ -22,8 +22,12 @@
     "test:formula": "tsx --test test/formula.test.ts",
     "test:rollup": "tsx --test test/rollup.test.ts",
     "test:aggregate": "tsx --test test/aggregate.test.ts",
+    "test:stats": "tsx --test test/stats.test.ts",
+    "test:timeline": "tsx --test test/timeline.test.ts",
+    "test:dashboard": "tsx --test test/dashboard.test.ts",
+    "test:relations": "tsx --test test/relations.test.ts",
     "test:queryFormula": "tsx --test test/query-formula.test.ts",
-    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:rbase && npm run test:query && npm run test:chart && npm run test:formula && npm run test:rollup && npm run test:aggregate && npm run test:queryFormula && npm run build && npm run test:offline"
+    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:rbase && npm run test:query && npm run test:chart && npm run test:stats && npm run test:formula && npm run test:rollup && npm run test:aggregate && npm run test:timeline && npm run test:dashboard && npm run test:relations && npm run test:queryFormula && npm run build && npm run test:offline"
   },
   "devDependencies": {
     "@codemirror/state": "^6.5.0",

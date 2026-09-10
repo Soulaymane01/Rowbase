@@ -2644,14 +2644,16 @@ body.csv-db-card-dragging {
 .csv-db-stats-summary { display: flex; gap: 12px; flex-wrap: wrap; }
 .csv-db-stats-summary-card { background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 10px; padding: 14px 20px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 100px; flex: 1; }
 .csv-db-stats-summary-value { font-size: 26px; font-weight: 700; color: var(--text-normal); }
+.csv-db-stats-summary-value-sm { font-size: 16px; }
 .csv-db-stats-summary-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
-.csv-db-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.csv-db-stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
 .csv-db-stats-card { background: var(--background-primary); border: 1px solid var(--background-modifier-border); border-radius: 10px; padding: 14px 16px; }
 .csv-db-stats-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
 .csv-db-stats-card-header h4 { margin: 0; font-size: 13px; font-weight: 600; color: var(--text-normal); }
 .csv-db-stats-card-total { font-size: 11px; color: var(--text-muted); background: var(--background-modifier-border); border-radius: 6px; padding: 1px 7px; }
 .csv-db-stats-bars { display: flex; flex-direction: column; gap: 6px; }
 .csv-db-stats-bar-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.csv-db-stats-check-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
 .csv-db-stats-label { width: 70px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-normal); }
 .csv-db-stats-bar-track { flex: 1; height: 10px; background: var(--background-modifier-border); border-radius: 5px; overflow: hidden; }
 .csv-db-stats-bar { height: 100%; border-radius: 5px; transition: width 0.3s ease; }

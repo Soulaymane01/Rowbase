@@ -285,6 +285,18 @@ Charts are dependency-free SVG rendered at the container's measured width (Resiz
 - **Config**: the chart settings popover (toolbar) selects type, X, aggregation, Y, color-by, category sort, stacked bars, and value labels. Settings persist on the view (`chartType`, `chartXColumn`, `chartYColumn`, `chartAgg`, `chartColorByColumn`, `chartSort`, `chartStacked`, `chartShowValues`).
 - **Empty states**: distinct messages for "Configure chart" (no X column) and "No data" (no matching rows).
 
+### Stats Layout
+
+A dashboard of cards computed over the currently visible rows (filters/sorts/search applied).
+
+- **Summary cards**: row count, column count, percent of filled cells, and the date range across date columns.
+- **Distributions**: one card per select/multiselect column. Select counts include unused options (count 0) and a "No value" bucket; multiselect counts each pipe-separated value. Groups are sorted by count desc, capped at the top 10 with an "Other" bucket. Bars use the option's tag color.
+- **Checkboxes**: checked/unchecked counts with a percent bar per checkbox column.
+- **Numbers**: per number/progress column — sum, average, median, min, max, range, and count (formatted with k/M suffixes).
+- **Field coverage**: per column, how many rows are filled (sorted least-filled first) with a percent bar.
+- **Dates**: one card per date column, monthly distribution bars.
+- Empty state shown when there are no Select/Number/Checkbox/Date columns.
+
 ### UI Components
 
 The view bar and toolbar share a single horizontal row above the content: view tabs on the left, icon buttons on the right. The bar has a bottom hairline border and the tab strip scrolls horizontally (hidden scrollbar) when there are many views.
