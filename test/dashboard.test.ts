@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { detectHabitColumns, computeStreak, buildDateActivity, buildDashboardData } from "../src/query/dashboard.ts";
+import { detectHabitColumns, computeStreak, buildDateActivity, buildDashboardData, summarizeActivity } from "../src/query/dashboard.ts";
 import { buildRow, resolveRow } from "../src/query/record.ts";
 import { ColumnDef } from "../src/types.ts";
 
@@ -87,4 +87,53 @@ test("buildDashboardData full integration", () => {
   assert.equal(exercise.totalRows, 3);
   assert.ok(data.dateActivity.length >= 1);
   assert.ok(data.dateRange !== null);
+});
+
+test("habit recent rate and last-7 strip", () => {
+  const rows = [
+    row(["A","Done","true","2024-01-01","1"],0),
+    row(["B","Skip","false","2024-01-02","1"],1),
+    row(["C","Done","true","2024-01-03","1"],2),
+    row(["D","Done","true","2024-01-04","1"],3),
+  ];
+  const data = buildDashboardData(rows, columns);
+  const exercise = data.habits.find((h) => h.colName === "Exercise")!;
+  assert.deepEqual(exercise.last7, [true, false, true, true]);
+  assert.equal(exercise.recentRate, 0.75);
+});
+
+test("today's row resolution falls back to the latest row", () => {
+  const rows = [
+    row(["A","Done","true","2024-01-01","1"],0),
+    row(["B","Skip","false","2024-01-02","1"],1),
+  ];
+  const data = buildDashboardData(rows, columns);
+  assert.equal(data.todayRowIndex, 1);
+  assert.equal(data.todayLabel, "latest row");
+});
+
+test("summarizeActivity computes totals, best day and current streak", () => {
+  const activity = [
+    { date: "2024-01-01", count: 2 },
+    { date: "2024-01-02", count: 5 },
+    { date: "2024-01-04", count: 1 },
+  ];
+  const summary = summarizeActivity(activity, "2024-01-04");
+  assert.equal(summary.total, 8);
+  assert.equal(summary.activeDays, 3);
+  assert.equal(summary.bestDay?.date, "2024-01-02");
+  assert.equal(summary.bestDay?.count, 5);
+  assert.equal(summary.maxCount, 5);
+  // Streak counts 01-04 then 01-03 (absent → stops); 01-02 not counted.
+  assert.equal(summary.currentStreak, 1);
+});
+
+test("summarizeActivity current streak across consecutive days", () => {
+  const activity = [
+    { date: "2024-02-08", count: 1 },
+    { date: "2024-02-09", count: 1 },
+    { date: "2024-02-10", count: 3 },
+  ];
+  const summary = summarizeActivity(activity, "2024-02-10");
+  assert.equal(summary.currentStreak, 3);
 });

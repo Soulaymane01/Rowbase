@@ -2687,9 +2687,21 @@ body.csv-db-card-dragging {
 .csv-db-dash-habit-name { font-weight: 600; font-size: 14px; color: var(--text-normal); }
 .csv-db-dash-habit-streak { font-size: 12px; color: var(--text-muted); }
 .csv-db-dash-streak-num { font-weight: 700; color: var(--interactive-accent); font-size: 16px; }
-.csv-db-dash-habit-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
-.csv-db-dash-habit-toggle { border: 1px solid var(--background-modifier-border); background: var(--background-primary); color: var(--text-normal); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.csv-db-dash-habit-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); gap: 6px; flex-wrap: wrap; }
+.csv-db-dash-habit-card.is-done { border-color: var(--interactive-accent); }
+.csv-db-dash-habit-strip { display: flex; gap: 4px; align-items: center; min-height: 14px; }
+.csv-db-dash-habit-strip-empty { font-size: 11px; color: var(--text-faint); }
+.csv-db-dash-strip-cell { width: 14px; height: 14px; border-radius: 3px; background: var(--background-modifier-border); }
+.csv-db-dash-strip-cell.is-done { background: var(--interactive-accent); }
+.csv-db-dash-habit-toggle { border: 1px solid var(--background-modifier-border); background: var(--background-primary); color: var(--text-normal); border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; }
 .csv-db-dash-habit-toggle:hover { background: var(--background-modifier-hover); border-color: var(--interactive-accent); }
+.csv-db-dash-habit-toggle.is-done { border-color: var(--interactive-accent); color: var(--interactive-accent); }
+.csv-db-dash-habit-toggle:disabled { opacity: 0.5; cursor: default; }
+.csv-db-dash-calendar-section h4 { display: flex; align-items: center; gap: 8px; }
+.csv-db-dash-section-meta { margin-left: auto; font-size: 11px; font-weight: 400; color: var(--text-muted); }
+.csv-db-dash-legend { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 10px; color: var(--text-muted); }
+.csv-db-dash-legend-cell { width: 12px; height: 12px; border-radius: 3px; background: var(--interactive-accent); }
+.csv-db-dash-legend-label { margin: 0 2px; }
 .csv-db-dash-calendar { overflow-x: auto; }
 .csv-db-dash-calendar-months { position: relative; height: 14px; margin-left: 30px; margin-bottom: 2px; }
 .csv-db-dash-calendar-months span { position: absolute; font-size: 10px; color: var(--text-muted); }
@@ -2699,6 +2711,7 @@ body.csv-db-card-dragging {
 .csv-db-dash-calendar-svg { display: block; }
 .csv-db-dash-cal-cell { transition: opacity 0.15s; }
 .csv-db-dash-cal-cell:hover { stroke: var(--text-normal); stroke-width: 1; }
+.csv-db-dash-cal-cell.is-today { stroke: var(--text-normal); stroke-width: 1.5; }
 .csv-db-dash-empty { color: var(--text-muted); padding: 24px; text-align: center; }
 /* Timeline / Gantt */
 .csv-db-gantt { display: flex; flex-direction: column; height: 100%; overflow: hidden; font-size: 13px; position: relative; }
