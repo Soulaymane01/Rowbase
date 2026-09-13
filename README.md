@@ -9,6 +9,18 @@
 
 Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style databases to your vault. Each database is a single `.rbase` file — a human-readable CSV with JSON column metadata — that opens in a rich, interactive view with multiple layouts, formulas, relations, and more.
 
+## Demo
+
+<p align="center">
+  <video src="assets/demo/rowbase-demo.mp4" controls muted loop width="720"></video>
+  <br>
+  <em>Table → kanban → stats — all from the same `.rbase` file.</em>
+</p>
+
+<p align="center">
+  <img src="assets/demo/rowbase-demo.gif" alt="Rowbase demo (table to kanban)" width="720">
+</p>
+
 <p align="center">
   <img src="assets/lockup-primary.png" alt="Rowbase icon"  />
 </p>
