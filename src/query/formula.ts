@@ -63,6 +63,17 @@ function toNumber(v: FormulaValue): number {
   return Number.isNaN(n) ? 0 : n;
 }
 
+/** Parse a date value (ISO string, "YYYY-MM-DD", or epoch ms) into epoch ms; null if not a date. */
+function parseDate(v: ExprValue): number | null {
+  let t: number | undefined;
+  if (typeof v === "number") t = v;
+  else if (typeof v === "string" && v.trim() !== "") {
+    const d = new Date(v);
+    t = Number.isNaN(d.getTime()) ? undefined : d.getTime();
+  }
+  return t === undefined ? null : t;
+}
+
 export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
   try {
     const tokens = tokenize(expr);
@@ -227,6 +238,19 @@ export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
           if (peek()?.kind !== "rparen") throw new Error("IF missing )");
           next();
           return truthy(cond) ? thenV : elseV;
+        }
+        if (name === "DAYS") {
+          if (peek()?.kind !== "lparen") throw new Error("DAYS needs ( )");
+          next();
+          const start = parseExpr();
+          if (peek()?.kind !== "comma") throw new Error("DAYS needs comma");
+          next();
+          const end = parseExpr();
+          if (peek()?.kind !== "rparen") throw new Error("DAYS missing )");
+          next();
+          const sd = parseDate(start), ed = parseDate(end);
+          if (sd === null || ed === null) throw new Error("DAYS needs valid dates (start, end)");
+          return Math.round((ed - sd) / 86_400_000);
         }
         return resolveId(t.v);
       }

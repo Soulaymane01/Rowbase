@@ -39,7 +39,7 @@ Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style da
 
 ### Data & Computation
 
-- **Formulas** — Safe expression evaluator with cell references and cross-relation aggregation (SUM, AVG, COUNT, MIN, MAX)
+- **Formulas** — Safe expression evaluator with cell references and cross-relation aggregation (SUM, AVG, COUNT, MIN, MAX) plus IF and DAYS (date difference)
 - **Rollups** — Aggregate related rows (sum, count, avg, min, max) across relation columns
 - **Relations** — Link rows across databases; preloaded resolver with cache for fast cross-file lookups
 - **Sorting** — Multi-column sort with ascending/descending toggle

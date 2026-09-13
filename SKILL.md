@@ -217,6 +217,8 @@ Supported syntax:
 - String concat with `&`: `First & " " & Last`
 - Comparisons `> >= < <= = !=`; division by zero errors to `#ERROR: …`
 - `IF(cond, then, else)`
+- `DAYS(start, end)` — whole days between two dates (columns or
+  `"YYYY-MM-DD"` strings); negative when start is after end
 - Aggregates over **relation columns**: `SUM(col)`, `AVG(col)`,
   `COUNT(col)`, `MIN(col)`, `MAX(col)` where `col` is either a plain
   column name of this row, or `relation.column` referring to a related

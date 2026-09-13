@@ -422,7 +422,7 @@ function ColumnModalContent({ app, column, columns, databasePath, onSave, onDele
             rows={3}
           />
           <div className="csv-db-modal-help">
-            Use column names, + - * /, comparisons, &amp; for concat, IF(cond, a, b), SUM(col), AVG(col), COUNT(col), MIN(col), MAX(col).
+            Use column names, + - * /, comparisons, &amp; for concat, IF(cond, a, b), DAYS(start, end), SUM(col), AVG(col), COUNT(col), MIN(col), MAX(col).
           </div>
         </div>
       )}
