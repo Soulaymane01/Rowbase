@@ -12,12 +12,6 @@ Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style da
 ## Demo
 
 <p align="center">
-  <video src="assets/demo/rowbase-demo.mp4" controls muted loop width="720"></video>
-  <br>
-  <em>Table → kanban → stats — all from the same `.rbase` file.</em>
-</p>
-
-<p align="center">
   <img src="assets/demo/rowbase-demo.gif" alt="Rowbase demo (table to kanban)" width="720">
 </p>
 
