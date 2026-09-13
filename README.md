@@ -1,5 +1,12 @@
 # Rowbase
 
+<p align="center">
+  <a href="https://obsidian.md/plugins?id=rowbase"><img src="https://img.shields.io/badge/Obsidian-Install%20from%20Community%20Plugins-7c3aed?logo=obsidian&logoColor=white" alt="Install from Obsidian"></a>
+  <a href="https://github.com/TfTHacker/obsidian42-brat"><img src="https://img.shields.io/badge/beta%20install-BRAT-8a2be2" alt="Install with BRAT"></a>
+  <a href="https://github.com/obsidianmd/obsidian-releases/blob/master/community-plugin-stats.json"><img src="https://img.shields.io/badge/dynamic/json?color=7c3aed&label=downloads&query=%24.rowbase.downloads&suffix=%20installs&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json" alt="Obsidian downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+</p>
+
 Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style databases to your vault. Each database is a single `.rbase` file — a human-readable CSV with JSON column metadata — that opens in a rich, interactive view with multiple layouts, formulas, relations, and more.
 
 <p align="center">
@@ -91,6 +98,16 @@ Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style da
 </p>
 
 ## Installation
+
+### From the Community plugins store (recommended)
+
+1. Open **Settings → Community plugins** in Obsidian.
+2. If needed, turn off **Restricted mode**, then search for **Rowbase** — or open [obsidian.md/plugins?id=rowbase](https://obsidian.md/plugins?id=rowbase) and press **Install**.
+3. Enable the plugin in the same screen.
+
+Want the latest beta before it hits the store? Install it via [BRAT](https://github.com/TfTHacker/obsidian42-brat) with the repo `Soulaymane01/Rowbase`.
+
+Rowbase is 100% offline — no account, no telemetry; your data stays in your vault.
 
 ### Manual installation
 
