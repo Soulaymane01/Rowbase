@@ -1,7 +1,8 @@
 import { ColumnDef, DisplayColumn, ViewDef } from "../types";
 import { QueryResultRow } from "../query/record";
-import { getMatrixQuadrant, isMatrixImportant, isMatrixUrgent } from "../query/matrix";
+import { getMatrixAxisValue, getMatrixQuadrant, isMatrixImportant, isMatrixUrgent } from "../query/matrix";
 import { getNoteDisplayName } from "../note-utils";
+import { useMatrixDrag } from "../hooks/useMatrixDrag";
 
 interface MatrixViewProps {
   rows: QueryResultRow[];
@@ -9,6 +10,7 @@ interface MatrixViewProps {
   displayColumns: DisplayColumn[];
   activeView: ViewDef;
   onCardClick: (rowOriginalIndex: number) => void;
+  onSetCells: (updates: { rowIdx: number; colIdx: number; value: string }[]) => void;
 }
 
 const QUADRANTS: { key: string; important: boolean; urgent: boolean; title: string; hint: string }[] = [
@@ -25,12 +27,41 @@ function renderCardValue(value: string, col: ColumnDef): string {
   return value;
 }
 
-export function MatrixView({ rows, columns, displayColumns, activeView, onCardClick }: MatrixViewProps) {
+export function MatrixView({ rows, columns, displayColumns, activeView, onCardClick, onSetCells }: MatrixViewProps) {
   const importanceIdx = columns.findIndex((c) => c.name === activeView.matrixImportanceColumn);
   const urgencyIdx = columns.findIndex((c) => c.name === activeView.matrixUrgencyColumn);
   const importanceCol = importanceIdx >= 0 ? columns[importanceIdx] : undefined;
   const urgencyCol = urgencyIdx >= 0 ? columns[urgencyIdx] : undefined;
   const configured = Boolean(importanceCol || urgencyCol);
+
+  const handleCardMove = (rowIndex: number, quadrantKey: string) => {
+    const target = QUADRANTS.find((q) => q.key === quadrantKey);
+    if (!target) return;
+
+    const updates: { rowIdx: number; colIdx: number; value: string }[] = [];
+    const importanceValue = getMatrixAxisValue(
+      importanceCol,
+      target.important,
+      activeView.matrixImportanceHighValue
+    );
+    if (importanceValue !== null && importanceIdx >= 0) {
+      updates.push({ rowIdx: rowIndex, colIdx: importanceIdx, value: importanceValue });
+    }
+    const urgencyValue = getMatrixAxisValue(
+      urgencyCol,
+      target.urgent,
+      activeView.matrixUrgencyHighValue
+    );
+    if (urgencyValue !== null && urgencyIdx >= 0) {
+      updates.push({ rowIdx: rowIndex, colIdx: urgencyIdx, value: urgencyValue });
+    }
+
+    if (updates.length > 0) {
+      onSetCells(updates);
+    }
+  };
+
+  const { onCardMouseDown, consumeJustDragged } = useMatrixDrag({ onCardMove: handleCardMove });
 
   const titleCol = displayColumns[0];
   const propCols = displayColumns.slice(1, 3);
@@ -54,12 +85,17 @@ export function MatrixView({ rows, columns, displayColumns, activeView, onCardCl
     <div className="csv-db-matrix">
       {!configured && (
         <div className="csv-db-matrix-hint">
-          Pick an importance and urgency column in View options (⋯) to place rows in the quadrants.
+          Pick an importance and urgency column in View options (⋯) to place rows in the
+          quadrants — then drag cards between quadrants to update them.
         </div>
       )}
       <div className="csv-db-matrix-grid">
         {buckets.map((bucket) => (
-          <div key={bucket.key} className={`csv-db-matrix-quadrant csv-db-matrix-${bucket.key}`}>
+          <div
+            key={bucket.key}
+            className={`csv-db-matrix-quadrant csv-db-matrix-${bucket.key}`}
+            data-quadrant={bucket.key}
+          >
             <div className="csv-db-matrix-quadrant-header">
               <span className="csv-db-matrix-quadrant-title">{bucket.title}</span>
               <span className="csv-db-matrix-quadrant-hint">{bucket.hint}</span>
@@ -77,7 +113,11 @@ export function MatrixView({ rows, columns, displayColumns, activeView, onCardCl
                     <div
                       key={row.originalIndex}
                       className="csv-db-matrix-card"
-                      onClick={() => onCardClick(row.originalIndex)}
+                      onMouseDown={(e) => onCardMouseDown(e, row.originalIndex)}
+                      onClick={() => {
+                        if (consumeJustDragged()) return;
+                        onCardClick(row.originalIndex);
+                      }}
                     >
                       <div className="csv-db-matrix-card-title">{title || "Untitled"}</div>
                       {propCols.map(({ col, dataIdx }) => {

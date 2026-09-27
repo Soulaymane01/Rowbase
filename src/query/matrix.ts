@@ -4,6 +4,9 @@ export const MATRIX_IMPORTANT_HINTS = ["high", "important", "critical", "urgent"
 export const MATRIX_URGENT_HINTS = ["high", "urgent", "critical", "asap", "soon", "yes", "true", "1", "p1"];
 export const MATRIX_URGENT_WINDOW_DAYS = 7;
 
+/** Union of both axes' hint words, used to guess a select column's "high" option. */
+const MATRIX_HIGH_HINTS = Array.from(new Set([...MATRIX_IMPORTANT_HINTS, ...MATRIX_URGENT_HINTS]));
+
 export type MatrixQuadrantKey = "q1" | "q2" | "q3" | "q4";
 
 function matchesHint(value: string, hints: string[], highValue?: string): boolean {
@@ -44,4 +47,29 @@ export function getMatrixQuadrant(important: boolean, urgent: boolean): MatrixQu
   if (important) return "q2";
   if (urgent) return "q3";
   return "q4";
+}
+
+/**
+ * Cell value to write when a card is dragged onto an axis with the given
+ * high/low state. Returns null when the column type can't express the axis
+ * (date columns on the urgency axis are read-only for dragging).
+ */
+export function getMatrixAxisValue(
+  col: ColumnDef | undefined,
+  high: boolean,
+  highValue?: string
+): string | null {
+  if (!col) return null;
+  if (col.type === "checkbox") return high ? "true" : "false";
+  if (col.type !== "select") return null;
+
+  const options = col.options ?? [];
+  const highResolved =
+    highValue ||
+    options.find((o) => MATRIX_HIGH_HINTS.includes(o.value.trim().toLowerCase()))?.value ||
+    options[0]?.value;
+
+  if (high) return highResolved ?? null;
+  const low = options.find((o) => o.value !== highResolved);
+  return low ? low.value : "";
 }

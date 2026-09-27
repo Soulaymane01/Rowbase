@@ -1371,6 +1371,7 @@ export function DatabaseTable({
           displayColumns={displayColumns}
           activeView={activeView}
           onCardClick={handleCardClick}
+          onSetCells={handleSetCells}
         />
       ) : (
         tableView
