@@ -2951,6 +2951,8 @@ body.csv-db-card-dragging {
 .csv-db-gallery-check.is-checked { background: var(--interactive-accent); border-color: var(--interactive-accent); }
 .csv-db-gallery-note { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); min-width: 0; }
 .csv-db-gallery-note-icon { font-size: 11px; flex-shrink: 0; }
+.csv-db-gallery-link { color: var(--link-color, var(--text-accent)); cursor: pointer; overflow: hidden; text-overflow: ellipsis; }
+.csv-db-gallery-link:hover { text-decoration: underline; }
 .csv-db-gallery-select { position: absolute; top: 8px; left: 8px; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 5px; background: var(--background-primary); border: 1px solid var(--background-modifier-border); opacity: 0; cursor: pointer; transition: opacity 0.15s ease; }
 .csv-db-gallery-card:hover .csv-db-gallery-select,
 .csv-db-gallery-card.is-selected .csv-db-gallery-select { opacity: 1; }

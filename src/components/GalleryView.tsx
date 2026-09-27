@@ -5,11 +5,14 @@ import { QueryResultRow } from "../query/record";
 import { splitMultiSelect } from "../csv-parser";
 import { splitRelationValue } from "../relation-utils";
 import { useApp } from "../AppContext";
+import { getNoteDisplayName, openNoteValue } from "../note-utils";
 import { Tag } from "./Tag";
 import { RelationPill } from "./RelationPill";
 import { ProgressDisplay } from "./ProgressCell";
 import { WikilinkText } from "./WikilinkText";
-import { resolveImageSrc } from "../image-utils";
+import { openExternalUrl } from "./LinkCell";
+import { isImageLikeValue, resolveImageSrc } from "../image-utils";
+import { isCoverColumnName, pickCoverColumn } from "../query/cover";
 
 interface GalleryViewProps {
   rows: QueryResultRow[];
@@ -21,14 +24,6 @@ interface GalleryViewProps {
   onCardClick: (rowOriginalIndex: number) => void;
   selectedRows: Set<number>;
   onToggleRowSelect: (rowIdx: number) => void;
-}
-
-function detectCoverColumn(columns: ColumnDef[]): ColumnDef | null {
-  const nameMatch = columns.find((c) => /^(cover|image|photo|img|poster|thumbnail|thumb)$/i.test(c.name.trim()));
-  if (nameMatch) return nameMatch;
-  const imageCol = columns.find((c) => c.type === "image");
-  if (imageCol) return imageCol;
-  return columns.find((c) => c.type === "url" || c.type === "link") ?? null;
 }
 
 function CardCover({ value, col, app }: { value: string; col: ColumnDef | null; app: App }) {
@@ -55,7 +50,7 @@ function CardCover({ value, col, app }: { value: string; col: ColumnDef | null; 
   );
 }
 
-function renderProp(value: string, col: ColumnDef): React.ReactNode {
+function renderProp(value: string, col: ColumnDef, app: App): React.ReactNode {
   if (!value) return null;
   if (col.type === "select") {
     const opt = col.options?.find((o) => o.value === value);
@@ -98,6 +93,22 @@ function renderProp(value: string, col: ColumnDef): React.ReactNode {
       </span>
     );
   }
+  if (col.type === "url" || col.type === "link") {
+    const isUrl = col.type === "url";
+    return (
+      <span
+        className="csv-db-gallery-link"
+        title={value}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (isUrl) openExternalUrl(value);
+          else void openNoteValue(app, value);
+        }}
+      >
+        {isUrl ? value : getNoteDisplayName(value)}
+      </span>
+    );
+  }
   return <WikilinkText value={value} />;
 }
 
@@ -112,7 +123,21 @@ export function GalleryView({
   onToggleRowSelect,
 }: GalleryViewProps) {
   const app = useApp();
-  const coverCol = useMemo(() => detectCoverColumn(columns), [columns]);
+  const coverCol = useMemo(() => {
+    const hasCoverValue = (col: ColumnDef, colIdx: number) => {
+      // Columns that name or type themselves as covers may hold URLs that
+      // don't end in an image extension — trust them. Plain url/link columns
+      // must actually look like images, otherwise a link gallery would show
+      // empty covers.
+      const trusted = col.type === "image" || isCoverColumnName(col.name);
+      return rows.some((r) => {
+        const value = r.computed?.[colIdx] ?? r.row[colIdx] ?? "";
+        if (!value) return false;
+        return trusted ? true : isImageLikeValue(app, value);
+      });
+    };
+    return pickCoverColumn(columns, hasCoverValue);
+  }, [columns, rows, app]);
   const titleCol = displayColumns[0];
   const propCols = displayColumns.slice(1);
 
@@ -149,7 +174,7 @@ export function GalleryView({
               data-row-index={r.originalIndex}
               onClick={() => onCardClick(r.originalIndex)}
             >
-              <CardCover value={coverValue} col={coverCol} app={app} />
+              {coverCol && <CardCover value={coverValue} col={coverCol} app={app} />}
               <label
                 className="csv-db-gallery-select"
                 onClick={(e) => e.stopPropagation()}
@@ -168,7 +193,7 @@ export function GalleryView({
                 <div className="csv-db-gallery-props">
                   {propCols.map(({ col, dataIdx }) => {
                     const val = r.computed?.[dataIdx] ?? r.row[dataIdx] ?? "";
-                    const rendered = renderProp(val, col);
+                    const rendered = renderProp(val, col, app);
                     return rendered ? <span key={col.name} className="csv-db-gallery-prop">{rendered}</span> : null;
                   })}
                 </div>

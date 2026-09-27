@@ -32,6 +32,21 @@ export function resolveImageSrc(app: App, raw: string): string | null {
   return file ? app.vault.getResourcePath(file) : null;
 }
 
+/**
+ * Whether a value is plausibly an image — used for gallery cover detection so
+ * plain web links don't become broken covers. Vault values must resolve to an
+ * image file; URLs must end in an image extension (query/hash ignored).
+ */
+export function isImageLikeValue(app: App, raw: string): boolean {
+  const value = normalizeNoteValue(raw);
+  if (!value) return false;
+  if (isImageUrl(value)) {
+    const path = value.split("?")[0].split("#")[0].toLowerCase();
+    return IMG_EXTS.some((ext) => path.endsWith(`.${ext}`));
+  }
+  return findImageFile(app, value) !== null;
+}
+
 export function getImageDisplayName(raw: string): string {
   const value = normalizeNoteValue(raw);
   if (!value) return "";
