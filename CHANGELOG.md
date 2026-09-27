@@ -1,3 +1,43 @@
+# Release 0.1.5
+
+Follow-up patch for 0.1.4: matrix drag-and-drop, and fixes for rollups,
+relative relation paths, lazy `IF`, and the default-template migration.
+
+## Fixes
+
+- **Rollup / relation resolution across folders** — relative relation targets
+  containing `..` (e.g. `../Tasks.rbase`) were resolved to an unnormalized
+  vault path, so the resolver never found the target file and rollup columns
+  stayed empty. Targets are now normalized before lookup, so rollups and
+  cross-relation formula aggregates work for same-folder, `../`, and
+  vault-root (`/file.rbase`) targets alike.
+- **Rollups with an empty relation** — an empty relation cell made the
+  resolver return *every* row of the target database, so `count`/`sum` rollups
+  aggregated the whole table. An empty relation now aggregates nothing.
+- **`IF` evaluates only the taken branch** — both branches used to be
+  evaluated, so the documented pattern
+  `IF(Done, DAYS(Scheduled, Done), "")` failed on rows without an end date
+  with `#ERROR: DAYS needs valid dates`. The untaken branch is now skipped.
+- **Default Title column for existing vaults** — settings saved before 0.1.4
+  kept the old text-first template, so "new database" still started with a
+  text column. Untouched legacy templates are migrated to the Title-first
+  default on load (custom templates are left alone).
+
+## New
+
+- **Matrix drag-and-drop** — drag cards between the four Eisenhower quadrants
+  (with a drag ghost and drop-target highlight, like the kanban board).
+  Dropping writes the importance and urgency columns: checkbox columns get
+  `true`/`false`, select columns get the configured "high" value (or the
+  option that reads as high) and a non-high option; date urgency columns are
+  left unchanged when they can't express the quadrant.
+
+## Verified
+
+- **`DAYS(start, end)`** is covered by an end-to-end test through
+  `serializeCSV` → `parseCSV` → `runQuery` (7-day gap, reversed dates, same
+  day, missing date → error).
+
 # Release 0.1.4
 
 Rowbase 0.1.4 is a bug-fix and usability release: formulas can divide again,
