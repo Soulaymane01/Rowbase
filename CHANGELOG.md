@@ -1,7 +1,8 @@
 # Release 0.1.5
 
-Follow-up patch for 0.1.4: matrix drag-and-drop, and fixes for rollups,
-relative relation paths, lazy `IF`, and the default-template migration.
+Follow-up patch for 0.1.4: matrix drag-and-drop, clickable links in Gallery,
+filter-aware row creation, and fixes for rollups, relative relation paths,
+lazy `IF`, and the default-template migration.
 
 ## Fixes
 
@@ -22,6 +23,13 @@ relative relation paths, lazy `IF`, and the default-template migration.
   kept the old text-first template, so "new database" still started with a
   text column. Untouched legacy templates are migrated to the Title-first
   default on load (custom templates are left alone).
+- **Gallery cards: links are clickable, covers are real images** — URL and
+  Link values on gallery cards now open the browser / the note, while
+  clicking anywhere else on the card still opens the row editor. Cover
+  detection no longer turns any URL column into an empty cover area: a cover
+  is only used when it can render (a column named Cover/Image/Photo/…, an
+  Image-type column, or a URL column whose values really are images). Link
+  galleries get compact cards and clickable text.
 
 ## New
 
@@ -31,6 +39,15 @@ relative relation paths, lazy `IF`, and the default-template migration.
   `true`/`false`, select columns get the configured "high" value (or the
   option that reads as high) and a non-high option; date urgency columns are
   left unchanged when they can't express the quadrant.
+- **Filter-aware "+ New"** — creating a row from a filtered view now
+  pre-fills the values the active filters imply, so the row no longer
+  disappears the moment it is created (the "I clicked + New and nothing
+  happened" kanban papercut). `equals` writes the exact value,
+  `contains`/`starts-with` writes the search text, multiselect filters write
+  all selected values; rules with no unambiguous value (`is not`,
+  `does not contain`, ranges, `is not empty`) are left alone. Works from the
+  kanban "+ New", the table's "+ New row", and Cmd/Ctrl+Enter; a kanban
+  column's group value still wins over a conflicting filter value.
 
 ## Verified
 
