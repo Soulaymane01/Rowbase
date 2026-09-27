@@ -1,6 +1,9 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import type DatabasePlugin from "./main";
 import { ColumnDef } from "./types";
+import { DEFAULT_TEMPLATE_COLUMNS } from "./constants";
+
+export { DEFAULT_TEMPLATE_COLUMNS };
 
 export interface DatabasePluginSettings {
   defaultFolder: string;
@@ -10,20 +13,6 @@ export interface DatabasePluginSettings {
   folderLinkingDefault: boolean;
   showRowNumbers: boolean;
 }
-
-export const DEFAULT_TEMPLATE_COLUMNS = JSON.stringify([
-  { name: "Name", type: "title" },
-  {
-    name: "Status",
-    type: "select",
-    options: [
-      { value: "Todo", color: "red" },
-      { value: "In Progress", color: "yellow" },
-      { value: "Done", color: "green" },
-    ],
-  },
-  { name: "Date", type: "date" },
-]);
 
 export const DEFAULT_SETTINGS: DatabasePluginSettings = {
   defaultFolder: "",

@@ -43,6 +43,16 @@ test("comparison and IF conditional", () => {
   assert.deepEqual(r, { kind: "string", value: "A" });
 });
 
+test("IF only evaluates the taken branch", () => {
+  // The untaken branch would throw (division by zero / invalid DAYS).
+  assert.deepEqual(evaluateFormula('IF(Done, "yes", 1 / 0)', env({ Done: "x" })), { kind: "string", value: "yes" });
+  assert.deepEqual(evaluateFormula('IF(Done, 1 / 0, "no")', env({ Done: "" })), { kind: "string", value: "no" });
+  assert.deepEqual(
+    evaluateFormula('IF(Done, DAYS(Scheduled, Done), "")', env({ Scheduled: "2026-09-10", Done: "" })),
+    { kind: "string", value: "" }
+  );
+});
+
 test("string concatenation with &", () => {
   const r = evaluateFormula('first & " " & last', env({ first: "Ada", last: "Lovelace" }));
   assert.deepEqual(r, { kind: "string", value: "Ada Lovelace" });

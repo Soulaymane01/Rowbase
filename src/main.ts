@@ -2,6 +2,7 @@ import { Plugin, WorkspaceLeaf, TFile, TFolder, Notice } from "obsidian";
 import { DatabaseView, VIEW_TYPE_DATABASE } from "./database-view";
 import { serializeCSV } from "./csv-parser";
 import { ColumnDef } from "./types";
+import { DEFAULT_TEMPLATE_COLUMNS, isLegacyDefaultTemplate } from "./constants";
 import { DatabasePluginSettings, DEFAULT_SETTINGS, SettingsTab } from "./settings";
 
 export const SETTINGS_CHANGED_EVENT = "rowbase:settings-changed";
@@ -52,6 +53,12 @@ export default class DatabasePlugin extends Plugin {
     const savedSettings: unknown = await this.loadData();
     if (savedSettings && typeof savedSettings === "object" && !Array.isArray(savedSettings)) {
       this.settings = { ...DEFAULT_SETTINGS, ...savedSettings as Partial<DatabasePluginSettings> };
+      // Upgrade vaults whose stored template is still the 0.1.3 default
+      // (text-first column) so new databases get a real Title column.
+      if (isLegacyDefaultTemplate(this.settings.defaultTemplateColumns)) {
+        this.settings.defaultTemplateColumns = DEFAULT_TEMPLATE_COLUMNS;
+        await this.saveData(this.settings);
+      }
       return;
     }
     this.settings = { ...DEFAULT_SETTINGS };

@@ -1,6 +1,7 @@
 import { App, TFile } from "obsidian";
 import { parseCSV, splitMultiSelect, joinMultiSelect } from "./csv-parser";
 import { ColumnDef, DatabaseModel } from "./types";
+import { getDatabaseFolder, normalizeVaultPath, resolveRelationPath } from "./query/relation";
 
 export interface RelationRecord {
   key: string;
@@ -14,32 +15,6 @@ interface RelationRecordsCacheEntry {
 }
 
 const relationRecordsCache = new Map<string, RelationRecordsCacheEntry>();
-
-function normalizeVaultPath(path: string): string {
-  const parts: string[] = [];
-  for (const part of path.split("/")) {
-    if (!part || part === ".") continue;
-    if (part === "..") {
-      parts.pop();
-    } else {
-      parts.push(part);
-    }
-  }
-  return parts.join("/");
-}
-
-function getDatabaseFolder(databasePath: string): string {
-  return databasePath.split("/").slice(0, -1).join("/");
-}
-
-export function resolveRelationTargetPath(targetPath: string, databasePath: string): string {
-  const trimmed = targetPath.trim();
-  if (!trimmed) return "";
-  if (trimmed.startsWith("/")) {
-    return normalizeVaultPath(trimmed);
-  }
-  return normalizeVaultPath([getDatabaseFolder(databasePath), trimmed].filter(Boolean).join("/"));
-}
 
 export function formatRelationTargetPath(filePath: string, databasePath: string): string {
   const fromParts = getDatabaseFolder(databasePath).split("/").filter(Boolean);
@@ -79,10 +54,10 @@ function getRelationRecordsFromModel(model: DatabaseModel): RelationRecord[] {
 
 export async function loadRelationRecords(app: App, column: ColumnDef, databasePath: string, currentModel?: DatabaseModel | null): Promise<RelationRecord[]> {
   const targetPath = column.relationTargetPath
-    ? resolveRelationTargetPath(column.relationTargetPath, databasePath)
+    ? resolveRelationPath(column.relationTargetPath, databasePath)
     : "";
   if (!targetPath) return [];
-  if (targetPath === databasePath) {
+  if (targetPath === normalizeVaultPath(databasePath)) {
     return currentModel ? getRelationRecordsFromModel(currentModel) : [];
   }
 
@@ -127,7 +102,7 @@ export async function fileHasTitleColumn(app: App, file: TFile): Promise<boolean
 
 /** Columns of the database a relation column points at (empty when unresolvable). */
 export async function loadRelationTargetColumns(app: App, targetPath: string, databasePath: string): Promise<ColumnDef[]> {
-  const resolved = resolveRelationTargetPath(targetPath, databasePath);
+  const resolved = resolveRelationPath(targetPath, databasePath);
   if (!resolved) return [];
   const file = app.vault.getAbstractFileByPath(resolved);
   if (!(file instanceof TFile)) return [];

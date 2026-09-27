@@ -183,6 +183,14 @@ export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
       return Boolean(v);
     }
 
+    function swallowBranch(evaluate: () => ExprValue): ExprValue {
+      try {
+        return evaluate();
+      } catch {
+        return null;
+      }
+    }
+
     function resolveId(id: string): FormulaValue {
       // aggregate syntax relation.column → related numbers
       if (id.includes(".")) {
@@ -231,13 +239,17 @@ export function evaluateFormula(expr: string, env: FormulaEnv): FormulaCell {
           const cond = parseExpr();
           if (peek()?.kind !== "comma") throw new Error("IF needs comma");
           next();
-          const thenV = parseExpr();
+          const condTrue = truthy(cond);
+          // Only the taken branch may fail the formula: evaluating the other
+          // branch is swallowed so e.g. IF(Done, DAYS(Scheduled, Done), "")
+          // works on rows where Done is still empty.
+          const thenV = condTrue ? parseExpr() : swallowBranch(() => parseExpr());
           if (peek()?.kind !== "comma") throw new Error("IF needs comma");
           next();
-          const elseV = parseExpr();
+          const elseV = condTrue ? swallowBranch(() => parseExpr()) : parseExpr();
           if (peek()?.kind !== "rparen") throw new Error("IF missing )");
           next();
-          return truthy(cond) ? thenV : elseV;
+          return condTrue ? thenV : elseV;
         }
         if (name === "DAYS") {
           if (peek()?.kind !== "lparen") throw new Error("DAYS needs ( )");

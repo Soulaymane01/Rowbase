@@ -39,6 +39,52 @@ export function pickColor(index: number): TagColor {
   return palette[index % palette.length];
 }
 
+/**
+ * Columns added to every new database. The first column is a real Title
+ * column so new databases get note/folder linking out of the box.
+ */
+export const DEFAULT_TEMPLATE_COLUMNS = JSON.stringify([
+  { name: "Name", type: "title" },
+  {
+    name: "Status",
+    type: "select",
+    options: [
+      { value: "Todo", color: "red" },
+      { value: "In Progress", color: "yellow" },
+      { value: "Done", color: "green" },
+    ],
+  },
+  { name: "Date", type: "date" },
+]);
+
+/** The 0.1.3-era template, kept only to migrate stored settings. */
+const LEGACY_DEFAULT_TEMPLATE_COLUMNS = JSON.stringify([
+  { name: "Name", type: "text" },
+  {
+    name: "Status",
+    type: "select",
+    options: [
+      { value: "Todo", color: "red" },
+      { value: "In Progress", color: "yellow" },
+      { value: "Done", color: "green" },
+    ],
+  },
+  { name: "Date", type: "date" },
+]);
+
+/**
+ * True when the stored template is the untouched legacy default. Used to
+ * upgrade settings saved before the Title-first default; custom templates
+ * are left alone.
+ */
+export function isLegacyDefaultTemplate(templateJson: string): boolean {
+  try {
+    return JSON.stringify(JSON.parse(templateJson)) === JSON.stringify(JSON.parse(LEGACY_DEFAULT_TEMPLATE_COLUMNS));
+  } catch {
+    return false;
+  }
+}
+
 export function getTypeIcon(type: string): string {
   switch (type) {
     case "text": return "Aa";

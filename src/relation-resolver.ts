@@ -1,7 +1,8 @@
 import { App, TFile } from "obsidian";
-import { parseCSV, splitMultiSelect } from "./csv-parser";
+import { parseCSV } from "./csv-parser";
 import { ColumnDef, DatabaseModel } from "./types";
 import type { RelationResolver } from "./query";
+import { getRelatedRows, normalizeVaultPath, resolveRelationPath } from "./query/relation";
 
 interface CacheEntry {
   mtime: number;
@@ -10,38 +11,22 @@ interface CacheEntry {
 
 const cache = new Map<string, CacheEntry>();
 
-function resolveTargetPath(targetPath: string, databasePath: string): string {
-  const trimmed = targetPath.trim();
-  if (!trimmed) return "";
-  if (trimmed.startsWith("/")) return trimmed;
-  const folder = databasePath.split("/").slice(0, -1).join("/");
-  return [folder, trimmed].filter(Boolean).join("/");
-}
-
-function normalizePath(p: string): string {
-  const parts: string[] = [];
-  for (const part of p.split("/")) {
-    if (!part || part === ".") continue;
-    if (part === "..") parts.pop();
-    else parts.push(part);
-  }
-  return parts.join("/");
-}
-
 async function loadModel(app: App, filePath: string): Promise<DatabaseModel | null> {
-  const file = app.vault.getAbstractFileByPath(filePath);
+  const path = normalizeVaultPath(filePath);
+  if (!path) return null;
+  const file = app.vault.getAbstractFileByPath(path);
   if (!(file instanceof TFile)) return null;
 
-  const cached = cache.get(filePath);
+  const cached = cache.get(path);
   if (cached && cached.mtime === file.stat.mtime) return cached.model;
 
   try {
     const text = await app.vault.read(file);
     const model = parseCSV(text);
-    cache.set(filePath, { mtime: file.stat.mtime, model });
+    cache.set(path, { mtime: file.stat.mtime, model });
     return model;
   } catch {
-    cache.set(filePath, { mtime: file.stat.mtime, model: null });
+    cache.set(path, { mtime: file.stat.mtime, model: null });
     return null;
   }
 }
@@ -60,40 +45,26 @@ export function createRelationResolver(
   databasePath: string,
   currentModel: DatabaseModel,
 ): RelationResolver {
+  const selfPath = normalizeVaultPath(databasePath);
+
   // Pre-populate cache for self-reference
-  const selfFile = app.vault.getAbstractFileByPath(databasePath);
+  const selfFile = app.vault.getAbstractFileByPath(selfPath);
   if (selfFile instanceof TFile) {
-    cache.set(databasePath, { mtime: selfFile.stat.mtime, model: currentModel });
+    cache.set(selfPath, { mtime: selfFile.stat.mtime, model: currentModel });
   }
 
   const resolve = (opts: { targetPath: string; column: string; value?: string; valueColumn?: string }) => {
-    const resolved = resolveTargetPath(opts.targetPath, databasePath);
+    const resolved = resolveRelationPath(opts.targetPath, databasePath);
     if (!resolved) return { rows: [], columns: [] };
 
-    let model: DatabaseModel | null = null;
-
     // Self-reference: use current model directly
-    if (normalizePath(resolved) === normalizePath(databasePath)) {
-      model = currentModel;
-    } else {
-      const cached = cache.get(resolved);
-      model = cached?.model ?? null;
-    }
+    const model = resolved === selfPath
+      ? currentModel
+      : cache.get(resolved)?.model ?? null;
 
     if (!model) return { rows: [], columns: [] };
 
-    // Filter by relation value (title column match)
-    if (opts.value) {
-      const titleIdx = model.columns.findIndex((c) => c.type === "title");
-      if (titleIdx !== -1) {
-        const keys = splitMultiSelect(opts.value);
-        const keySet = new Set(keys);
-        const filtered = model.rows.filter((r) => keySet.has(r[titleIdx] ?? ""));
-        return { rows: filtered.map((r) => ({ row: r })), columns: model.columns };
-      }
-    }
-
-    return { rows: model.rows.map((r) => ({ row: r })), columns: model.columns };
+    return getRelatedRows(model, opts.value ?? "");
   };
 
   return resolve;
@@ -108,11 +79,12 @@ export async function preloadRelationTargets(
   databasePath: string,
   columns: ColumnDef[],
 ): Promise<void> {
+  const selfPath = normalizeVaultPath(databasePath);
   const targets = new Set<string>();
   for (const col of columns) {
     if (col.type === "relation" && col.relationTargetPath) {
-      const resolved = resolveTargetPath(col.relationTargetPath, databasePath);
-      if (resolved && normalizePath(resolved) !== normalizePath(databasePath)) {
+      const resolved = resolveRelationPath(col.relationTargetPath, databasePath);
+      if (resolved && resolved !== selfPath) {
         targets.add(resolved);
       }
     }
