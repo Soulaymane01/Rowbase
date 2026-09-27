@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { ColumnDef } from "../types";
+import { WikilinkText } from "./WikilinkText";
 
 interface TextCellProps {
   value: string;
@@ -67,8 +68,15 @@ export function TextCell({ value, column, onChange }: TextCellProps) {
   }
 
   return (
-    <td className={`csv-db-cell${column.wrapContent ? " csv-db-cell-wrap" : ""}`} onClick={handleClick}>
-      {value}
+    <td
+      className={`csv-db-cell${column.wrapContent ? " csv-db-cell-wrap" : ""}`}
+      onClick={handleClick}
+      onDoubleClick={() => {
+        setEditValue(value);
+        setEditing(true);
+      }}
+    >
+      <WikilinkText value={value} />
     </td>
   );
 }

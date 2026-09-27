@@ -12,7 +12,7 @@ export interface DatabasePluginSettings {
 }
 
 export const DEFAULT_TEMPLATE_COLUMNS = JSON.stringify([
-  { name: "Name", type: "text" },
+  { name: "Name", type: "title" },
   {
     name: "Status",
     type: "select",

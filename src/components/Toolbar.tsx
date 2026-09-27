@@ -321,6 +321,17 @@ function ViewMenu({
   const activeLayout: ViewLayout = activeView.layout || "table";
   const selectColumns = columns.filter((c) => c.type === "select");
 
+  const setViewPatch = (patch: Partial<ViewDef>) => {
+    onUpdateView(activeViewIndex, { ...activeView, ...patch });
+  };
+
+  const importanceColumn = columns.find((c) => c.name === activeView.matrixImportanceColumn);
+  const urgencyColumn = columns.find((c) => c.name === activeView.matrixUrgencyColumn);
+  const importanceCandidates = columns.filter((c) => c.type === "select" || c.type === "checkbox");
+  const urgencyCandidates = columns.filter(
+    (c) => c.type === "select" || c.type === "checkbox" || c.type === "date"
+  );
+
   const setLayout = (layout: ViewLayout) => {
     onUpdateView(activeViewIndex, { ...activeView, layout: layout === "table" ? undefined : layout });
   };
@@ -389,6 +400,13 @@ function ViewMenu({
         <span className="csv-db-view-menu-check">{activeLayout === "dashboard" ? "✓" : "\u00A0\u00A0"}</span>
         {" "}Dashboard
       </div>
+      <div
+        className="csv-db-view-menu-item"
+        onClick={() => setLayout("matrix")}
+      >
+        <span className="csv-db-view-menu-check">{activeLayout === "matrix" ? "✓" : "\u00A0\u00A0"}</span>
+        {" "}Matrix
+      </div>
 
       {/* Group by section (kanban & list) */}
       {(activeLayout === "kanban" || activeLayout === "list") && (
@@ -410,6 +428,106 @@ function ViewMenu({
                 {" "}{col.name}
               </div>
             ))
+          )}
+        </>
+      )}
+
+      {/* Matrix configuration (Eisenhower layout) */}
+      {activeLayout === "matrix" && (
+        <>
+          <div className="csv-db-view-menu-separator" />
+          <div className="csv-db-view-menu-section-label">Matrix — Importance</div>
+          {importanceCandidates.length === 0 ? (
+            <div className="csv-db-view-menu-item csv-db-view-menu-item-dim">No select or checkbox columns</div>
+          ) : (
+            importanceCandidates.map((col) => (
+              <div
+                key={col.name}
+                className="csv-db-view-menu-item"
+                onClick={() =>
+                  setViewPatch({
+                    matrixImportanceColumn: activeView.matrixImportanceColumn === col.name ? undefined : col.name,
+                    matrixImportanceHighValue: undefined,
+                  })
+                }
+              >
+                <span className="csv-db-view-menu-check">
+                  {activeView.matrixImportanceColumn === col.name ? "✓" : "\u00A0\u00A0"}
+                </span>
+                {" "}{col.name}
+              </div>
+            ))
+          )}
+          {importanceColumn?.type === "select" && (importanceColumn.options ?? []).length > 0 && (
+            <>
+              <div className="csv-db-view-menu-section-label">Counts as important</div>
+              {(importanceColumn.options ?? []).map((opt) => (
+                <div
+                  key={opt.value}
+                  className="csv-db-view-menu-item"
+                  onClick={() =>
+                    setViewPatch({
+                      matrixImportanceHighValue: activeView.matrixImportanceHighValue === opt.value ? undefined : opt.value,
+                    })
+                  }
+                >
+                  <span className="csv-db-view-menu-check">
+                    {activeView.matrixImportanceHighValue === opt.value ? "✓" : "\u00A0\u00A0"}
+                  </span>
+                  {" "}{opt.value || "(empty)"}
+                </div>
+              ))}
+            </>
+          )}
+
+          <div className="csv-db-view-menu-separator" />
+          <div className="csv-db-view-menu-section-label">Matrix — Urgency</div>
+          {urgencyCandidates.length === 0 ? (
+            <div className="csv-db-view-menu-item csv-db-view-menu-item-dim">No select, checkbox or date columns</div>
+          ) : (
+            urgencyCandidates.map((col) => (
+              <div
+                key={col.name}
+                className="csv-db-view-menu-item"
+                onClick={() =>
+                  setViewPatch({
+                    matrixUrgencyColumn: activeView.matrixUrgencyColumn === col.name ? undefined : col.name,
+                    matrixUrgencyHighValue: undefined,
+                  })
+                }
+              >
+                <span className="csv-db-view-menu-check">
+                  {activeView.matrixUrgencyColumn === col.name ? "✓" : "\u00A0\u00A0"}
+                </span>
+                {" "}{col.name}
+              </div>
+            ))
+          )}
+          {urgencyColumn?.type === "select" && (urgencyColumn.options ?? []).length > 0 && (
+            <>
+              <div className="csv-db-view-menu-section-label">Counts as urgent</div>
+              {(urgencyColumn.options ?? []).map((opt) => (
+                <div
+                  key={opt.value}
+                  className="csv-db-view-menu-item"
+                  onClick={() =>
+                    setViewPatch({
+                      matrixUrgencyHighValue: activeView.matrixUrgencyHighValue === opt.value ? undefined : opt.value,
+                    })
+                  }
+                >
+                  <span className="csv-db-view-menu-check">
+                    {activeView.matrixUrgencyHighValue === opt.value ? "✓" : "\u00A0\u00A0"}
+                  </span>
+                  {" "}{opt.value || "(empty)"}
+                </div>
+              ))}
+            </>
+          )}
+          {urgencyColumn?.type === "date" && (
+            <div className="csv-db-view-menu-item csv-db-view-menu-item-dim">
+              Overdue or due within 7 days counts as urgent
+            </div>
           )}
         </>
       )}

@@ -12,11 +12,13 @@ import { NoteDropdown } from "./NoteDropdown";
 import { RelationDropdown } from "./RelationDropdown";
 import { RelationPill } from "./RelationPill";
 import { getTypeIconElement } from "./TypeIcon";
-import { getNoteDisplayName, notePathExists, openNoteValue } from "../note-utils";
+import { getNoteDisplayName, joinNoteValues, notePathExists, openNoteValue, resolveNoteFolder, applyNoteFolder, splitNoteValues } from "../note-utils";
 import { loadRelationRecords, splitRelationValue } from "../relation-utils";
 import { openTitleNote, titleNoteExists } from "../title-utils";
 import { openTitleFolder, titleFolderExists } from "../folder-utils";
 import { ProgressDisplay, ProgressEditor, parseProgressPercent } from "./ProgressCell";
+import { openExternalUrl } from "./LinkCell";
+import { resolveImageSrc } from "../image-utils";
 
 interface RowDetailFieldProps {
   col: ColumnDef;
@@ -248,13 +250,21 @@ function RowDetailField({
 
       case "note": {
         const anchorRect = getAnchorRect();
-        const displayName = value ? getNoteDisplayName(value) : null;
-        const exists = notePathExists(app, value);
-        const handleOpen = (e: React.MouseEvent) => {
+        const noteValues = splitNoteValues(value, col);
+        const titleCol = databaseModel?.columns.find(
+          (c) => c.type === "title" && c.titleNoteEnabled !== false
+        );
+        const defaultFolder = resolveNoteFolder(col.noteFolder || titleCol?.titleNoteFolder || "", databasePath);
+        const exists = value ? notePathExists(app, applyNoteFolder(value, defaultFolder)) : false;
+        const handleOpen = (e: React.MouseEvent, noteValue: string) => {
           e.stopPropagation();
-          if (value) {
-            void openNoteValue(app, value);
+          if (noteValue) {
+            void openNoteValue(app, applyNoteFolder(noteValue, defaultFolder));
           }
+        };
+        const handleRemove = (e: React.MouseEvent, noteValue: string) => {
+          e.stopPropagation();
+          onSetCell(rowOriginalIndex, dataIdx, joinNoteValues(noteValues.filter((v) => v !== noteValue)));
         };
         return (
           <div
@@ -262,15 +272,32 @@ function RowDetailField({
             className="csv-db-row-detail-note"
             onClick={() => { if (!selectOpen) setSelectOpen(true); }}
           >
-            {displayName ? (
+            {noteValues.length > 0 ? (
               <>
-                <span>{displayName}</span>
-                <button
-                  className={`csv-db-note-open-btn${exists ? "" : " is-create"}`}
-                  onClick={handleOpen}
-                >
-                  {exists ? "OPEN" : "CREATE"}
-                </button>
+                {col.noteMultiple ? (
+                  noteValues.map((noteValue) => (
+                    <span key={noteValue} className="csv-db-note-pill" title={noteValue}>
+                      <span onClick={(e) => handleOpen(e, noteValue)}>{getNoteDisplayName(noteValue)}</span>
+                      <button
+                        className="csv-db-note-pill-remove"
+                        title="Remove"
+                        onClick={(e) => handleRemove(e, noteValue)}
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))
+                ) : (
+                  <>
+                    <span onClick={(e) => handleOpen(e, noteValues[0])}>{getNoteDisplayName(noteValues[0])}</span>
+                    <button
+                      className={`csv-db-note-open-btn${exists ? "" : " is-create"}`}
+                      onClick={(e) => handleOpen(e, noteValues[0])}
+                    >
+                      {exists ? "OPEN" : "CREATE"}
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <span className="csv-db-row-detail-empty">Empty</span>
@@ -284,6 +311,8 @@ function RowDetailField({
                   setSelectOpen(false);
                 }}
                 onClose={() => setSelectOpen(false)}
+                defaultFolder={defaultFolder}
+                multiple={col.noteMultiple === true}
               />
             )}
           </div>
@@ -321,6 +350,66 @@ function RowDetailField({
       case "formula":
       case "rollup":
         return <span className="csv-db-cell-computed-value">{value || ""}</span>;
+
+      case "image": {
+        const src = resolveImageSrc(app, value);
+        return (
+          <div className="csv-db-row-detail-image">
+            {src && <img className="csv-db-row-detail-image-preview" src={src} alt="" />}
+            <input
+              className="csv-db-row-detail-input"
+              type="text"
+              defaultValue={value}
+              placeholder="Image path or URL"
+              onBlur={(e) => handleTextCommit(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+            />
+          </div>
+        );
+      }
+
+      case "url":
+      case "link": {
+        const isUrl = col.type === "url";
+        const handleOpen = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          if (!value) return;
+          if (isUrl) {
+            openExternalUrl(value);
+          } else {
+            void openNoteValue(app, value);
+          }
+        };
+        const exists = !isUrl && value ? notePathExists(app, value) : false;
+        return (
+          <div className="csv-db-row-detail-note">
+            <input
+              className="csv-db-row-detail-input"
+              type="text"
+              defaultValue={value}
+              placeholder="Empty"
+              onBlur={(e) => handleTextCommit(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+            />
+            {value && (
+              <button
+                className={`csv-db-note-open-btn${!isUrl && !exists ? " is-create" : ""}`}
+                onClick={handleOpen}
+              >
+                {isUrl ? "OPEN" : exists ? "OPEN" : "CREATE"}
+              </button>
+            )}
+          </div>
+        );
+      }
 
       default:
         return <span>{value}</span>;

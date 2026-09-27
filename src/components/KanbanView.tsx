@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { ColumnDef, DisplayColumn, ViewDef } from "../types";
+import { ColumnDef, DisplayColumn, SelectOption, ViewDef } from "../types";
 import { KanbanColumn } from "./KanbanColumn";
 import { useCardDrag } from "../hooks/useCardDrag";
 import { useBoardColumnDrag } from "../hooks/useBoardColumnDrag";
@@ -17,6 +17,9 @@ interface KanbanViewProps {
   onCardClick: (rowOriginalIndex: number) => void;
   onUpdateView: (view: ViewDef) => void;
   onReorderBoardColumn: (groupColIdx: number, fromIdx: number, insertAt: number) => void;
+  onAddOption: (colIdx: number, option: SelectOption) => void;
+  onUpdateOption: (colIdx: number, oldValue: string, newOption: SelectOption | null) => void;
+  onRemoveOptionDef: (colIdx: number, value: string) => void;
 }
 
 export function KanbanView({
@@ -30,6 +33,9 @@ export function KanbanView({
   onCardClick,
   onUpdateView,
   onReorderBoardColumn,
+  onAddOption,
+  onUpdateOption,
+  onRemoveOptionDef,
 }: KanbanViewProps) {
   const groupByColumn = activeView.groupByColumn;
   const hiddenGroups = useMemo(() => activeView.hiddenGroups ?? [], [activeView.hiddenGroups]);
@@ -153,6 +159,10 @@ export function KanbanView({
             onCardClick={handleCardClickGuarded}
             onHeaderMouseDown={onHeaderMouseDown}
             onHideColumn={handleHideColumn}
+            onSetCell={onSetCell}
+            onAddOption={onAddOption}
+            onUpdateOption={onUpdateOption}
+            onRemoveOptionDef={onRemoveOptionDef}
           />
         ))}
       </div>

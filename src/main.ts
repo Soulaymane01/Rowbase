@@ -71,7 +71,7 @@ export default class DatabasePlugin extends Plugin {
       defaultColumns = parsed;
     } catch {
       defaultColumns = [
-        { name: "Name", type: "text" },
+        { name: "Name", type: "title" },
         {
           name: "Status",
           type: "select",

@@ -5,7 +5,7 @@ import { DragState } from "../hooks/useColumnDrag";
 
 const SEARCHABLE_TYPES = new Set([
   "text", "title", "note", "relation", "select", "multiselect",
-  "number", "date", "url", "link", "formula", "rollup",
+  "number", "date", "url", "link", "image", "formula", "rollup",
 ]);
 
 interface TableHeaderProps {

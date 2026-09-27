@@ -124,3 +124,16 @@ export async function fileHasTitleColumn(app: App, file: TFile): Promise<boolean
     return false;
   }
 }
+
+/** Columns of the database a relation column points at (empty when unresolvable). */
+export async function loadRelationTargetColumns(app: App, targetPath: string, databasePath: string): Promise<ColumnDef[]> {
+  const resolved = resolveRelationTargetPath(targetPath, databasePath);
+  if (!resolved) return [];
+  const file = app.vault.getAbstractFileByPath(resolved);
+  if (!(file instanceof TFile)) return [];
+  try {
+    return parseCSV(await app.vault.read(file)).columns;
+  } catch {
+    return [];
+  }
+}

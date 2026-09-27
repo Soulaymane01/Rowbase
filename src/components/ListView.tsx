@@ -1,13 +1,19 @@
 import { useState, useCallback, useMemo } from "react";
+import { App } from "obsidian";
 import { ColumnDef, DisplayColumn, ViewDef } from "../types";
 import { QueryResultRow } from "../query/record";
 import { groupRowsBySelect } from "../query/group";
 import { splitMultiSelect } from "../csv-parser";
 import { splitRelationValue } from "../relation-utils";
 import { TAG_COLORS } from "../constants";
+import { useApp } from "../AppContext";
+import { getNoteDisplayName, openNoteValue } from "../note-utils";
 import { Tag } from "./Tag";
 import { RelationPill } from "./RelationPill";
 import { ProgressDisplay } from "./ProgressCell";
+import { openExternalUrl } from "./LinkCell";
+import { WikilinkText } from "./WikilinkText";
+import { getImageDisplayName, resolveImageSrc } from "../image-utils";
 
 interface ListViewProps {
   rows: QueryResultRow[];
@@ -22,7 +28,7 @@ interface ListViewProps {
   onToggleRowSelect: (rowIdx: number) => void;
 }
 
-function renderPreview(value: string, col: ColumnDef): React.ReactNode {
+function renderPreview(value: string, col: ColumnDef, app: App): React.ReactNode {
   if (!value) return null;
   if (col.type === "select") {
     const opt = col.options?.find((o) => o.value === value);
@@ -65,11 +71,41 @@ function renderPreview(value: string, col: ColumnDef): React.ReactNode {
       </span>
     );
   }
-  return <span>{value}</span>;
+  if (col.type === "url" || col.type === "link") {
+    const isUrl = col.type === "url";
+    return (
+      <span
+        className="csv-db-list-link"
+        title={value}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (isUrl) openExternalUrl(value);
+          else void openNoteValue(app, value);
+        }}
+      >
+        {isUrl ? value : getNoteDisplayName(value)}
+      </span>
+    );
+  }
+  if (col.type === "image") {
+    const src = resolveImageSrc(app, value);
+    return (
+      <span className="csv-db-list-image" title={value}>
+        {src ? (
+          <img className="csv-db-image-thumb" src={src} alt="" loading="lazy" />
+        ) : (
+          <span className="csv-db-image-missing" aria-hidden="true">▣</span>
+        )}
+        <span className="csv-db-list-image-name">{getImageDisplayName(value)}</span>
+      </span>
+    );
+  }
+  return <WikilinkText value={value} />;
 }
 
 interface RowLineProps {
   row: QueryResultRow;
+  app: App;
   displayColumns: DisplayColumn[];
   showRowNumbers: boolean;
   rowNumber: number;
@@ -79,7 +115,7 @@ interface RowLineProps {
   onCardClick: (rowOriginalIndex: number) => void;
 }
 
-function RowLine({ row, displayColumns, showRowNumbers, rowNumber, selected, onToggleRowSelect, onDeleteRow, onCardClick }: RowLineProps) {
+function RowLine({ row, app, displayColumns, showRowNumbers, rowNumber, selected, onToggleRowSelect, onDeleteRow, onCardClick }: RowLineProps) {
   const titleCol = displayColumns[0];
   const titleValue = titleCol ? (row.computed?.[titleCol.dataIdx] ?? row.row[titleCol.dataIdx] ?? "") : "";
   const props = displayColumns.slice(1);
@@ -103,7 +139,7 @@ function RowLine({ row, displayColumns, showRowNumbers, rowNumber, selected, onT
       <span className="csv-db-list-props">
         {props.map(({ col, dataIdx }) => {
           const val = row.computed?.[dataIdx] ?? row.row[dataIdx] ?? "";
-          const rendered = renderPreview(val, col);
+          const rendered = renderPreview(val, col, app);
           return rendered ? <span key={col.name} className="csv-db-list-prop">{rendered}</span> : null;
         })}
       </span>
@@ -136,6 +172,7 @@ export function ListView({
   selectedRows,
   onToggleRowSelect,
 }: ListViewProps) {
+  const app = useApp();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const toggle = useCallback((groupValue: string) => {
     setCollapsed((prev) => {
@@ -199,6 +236,7 @@ export function ListView({
     <RowLine
       key={r.originalIndex}
       row={r}
+      app={app}
       displayColumns={displayColumns}
       showRowNumbers={showRowNumbers}
       rowNumber={numbers.get(r.originalIndex) ?? 0}

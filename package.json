@@ -1,7 +1,7 @@
 {
   "name": "rowbase",
-  "version": "0.1.3",
-  "description": "Rowbase — interactive Notion-style database with multiple views, formulas, rollups, relations, and more.",
+  "version": "0.1.4",
+  "description": "Rowbase \u2014 interactive Notion-style database with multiple views, formulas, rollups, relations, and more.",
   "main": "main.js",
   "license": "MIT",
   "author": "soulaymane",
@@ -25,9 +25,10 @@
     "test:stats": "tsx --test test/stats.test.ts",
     "test:timeline": "tsx --test test/timeline.test.ts",
     "test:dashboard": "tsx --test test/dashboard.test.ts",
+    "test:matrix": "tsx --test test/matrix.test.ts",
     "test:relations": "tsx --test test/relations.test.ts",
     "test:queryFormula": "tsx --test test/query-formula.test.ts",
-    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:rbase && npm run test:query && npm run test:chart && npm run test:stats && npm run test:formula && npm run test:rollup && npm run test:aggregate && npm run test:timeline && npm run test:dashboard && npm run test:relations && npm run test:queryFormula && npm run build && npm run test:offline"
+    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:rbase && npm run test:query && npm run test:chart && npm run test:stats && npm run test:formula && npm run test:rollup && npm run test:aggregate && npm run test:timeline && npm run test:dashboard && npm run test:matrix && npm run test:relations && npm run test:queryFormula && npm run build && npm run test:offline"
   },
   "devDependencies": {
     "@codemirror/state": "^6.5.0",

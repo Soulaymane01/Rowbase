@@ -14,6 +14,10 @@ interface KanbanColumnProps {
   onCardClick: (rowOriginalIndex: number) => void;
   onHeaderMouseDown: (e: React.MouseEvent) => void;
   onHideColumn: (groupValue: string) => void;
+  onSetCell: (rowIdx: number, colIdx: number, value: string) => void;
+  onAddOption: (colIdx: number, option: SelectOption) => void;
+  onUpdateOption: (colIdx: number, oldValue: string, newOption: SelectOption | null) => void;
+  onRemoveOptionDef: (colIdx: number, value: string) => void;
 }
 
 export function KanbanColumn({
@@ -28,6 +32,10 @@ export function KanbanColumn({
   onCardClick,
   onHeaderMouseDown,
   onHideColumn,
+  onSetCell,
+  onAddOption,
+  onUpdateOption,
+  onRemoveOptionDef,
 }: KanbanColumnProps) {
   const dotColor = option?.color ? TAG_COLORS[option.color]?.bg : undefined;
 
@@ -79,6 +87,10 @@ export function KanbanColumn({
             onDeleteRow={onDeleteRow}
             onMouseDown={onCardMouseDown}
             onCardClick={onCardClick}
+            onSetCell={onSetCell}
+            onAddOption={onAddOption}
+            onUpdateOption={onUpdateOption}
+            onRemoveOptionDef={onRemoveOptionDef}
           />
         ))}
       </div>

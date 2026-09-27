@@ -22,6 +22,7 @@ import { ChartView } from "./ChartView";
 import { StatsView } from "./StatsView";
 import { TimelineView } from "./TimelineView";
 import { DashboardView } from "./DashboardView";
+import { MatrixView } from "./MatrixView";
 import { AppContext, DatabaseModelContext, DatabasePathContext } from "../AppContext";
 import { parsePlainCSV, inferColumns, exportToPlainCSV, exportToJSON } from "../import-export";
 import { Notice, normalizePath, Events } from "obsidian";
@@ -42,7 +43,7 @@ type Action =
   | { type: "REORDER_ROW"; fromRowIdx: number; toRowIdx: number; position: "before" | "after" }
   | { type: "ADD_COLUMN"; column: ColumnDef }
   | { type: "DELETE_COLUMN"; colIdx: number }
-  | { type: "UPDATE_COLUMN"; colIdx: number; name: string; colType: ColumnType; options: SelectOption[]; wrapContent: boolean; titleNoteEnabled: boolean; titleNoteFolder: string; titleFolderEnabled: boolean; titleFolderPath: string; relationTargetPath: string; relationMultiple: boolean; formula?: string; rollup?: ColumnDef["rollup"]; progressStyle?: "bar" | "ring" }
+  | { type: "UPDATE_COLUMN"; colIdx: number; name: string; colType: ColumnType; options: SelectOption[]; wrapContent: boolean; titleNoteEnabled: boolean; titleNoteFolder: string; titleFolderEnabled: boolean; titleFolderPath: string; noteFolder: string; noteMultiple: boolean; relationTargetPath: string; relationMultiple: boolean; formula?: string; rollup?: ColumnDef["rollup"]; progressStyle?: "bar" | "ring" }
   | { type: "SET_COLUMN_WIDTH"; colIdx: number; width: number }
   | { type: "SET_COLUMN_AGGREGATE"; colIdx: number; aggregate?: string }
   | { type: "ADD_SELECT_OPTION"; colIdx: number; option: SelectOption }
@@ -318,6 +319,13 @@ function databaseReducer(state: DatabaseModel, action: Action): DatabaseModel {
           delete updated.titleNoteFolder;
           delete updated.titleFolderEnabled;
           delete updated.titleFolderPath;
+        }
+        if (action.colType === "note") {
+          updated.noteFolder = action.noteFolder || undefined;
+          updated.noteMultiple = action.noteMultiple || undefined;
+        } else {
+          delete updated.noteFolder;
+          delete updated.noteMultiple;
         }
         if (action.colType === "relation") {
           updated.relationTargetPath = action.relationTargetPath || undefined;
@@ -1031,8 +1039,8 @@ export function DatabaseTable({
         col,
         model.columns,
         databasePath,
-        (name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup, progressStyle) => {
-          dispatch({ type: "UPDATE_COLUMN", colIdx: dataIdx, name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, relationTargetPath, relationMultiple, formula, rollup, progressStyle });
+        (name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, noteFolder, noteMultiple, relationTargetPath, relationMultiple, formula, rollup, progressStyle) => {
+          dispatch({ type: "UPDATE_COLUMN", colIdx: dataIdx, name, colType, options, wrapContent, titleNoteEnabled, titleNoteFolder, titleFolderEnabled, titleFolderPath, noteFolder, noteMultiple, relationTargetPath, relationMultiple, formula, rollup, progressStyle });
         },
         () => {
           dispatch({ type: "DELETE_COLUMN", colIdx: dataIdx });
@@ -1302,6 +1310,9 @@ export function DatabaseTable({
           onCardClick={handleCardClick}
           onUpdateView={(view) => handleUpdateView(safeViewIndex, view)}
           onReorderBoardColumn={handleReorderBoardColumn}
+          onAddOption={handleAddSelectOption}
+          onUpdateOption={handleUpdateSelectOption}
+          onRemoveOptionDef={handleRemoveOptionDef}
         />
       ) : activeLayout === "list" ? (
         <ListView
@@ -1353,6 +1364,14 @@ export function DatabaseTable({
         />
       ) : activeLayout === "dashboard" ? (
         <DashboardView rows={searchedRows} columns={model.columns} onSetCell={handleSetCell} onCardClick={handleCardClick} />
+      ) : activeLayout === "matrix" ? (
+        <MatrixView
+          rows={searchedRows}
+          columns={model.columns}
+          displayColumns={displayColumns}
+          activeView={activeView}
+          onCardClick={handleCardClick}
+        />
       ) : (
         tableView
       )}

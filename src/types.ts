@@ -1,4 +1,4 @@
-export type ColumnType = "text" | "number" | "date" | "checkbox" | "select" | "multiselect" | "note" | "title" | "relation" | "url" | "link" | "formula" | "rollup" | "progress";
+export type ColumnType = "text" | "number" | "date" | "checkbox" | "select" | "multiselect" | "note" | "title" | "relation" | "url" | "link" | "image" | "formula" | "rollup" | "progress";
 
 export type TagColor = "gray" | "brown" | "orange" | "yellow" | "green" | "blue" | "purple" | "pink" | "red";
 
@@ -15,6 +15,8 @@ export interface ColumnDef {
   titleNoteFolder?: string;
   titleFolderEnabled?: boolean;
   titleFolderPath?: string;
+  noteFolder?: string;
+  noteMultiple?: boolean;
   relationTargetPath?: string;
   relationMultiple?: boolean;
   width?: number;
@@ -49,7 +51,7 @@ export interface FilterRule {
   value: string[];
 }
 
-export type ViewLayout = "table" | "kanban" | "list" | "gallery" | "chart" | "stats" | "timeline" | "dashboard";
+export type ViewLayout = "table" | "kanban" | "list" | "gallery" | "chart" | "stats" | "timeline" | "dashboard" | "matrix";
 
 export interface ViewDef {
   name: string;
@@ -72,6 +74,10 @@ export interface ViewDef {
   timelineGroupBy?: string;
   timelineStatusColumn?: string;
   timelineLabelColumn?: string;
+  matrixImportanceColumn?: string;
+  matrixUrgencyColumn?: string;
+  matrixImportanceHighValue?: string;
+  matrixUrgencyHighValue?: string;
 }
 
 export interface DatabaseModel {

@@ -69,6 +69,15 @@ function LayoutIcon({ layout }: { layout: ViewLayout }) {
           <circle cx="6" cy="6" r="1.3" fill="currentColor" stroke="none" />
         </svg>
       );
+    case "matrix":
+      return (
+        <svg {...common}>
+          <rect x="1.5" y="1.5" width="4" height="4" rx="0.8" />
+          <rect x="6.5" y="1.5" width="4" height="4" rx="0.8" />
+          <rect x="1.5" y="6.5" width="4" height="4" rx="0.8" />
+          <rect x="6.5" y="6.5" width="4" height="4" rx="0.8" />
+        </svg>
+      );
     default:
       return null;
   }

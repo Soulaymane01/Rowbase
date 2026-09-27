@@ -8,6 +8,8 @@ import { useApp } from "../AppContext";
 import { Tag } from "./Tag";
 import { RelationPill } from "./RelationPill";
 import { ProgressDisplay } from "./ProgressCell";
+import { WikilinkText } from "./WikilinkText";
+import { resolveImageSrc } from "../image-utils";
 
 interface GalleryViewProps {
   rows: QueryResultRow[];
@@ -21,32 +23,18 @@ interface GalleryViewProps {
   onToggleRowSelect: (rowIdx: number) => void;
 }
 
-const IMG_EXTS = ["png", "jpg", "jpeg", "gif", "svg", "webp", "bmp"];
-
 function detectCoverColumn(columns: ColumnDef[]): ColumnDef | null {
   const nameMatch = columns.find((c) => /^(cover|image|photo|img|poster|thumbnail|thumb)$/i.test(c.name.trim()));
   if (nameMatch) return nameMatch;
+  const imageCol = columns.find((c) => c.type === "image");
+  if (imageCol) return imageCol;
   return columns.find((c) => c.type === "url" || c.type === "link") ?? null;
-}
-
-function normalizeCoverValue(value: string): string {
-  const trimmed = value.trim();
-  const wiki = trimmed.match(/^!?\[\[([^\]|]+)(?:\|[^\]]+)?\]\]$/);
-  return wiki ? wiki[1].trim() : trimmed;
 }
 
 function CardCover({ value, col, app }: { value: string; col: ColumnDef | null; app: App }) {
   const src = useMemo(() => {
     if (!value || !col) return null;
-    const raw = normalizeCoverValue(value);
-    if (!raw) return null;
-    if (/^https?:\/\//.test(raw)) return raw;
-    const file =
-      app.metadataCache.getFirstLinkpathDest(raw, "") ??
-      app.vault.getFiles().find((f) => f.path === raw || f.name === raw || f.basename === raw) ??
-      null;
-    if (file && IMG_EXTS.includes(file.extension)) return app.vault.getResourcePath(file);
-    return null;
+    return resolveImageSrc(app, value);
   }, [value, col, app]);
 
   if (!src) {
@@ -110,7 +98,7 @@ function renderProp(value: string, col: ColumnDef): React.ReactNode {
       </span>
     );
   }
-  return <span>{value}</span>;
+  return <WikilinkText value={value} />;
 }
 
 export function GalleryView({
