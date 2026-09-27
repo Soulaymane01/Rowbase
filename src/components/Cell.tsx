@@ -7,6 +7,8 @@ import { NoteCell } from "./NoteCell";
 import { TitleCell } from "./TitleCell";
 import { RelationCell } from "./RelationCell";
 import { ProgressCell } from "./ProgressCell";
+import { LinkCell } from "./LinkCell";
+import { ImageCell } from "./ImageCell";
 
 interface CellProps {
   value: string;
@@ -66,6 +68,14 @@ export function Cell({ value, column, onChange, onAddOption, onUpdateOption, onR
 
   if (column.type === "progress") {
     return <ProgressCell value={value} column={column} onChange={onChange} />;
+  }
+
+  if (column.type === "url" || column.type === "link") {
+    return <LinkCell value={value} column={column} onChange={onChange} />;
+  }
+
+  if (column.type === "image") {
+    return <ImageCell value={value} column={column} onChange={onChange} />;
   }
 
   if (column.type === "formula" || column.type === "rollup") {

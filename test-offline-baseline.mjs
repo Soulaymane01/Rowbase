@@ -59,6 +59,20 @@ const allowedBundleUrls = new Set([
 const allowedXhrDownloadMarker = "withCredentials";
 const allowedXhrPapaparseContext = "_chunkLoaded";
 
+// The one plugin-authored URL literal in Rowbase is the HTTPS prefix applied
+// to bare domains the user typed into a URL cell, immediately before handing
+// the value to window.open (the OS browser). Rowbase never fetches it. The
+// allowance is deliberately narrow:
+//   - source: the literal must sit right beside the `browserHandoffPrefix`
+//     identifier in LinkCell.tsx (comments are stripped before auditing, so
+//     the gate is an identifier that survives), and
+//   - bundle: minification renames identifiers, so the compiled literal is
+//     allowed only when a `window.open(` call sits in the same small window.
+// Any other `https?://` literal — a fetch target, an endpoint — still fails.
+const allowedSourceUrlMarker = "browserHandoffPrefix";
+const allowedBundleUrlContext = "window.open(";
+const allowedUrlContextWindow = 400;
+
 // The scan targets Rowbase runtime source (src/) and the production bundle
 // (main.js) only, so documentation/metadata files (UPSTREAM.md, README.md,
 // package-lock.json) are never scanned — mirroring the ignore rule.
@@ -146,6 +160,16 @@ function audit(text, { stripInertUrls = false, allowXhr = false, label = "" }) {
           fragment.includes(allowedXhrDownloadMarker) &&
           fragment.includes(allowedXhrPapaparseContext)
         ) {
+          continue;
+        }
+      }
+      if (re.source === "https?:\\/\\/") {
+        const start = Math.max(0, match.index - allowedUrlContextWindow);
+        const fragment = working.slice(start, match.index + allowedUrlContextWindow);
+        if (!stripInertUrls && fragment.includes(allowedSourceUrlMarker)) {
+          continue;
+        }
+        if (stripInertUrls && fragment.includes(allowedBundleUrlContext)) {
           continue;
         }
       }

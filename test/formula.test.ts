@@ -21,6 +21,18 @@ test("precedence and parentheses", () => {
   assert.deepEqual(r2, { kind: "number", value: 20 });
 });
 
+test("division operator", () => {
+  assert.deepEqual(evaluateFormula("6 / 2", env({})), { kind: "number", value: 3 });
+  assert.deepEqual(evaluateFormula("10 / 4", env({})), { kind: "number", value: 2.5 });
+  assert.deepEqual(evaluateFormula("1 + 2 / 2", env({})), { kind: "number", value: 2 });
+  assert.deepEqual(evaluateFormula("(a / b) * 3", env({ a: 9, b: 3 })), { kind: "number", value: 9 });
+});
+
+test("division without spaces around the operator", () => {
+  assert.deepEqual(evaluateFormula("a/b", env({ a: 8, b: 2 })), { kind: "number", value: 4 });
+  assert.deepEqual(evaluateFormula("100/5", env({})), { kind: "number", value: 20 });
+});
+
 test("division by zero produces error", () => {
   const r = evaluateFormula("10 / (2 - 2)", env({}));
   assert.equal(r.kind, "error");

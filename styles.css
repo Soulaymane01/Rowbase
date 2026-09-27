@@ -2058,6 +2058,323 @@ body.theme-dark {
   pointer-events: auto;
 }
 
+/* Note cell — multiple notes */
+.csv-db-note-cell-multi {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.csv-db-note-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.csv-db-note-pill > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.csv-db-note-pill > span:hover {
+  color: var(--text-accent);
+}
+
+.csv-db-note-pill-remove {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.csv-db-note-pill-remove:hover {
+  background: var(--background-modifier-border);
+  color: var(--text-normal);
+}
+
+/* Note dropdown — multiple selection */
+.csv-db-note-selected-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  max-height: 90px;
+  overflow-y: auto;
+}
+
+.csv-db-note-selected-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 1px 4px 1px 8px;
+  border-radius: 4px;
+  background: var(--background-modifier-hover);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.csv-db-note-selected-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.csv-db-note-selected-remove {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 9px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.csv-db-note-selected-remove:hover {
+  background: var(--background-modifier-border);
+  color: var(--text-normal);
+}
+
+.csv-db-note-item-check {
+  width: 14px;
+  flex-shrink: 0;
+  color: var(--interactive-accent);
+  font-size: 11px;
+  text-align: center;
+}
+
+.csv-db-dropdown-item.is-selected {
+  background: var(--background-modifier-hover);
+}
+
+.csv-db-note-create-item {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.csv-db-note-dropdown-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 8px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.csv-db-note-done-btn {
+  font-size: 12px;
+  padding: 3px 12px;
+}
+
+/* ========== Image Cell ========== */
+.csv-db-image-cell-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.csv-db-image-thumb {
+  width: 22px;
+  height: 22px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+}
+
+.csv-db-image-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.csv-db-image-missing {
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13px;
+}
+
+.csv-db-image-item-thumb {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.csv-db-image-item-icon {
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.csv-db-image-item-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.csv-db-image-use-value {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.csv-db-cell-wrap .csv-db-image-name {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+
+.csv-db-kanban-card-image {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.csv-db-kanban-card-image-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.csv-db-list-image {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.csv-db-list-image-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.csv-db-row-detail-image {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.csv-db-row-detail-image-preview {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+  flex-shrink: 0;
+}
+
+/* ========== Wikilinks in text ========== */
+.csv-db-wikilink {
+  color: var(--link-color, var(--text-accent));
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.csv-db-wikilink:hover {
+  text-decoration: underline;
+}
+
+/* ========== Link / URL Cell ========== */.csv-db-link-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.csv-db-link-cell-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--link-color, var(--text-accent));
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.csv-db-link-cell-name:hover {
+  text-decoration: underline;
+}
+
+.csv-db-link-cell-empty {
+  flex: 1;
+  color: var(--text-faint);
+  cursor: pointer;
+}
+
+.csv-db-link-cell-edit {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-faint);
+  opacity: 0;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.csv-db-cell:hover .csv-db-link-cell-edit,
+.csv-db-link-cell-edit:focus-visible {
+  opacity: 1;
+}
+
+.csv-db-link-cell-edit:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.csv-db-cell-wrap .csv-db-link-cell-name,
+.csv-db-cell-wrap .csv-db-link-cell-empty {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: anywhere;
+}
+
 .csv-db-note-clear-btn {
   width: 18px;
   height: 18px;
@@ -2348,10 +2665,52 @@ body.csv-db-kanban-col-dragging .csv-db-kanban-column-header-draggable {
   gap: 4px;
 }
 
+.csv-db-kanban-card-link {
+  color: var(--link-color, var(--text-accent));
+  cursor: pointer;
+}
+
+.csv-db-kanban-card-link:hover {
+  text-decoration: underline;
+}
+
 .csv-db-kanban-card-checkbox {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Inline field editing on cards */
+.csv-db-kanban-field-editable {
+  cursor: pointer;
+}
+
+.csv-db-kanban-field-value {
+  cursor: text;
+  border-bottom: 1px dashed transparent;
+  border-radius: 2px;
+}
+
+.csv-db-kanban-field-value:hover {
+  border-bottom-color: var(--background-modifier-border);
+}
+
+.csv-db-kanban-field-empty {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.csv-db-kanban-field-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2px 5px;
+  border: 1px solid var(--interactive-accent);
+  border-radius: 4px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
 }
 
 .csv-db-kanban-card-checkbox-label {
@@ -2569,6 +2928,8 @@ body.csv-db-card-dragging {
 .csv-db-list-check.is-checked { background: var(--interactive-accent); border-color: var(--interactive-accent); }
 .csv-db-list-note { display: inline-flex; align-items: center; gap: 4px; color: var(--text-muted); min-width: 0; }
 .csv-db-list-note-icon { font-size: 11px; flex-shrink: 0; }
+.csv-db-list-link { color: var(--link-color, var(--text-accent)); cursor: pointer; }
+.csv-db-list-link:hover { text-decoration: underline; }
 .csv-db-list-delete { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; border: none; background: transparent; border-radius: 4px; color: var(--text-faint); opacity: 0; cursor: pointer; flex-shrink: 0; transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease; }
 .csv-db-list-row:hover .csv-db-list-delete { opacity: 0.8; }
 .csv-db-list-delete:hover { background: var(--background-modifier-hover); color: var(--text-normal); opacity: 1; }
@@ -3029,6 +3390,11 @@ body.csv-db-gantt-bar-dragging { cursor: grabbing; user-select: none; }
   .csv-db-stat-value {
     font-size: 1.3em;
   }
+  .csv-db-matrix-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, minmax(170px, 1fr));
+    gap: 8px;
+  }
 }
 
 /* ========== Settings ========== */
@@ -3059,6 +3425,139 @@ body.csv-db-gantt-bar-dragging { cursor: grabbing; user-select: none; }
 .rbase-settings-buttons { display: flex; gap: 8px; }
 .rbase-settings-btn { font-size: 12px; }
 
+/* ========== Matrix (Eisenhower) View ========== */
+.csv-db-matrix {
+  height: 100%;
+  overflow: auto;
+  padding: 12px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.csv-db-matrix-hint {
+  padding: 8px 10px;
+  border: 1px dashed var(--background-modifier-border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.csv-db-matrix-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(200px, 1fr));
+  gap: 12px;
+  min-height: 0;
+}
+
+.csv-db-matrix-quadrant {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  background: var(--background-secondary);
+  overflow: hidden;
+}
+
+.csv-db-matrix-quadrant-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.csv-db-matrix-quadrant-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.csv-db-matrix-q1 .csv-db-matrix-quadrant-title { color: var(--color-red, #d64545); }
+.csv-db-matrix-q2 .csv-db-matrix-quadrant-title { color: var(--color-blue, #3b6fb6); }
+.csv-db-matrix-q3 .csv-db-matrix-quadrant-title { color: var(--color-orange, #c77c2b); }
+.csv-db-matrix-q4 .csv-db-matrix-quadrant-title { color: var(--text-muted); }
+
+.csv-db-matrix-quadrant-hint {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.csv-db-matrix-quadrant-count {
+  flex-shrink: 0;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--background-modifier-border);
+  color: var(--text-muted);
+  font-size: 11px;
+  text-align: center;
+}
+
+.csv-db-matrix-quadrant-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.csv-db-matrix-card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary);
+  cursor: pointer;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.csv-db-matrix-card:hover {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.csv-db-matrix-card-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-normal);
+}
+
+.csv-db-matrix-card-prop {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.csv-db-matrix-card-prop-name {
+  flex-shrink: 0;
+  color: var(--text-faint);
+}
+
+.csv-db-matrix-card-prop-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.csv-db-matrix-empty {
+  padding: 12px;
+  color: var(--text-faint);
+  font-size: 12px;
+  text-align: center;
+}
+
 /* Touch improvements */
 @media (pointer: coarse) {
   .csv-db-resize-handle {
@@ -3072,4 +3571,48 @@ body.csv-db-gantt-bar-dragging { cursor: grabbing; user-select: none; }
   .csv-db-sort-remove {
     padding: 6px;
   }
+}
+
+/* Tablet — Obsidian's generic touch rule `body.is-tablet button:not(.clickable-icon)`
+   injects `padding: 4px 20px` into every button, which collapses icon-only buttons
+   (their SVG renders at 0 width) and inflates compact pill buttons. Re-assert our
+   own button padding with higher specificity. */
+body.is-tablet button.csv-db-toolbar-btn,
+body.is-tablet button.csv-db-viewbar-add-btn,
+body.is-tablet button.csv-db-option-remove-btn,
+body.is-tablet button.csv-db-popover-remove,
+body.is-tablet button.csv-db-link-cell-edit,
+body.is-tablet button.csv-db-kanban-hide-btn,
+body.is-tablet button.csv-db-list-delete,
+body.is-tablet button.csv-db-gallery-delete {
+  padding: 0;
+}
+
+body.is-tablet button.csv-db-header-sort {
+  padding: 0 2px;
+}
+
+body.is-tablet button.csv-db-note-open-btn {
+  padding: 0 6px;
+}
+
+body.is-tablet button.csv-db-gantt-btn {
+  padding: 0 4px;
+}
+
+body.is-tablet button.csv-db-gantt-btn-text {
+  padding: 0 8px;
+}
+
+body.is-tablet button.csv-db-selection-action {
+  padding: 2px 8px;
+}
+
+body.is-tablet button.csv-db-new-row {
+  padding: 4px 8px;
+}
+
+body.is-tablet button.csv-db-filter-remove,
+body.is-tablet button.csv-db-sort-remove {
+  padding: 6px;
 }

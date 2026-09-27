@@ -34,8 +34,8 @@ function tokenize(src: string): Tok[] {
       out.push({ kind: "str", v: s });
       i = j + 1; continue;
     }
-    if (/[A-Za-z_/.$\u00a0-\uffff]/.test(c)) {
-      const m = src.slice(i).match(/[A-Za-z_][A-Za-z0-9_/.$.]*/);
+    if (/[A-Za-z_$\u00a0-\uffff]/.test(c)) {
+      const m = src.slice(i).match(/^[A-Za-z_$\u00a0-\uffff][A-Za-z0-9_$.\u00a0-\uffff]*/);
       if (!m) throw new Error("bad identifier");
       out.push({ kind: "id", v: m[0] });
       i += m[0].length; continue;
