@@ -3,6 +3,7 @@ import { App } from "obsidian";
 import { DatabaseModel, ColumnDef, ColumnType, SelectOption, DisplayColumn, ViewDef, SortRule, FilterRule } from "../types";
 import { splitMultiSelect, joinMultiSelect } from "../csv-parser";
 import { runQuery } from "../query";
+import { getFilterPrefillValues } from "../query/prefill";
 import { createRelationResolver, preloadRelationTargets } from "../relation-resolver";
 import { TableHeader } from "./TableHeader";
 import { TableBody } from "./TableBody";
@@ -36,7 +37,6 @@ type Action =
   | { type: "SET_MODEL"; model: DatabaseModel; fromExternal?: boolean }
   | { type: "SET_CELL"; rowIdx: number; colIdx: number; value: string }
   | { type: "SET_CELLS"; updates: { rowIdx: number; colIdx: number; value: string }[] }
-  | { type: "ADD_ROW" }
   | { type: "ADD_ROW_WITH_VALUES"; values: { colIdx: number; value: string }[] }
   | { type: "DELETE_ROW"; rowIdx: number }
   | { type: "DELETE_ROWS"; rowIdxs: number[] }
@@ -206,11 +206,6 @@ function databaseReducer(state: DatabaseModel, action: Action): DatabaseModel {
         return next;
       });
       return anyChange ? { ...state, rows } : state;
-    }
-
-    case "ADD_ROW": {
-      const emptyRow = Array.from({ length: state.columns.length }, () => "");
-      return { ...state, rows: [...state.rows, emptyRow] };
     }
 
     case "ADD_ROW_WITH_VALUES": {
@@ -633,25 +628,6 @@ export function DatabaseTable({
     [app, databasePath, model],
   );
 
-  // Global keyboard shortcuts
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      const mod = e.metaKey || e.ctrlKey;
-      if (mod && e.key === "z" && !e.shiftKey) {
-        e.preventDefault();
-        dispatch({ type: "UNDO" });
-      } else if (mod && ((e.key === "z" && e.shiftKey) || e.key === "y")) {
-        e.preventDefault();
-        dispatch({ type: "REDO" });
-      } else if (mod && e.key === "Enter") {
-        e.preventDefault();
-        dispatch({ type: "ADD_ROW" });
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [dispatch]);
-
   // Determine if draft differs from saved view
   const isDirty = useMemo(() => {
     if (!barVisible) return false;
@@ -1008,12 +984,40 @@ export function DatabaseTable({
   }, []);
 
   const handleAddRow = useCallback(() => {
-    dispatch({ type: "ADD_ROW" });
-  }, []);
+    dispatch({ type: "ADD_ROW_WITH_VALUES", values: getFilterPrefillValues(effectiveFilters, model.columns) });
+  }, [effectiveFilters, model.columns]);
 
   const handleAddRowWithValues = useCallback((values: { colIdx: number; value: string }[]) => {
-    dispatch({ type: "ADD_ROW_WITH_VALUES", values });
-  }, []);
+    // Values implied by the active filters keep the new row visible in the
+    // current view; explicit values (e.g. the kanban column) win.
+    const merged = new Map<number, string>();
+    for (const update of getFilterPrefillValues(effectiveFilters, model.columns)) {
+      merged.set(update.colIdx, update.value);
+    }
+    for (const update of values) {
+      merged.set(update.colIdx, update.value);
+    }
+    dispatch({ type: "ADD_ROW_WITH_VALUES", values: Array.from(merged, ([colIdx, value]) => ({ colIdx, value })) });
+  }, [effectiveFilters, model.columns]);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        dispatch({ type: "UNDO" });
+      } else if (mod && ((e.key === "z" && e.shiftKey) || e.key === "y")) {
+        e.preventDefault();
+        dispatch({ type: "REDO" });
+      } else if (mod && e.key === "Enter") {
+        e.preventDefault();
+        handleAddRow();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [dispatch, handleAddRow]);
 
   const handleAddColumn = useCallback(() => {
     dispatch({ type: "ADD_COLUMN", column: { name: "New Column", type: "text" } });

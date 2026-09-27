@@ -29,9 +29,11 @@
     "test:relationpath": "tsx --test test/relation-path.test.ts",
     "test:migration": "tsx --test test/settings-migration.test.ts",
     "test:rollupPaths": "tsx --test test/rollup-relation-paths.test.ts",
+    "test:cover": "tsx --test test/cover.test.ts",
+    "test:prefill": "tsx --test test/prefill.test.ts",
     "test:relations": "tsx --test test/relations.test.ts",
     "test:queryFormula": "tsx --test test/query-formula.test.ts",
-    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:rbase && npm run test:query && npm run test:chart && npm run test:stats && npm run test:formula && npm run test:rollup && npm run test:aggregate && npm run test:timeline && npm run test:dashboard && npm run test:matrix && npm run test:relationpath && npm run test:migration && npm run test:rollupPaths && npm run test:relations && npm run test:queryFormula && npm run build && npm run test:offline"
+    "check:baseline": "npm run typecheck && npm run test:metadata && npm run test:rbase && npm run test:query && npm run test:chart && npm run test:stats && npm run test:formula && npm run test:rollup && npm run test:aggregate && npm run test:timeline && npm run test:dashboard && npm run test:matrix && npm run test:relationpath && npm run test:migration && npm run test:rollupPaths && npm run test:cover && npm run test:prefill && npm run test:relations && npm run test:queryFormula && npm run build && npm run test:offline"
   },
   "devDependencies": {
     "@codemirror/state": "^6.5.0",
