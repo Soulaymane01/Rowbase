@@ -1,3 +1,60 @@
+# Release 0.1.4
+
+Rowbase 0.1.4 is a bug-fix and usability release: formulas can divide again,
+link/URL and image cells became first-class, the kanban board edits fields
+inline, and a new Eisenhower matrix view landed alongside the beta feedback
+fixes.
+
+## Fixes
+
+- **Division (`/`) in formulas** — the tokenizer treated `/` as an identifier
+  character, so `10 / 4` failed with "bad identifier" and `6 / 2` with
+  "trailing tokens". `/` is now a proper operator: `a / b`, `10 / 4`,
+  `1 + 2 / 2`, and `(a / b) * 3` all work. Column names can no longer contain
+  `/` (use spaces instead).
+- **Link & URL cells** — both rendered as plain text. URL cells now show a
+  clickable link that opens the browser (bare domains get `https://`), and
+  Link cells open the note in the vault. Both support "Wrap content", and
+  the edit action is always available next to the value.
+- **Toolbar icons on tablet** — Obsidian's tablet rule
+  `body.is-tablet button:not(.clickable-icon)` injected `4px 20px` padding
+  into every button, shrinking the toolbar/icon-only buttons' SVG to zero
+  width. The plugin's button padding is now re-asserted on tablet, so
+  Filter/Sort/Fields/Pick random/View options are visible again.
+
+## New
+
+- **Eisenhower matrix view** — a four-quadrant board (Do first / Schedule /
+  Delegate / Eliminate) driven by existing columns. Pick an importance
+  column (select or checkbox) and an urgency column (select, checkbox, or
+  date — overdue or due within 7 days counts as urgent), and optionally
+  which select value counts as high. Rows click through to the detail modal.
+- **Inline kanban editing** — edit card fields directly on the board: text,
+  number, date, select, multiselect, checkbox, and progress values can be
+  changed without opening the row.
+- **Wikilinks in text cells** — `[[Note]]`, `[[Note|alias]]`, and
+  `[[Note#heading]]` render as clickable links in table, list, gallery, and
+  kanban text fields; clicking opens the note.
+- **Image column type** — pick from vault images (with thumbnails and search)
+  or paste a URL; cells show a thumbnail, and the gallery uses image columns
+  as covers. `![[image.png]]` embeds are normalized too.
+- **`DAYS(start, end)` formula** — date difference in days between two date
+  columns (shipped in `6bf7c70`, released here).
+
+## UX (beta feedback)
+
+- **New databases start with a Title column** — the built-in template's
+  first column is now a real `title` column instead of text.
+- **Title column behavior** — a single "Title behavior" selector replaces
+  the two conflicting toggles: note only, folder only, note + folder, or no
+  linking. The cell shows only the button(s) for the chosen mode.
+- **Note columns** — per-column default folder for new notes (falls back to
+  the Title column's folder), plus an "Allow multiple notes" option with
+  pill-based multi-selection in the cell.
+- **Rollup target column** — "Target column" is now a dropdown fed from the
+  related database's columns (loaded through the selected relation), instead
+  of a free-text field.
+
 # Release 0.1.3
 
 Rowbase 0.1.3 is a major polish release: every view was reworked, a new

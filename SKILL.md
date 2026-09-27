@@ -71,13 +71,15 @@ with open("Tasks.rbase", "w", newline="") as f:
 interface ColumnDef {
   name: string;            // MUST be unique across all columns
   type: "text" | "number" | "date" | "checkbox" | "select" | "multiselect"
-      | "note" | "title" | "relation" | "url" | "link" | "formula"
-      | "rollup" | "progress";
+      | "note" | "title" | "relation" | "url" | "link" | "image"
+      | "formula" | "rollup" | "progress";
   options?: { value: string; color?: TagColor }[];   // select/multiselect
   titleNoteEnabled?: boolean;   // title: link to note (default true)
   titleNoteFolder?: string;     // title: folder for auto-created notes
   titleFolderEnabled?: boolean; // title: link to folder
   titleFolderPath?: string;
+  noteFolder?: string;          // note: default folder for new notes
+  noteMultiple?: boolean;       // note: allow multiple notes per cell
   relationTargetPath?: string;  // relation: path to target .rbase file
   relationMultiple?: boolean;   // relation: allow multiple targets
   width?: number;               // pixels, default 180
@@ -124,7 +126,7 @@ always opens the first view.
 interface ViewDef {
   name: string;
   layout?: "table" | "kanban" | "list" | "gallery" | "chart" | "stats"
-         | "timeline" | "dashboard";      // absent = "table"
+         | "timeline" | "dashboard" | "matrix";  // absent = "table"
   sorts: SortRule[];
   filters: FilterRule[];
   hiddenColumns: string[];               // column names to hide
@@ -134,6 +136,10 @@ interface ViewDef {
   chartYColumn?: string;
   chartAgg?: "count" | "sum" | "avg";
   chartColorByColumn?: string;
+  matrixImportanceColumn?: string;       // matrix: select/checkbox column
+  matrixUrgencyColumn?: string;          // matrix: select/checkbox/date column
+  matrixImportanceHighValue?: string;    // matrix: select value treated as important
+  matrixUrgencyHighValue?: string;       // matrix: select value treated as urgent
 }
 
 interface SortRule  { column: string; direction: "asc" | "desc" }
@@ -169,7 +175,8 @@ Rules:
 | note        | Vault-relative markdown path                  | `folder/My Note.md`  |
 | title       | Unique row title                              | `Project Alpha`      |
 | relation    | Target row title, or pipe-joined titles       | `Project Alpha`      |
-| url / link  | Plain string (URL)                            | `https://…`          |
+| url / link  | Plain string (URL or note path)               | `https://…`          |
+| image       | Vault image path, `![[image.png]]`, or URL    | `attachments/p.png`  |
 | progress    | Number 0–100                                  | `45`                 |
 | formula     | Leave cells **empty** — computed at runtime   | (empty)              |
 | rollup      | Leave cells **empty** — computed at runtime   | (empty)              |
@@ -196,6 +203,10 @@ append a numeric suffix (`Project Alpha 2`) if the value already exists.
 - `title` columns with `titleNoteEnabled` resolve a note named after the
   title. `titleNoteFolder` follows the same path rules as
   `relationTargetPath` (relative to this file's folder; `/` = vault root).
+- `note` columns can set `noteFolder` (same path rules) for newly created
+  notes; when omitted, the title column's `titleNoteFolder` is used.
+  With `noteMultiple`, the cell holds pipe-joined note paths.
+- `text` cells may contain `[[wikilinks]]`; they render as clickable links.
 
 ## 6. Relations
 

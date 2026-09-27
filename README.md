@@ -32,10 +32,11 @@ Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style da
 - **Stats** — Summary cards, numeric stats, select color distribution, and date distribution
 - **Timeline** — Gantt-style timeline with status colors, grid lines, today marker, zoom, and tooltips
 - **Dashboard** — Habit tracking with streaks, completion rings, and activity calendar heatmap
+- **Matrix** — Eisenhower matrix with four urgency/importance quadrants driven by select, checkbox, or date columns
 
 ### Column Types
 
-- Text, Number, Date, Checkbox, Select, Multi-select, Title, Note, Relation, Rollup, Formula
+- Text, Number, Date, Checkbox, Select, Multi-select, Title, Note, Relation, URL, Link, Image, Rollup, Formula, Progress
 
 ### Data & Computation
 
@@ -48,11 +49,13 @@ Rowbase is an [Obsidian](https://obsidian.md) plugin that brings Notion-style da
 
 ### UI/UX
 
-- **Inline editing** — Click any cell to edit; text, number, date, and select types all editable in place
+- **Inline editing** — Click any cell to edit; text, number, date, and select types all editable in place — kanban cards edit fields inline too
 - **Undo/Redo** — Cmd+Z / Cmd+Shift+Z with 100-step history stack
 - **Column management** — Add, rename, resize (double-click to auto-fit), reorder, delete columns via context menu
 - **Title linking** — Open or create notes from title cells; configure note folder per column
 - **Folder linking** — Create folders directly from title cells; configure default folder per column
+- **Note columns** — Pick or create notes with a default folder and optional multiple notes per cell
+- **Links in text** — `[[wikilinks]]` inside text cells resolve and open notes
 - **Multi-select keyboard nav** — Arrow keys, Enter to select, Escape to close
 - **Empty states** — Friendly placeholder with icons when databases or views are empty
 - **Mobile responsive** — Optimized for tablets and phones with touch-friendly targets
