@@ -594,6 +594,9 @@ export function DatabaseTable({
   // Row selection (multi-row operations)
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
 
+  // Row created from a kanban "+ New" whose editor should open once it lands in the model
+  const [pendingEditRowIndex, setPendingEditRowIndex] = useState<number | null>(null);
+
   // Per-column search
   const [openSearchColumns, setOpenSearchColumns] = useState<Set<string>>(new Set());
   const [columnSearch, setColumnSearch] = useState<Record<string, string>>({});
@@ -998,7 +1001,11 @@ export function DatabaseTable({
       merged.set(update.colIdx, update.value);
     }
     dispatch({ type: "ADD_ROW_WITH_VALUES", values: Array.from(merged, ([colIdx, value]) => ({ colIdx, value })) });
-  }, [effectiveFilters, model.columns]);
+    // Opening the row editor right away lets the user name the new card
+    // instead of leaving an "Untitled" task behind. The row index is the
+    // model length *before* the dispatch.
+    setPendingEditRowIndex(model.rows.length);
+  }, [effectiveFilters, model.columns, model.rows.length]);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -1073,6 +1080,15 @@ export function DatabaseTable({
     );
     modal.open();
   }, [app, model, allDisplayColumns, handleSetCell, handleAddSelectOption, handleUpdateSelectOption, handleRemoveOptionDef, databasePath]);
+
+  // A row created from a kanban "+ New" opens its editor as soon as the
+  // reducer has added it, so the user can name it immediately.
+  useEffect(() => {
+    if (pendingEditRowIndex === null) return;
+    if (pendingEditRowIndex >= model.rows.length) return;
+    setPendingEditRowIndex(null);
+    handleCardClick(pendingEditRowIndex);
+  }, [pendingEditRowIndex, model.rows.length, handleCardClick]);
 
   const handleImportCSV = useCallback((mode: "new" | "append") => {
     const input = document.body.createEl("input");
