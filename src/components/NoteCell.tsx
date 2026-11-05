@@ -10,6 +10,7 @@ import {
   resolveNoteFolder,
   splitNoteValues,
 } from "../note-utils";
+import { noteOpenModeForClick, showNoteContextMenu } from "../note-actions";
 
 interface NoteCellProps {
   value: string;
@@ -47,12 +48,21 @@ export function NoteCell({ value, column, onChange }: NoteCellProps) {
   const handleOpen = (e: React.MouseEvent, noteValue: string) => {
     e.stopPropagation();
     if (!noteValue) return;
-    void openNoteValue(app, applyNoteFolder(noteValue, defaultFolder));
+    void openNoteValue(app, applyNoteFolder(noteValue, defaultFolder), {
+      mode: noteOpenModeForClick(e),
+    });
+  };
+
+  const handleOpenMenu = (e: React.MouseEvent, noteValue: string) => {
+    if (!noteValue) return;
+    const target = applyNoteFolder(noteValue, defaultFolder);
+    showNoteContextMenu(e, (mode) => void openNoteValue(app, target, { mode }));
   };
   return (
     <td
       className={`csv-db-cell${column.wrapContent ? " csv-db-cell-wrap" : ""}`}
       onClick={handleClick}
+      onContextMenu={value && !column.noteMultiple ? (e) => handleOpenMenu(e, value) : undefined}
       ref={tdRef}
     >
       {column.noteMultiple ? (
@@ -64,6 +74,7 @@ export function NoteCell({ value, column, onChange }: NoteCellProps) {
                 className="csv-db-note-pill"
                 title={noteValue}
                 onClick={(e) => handleOpen(e, noteValue)}
+                onContextMenu={(e) => handleOpenMenu(e, noteValue)}
               >
                 {getNoteDisplayName(noteValue)}
               </span>
@@ -77,6 +88,8 @@ export function NoteCell({ value, column, onChange }: NoteCellProps) {
             <button
               className={`csv-db-note-open-btn${exists ? "" : " is-create"}`}
               onClick={(e) => handleOpen(e, value)}
+              onContextMenu={(e) => handleOpenMenu(e, value)}
+              title={`${exists ? "Open" : "Create"} note · Ctrl/Cmd-click or right-click to open to the right`}
             >
               {exists ? "OPEN" : "CREATE"}
             </button>

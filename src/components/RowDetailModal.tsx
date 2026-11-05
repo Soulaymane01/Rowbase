@@ -13,6 +13,7 @@ import { RelationDropdown } from "./RelationDropdown";
 import { RelationPill } from "./RelationPill";
 import { getTypeIconElement } from "./TypeIcon";
 import { getNoteDisplayName, joinNoteValues, notePathExists, openNoteValue, resolveNoteFolder, applyNoteFolder, splitNoteValues } from "../note-utils";
+import { noteOpenModeForClick, showNoteContextMenu } from "../note-actions";
 import { loadRelationRecords, splitRelationValue } from "../relation-utils";
 import { openTitleNote, titleNoteExists } from "../title-utils";
 import { openTitleFolder, titleFolderExists } from "../folder-utils";
@@ -89,8 +90,12 @@ function RowDetailField({
           const handleOpen = (e: React.MouseEvent) => {
             e.stopPropagation();
             if (value) {
-              void openTitleNote(app, value, col, databasePath);
+              void openTitleNote(app, value, col, databasePath, { mode: noteOpenModeForClick(e) });
             }
+          };
+          const handleOpenMenu = (e: React.MouseEvent) => {
+            if (!value) return;
+            showNoteContextMenu(e, (mode) => void openTitleNote(app, value, col, databasePath, { mode }));
           };
           const handleOpenFolder = (e: React.MouseEvent) => {
             e.stopPropagation();
@@ -117,6 +122,8 @@ function RowDetailField({
                 <button
                   className={`csv-db-note-open-btn${exists ? "" : " is-create"}`}
                   onClick={handleOpen}
+                  onContextMenu={handleOpenMenu}
+                  title={`${exists ? "Open" : "Create"} note · Ctrl/Cmd-click or right-click to open to the right`}
                 >
                   {exists ? "OPEN" : "CREATE"}
                 </button>
@@ -259,8 +266,15 @@ function RowDetailField({
         const handleOpen = (e: React.MouseEvent, noteValue: string) => {
           e.stopPropagation();
           if (noteValue) {
-            void openNoteValue(app, applyNoteFolder(noteValue, defaultFolder));
+            void openNoteValue(app, applyNoteFolder(noteValue, defaultFolder), {
+              mode: noteOpenModeForClick(e),
+            });
           }
+        };
+        const handleOpenMenu = (e: React.MouseEvent, noteValue: string) => {
+          if (!noteValue) return;
+          const target = applyNoteFolder(noteValue, defaultFolder);
+          showNoteContextMenu(e, (mode) => void openNoteValue(app, target, { mode }));
         };
         const handleRemove = (e: React.MouseEvent, noteValue: string) => {
           e.stopPropagation();
@@ -277,7 +291,12 @@ function RowDetailField({
                 {col.noteMultiple ? (
                   noteValues.map((noteValue) => (
                     <span key={noteValue} className="csv-db-note-pill" title={noteValue}>
-                      <span onClick={(e) => handleOpen(e, noteValue)}>{getNoteDisplayName(noteValue)}</span>
+                      <span
+                        onClick={(e) => handleOpen(e, noteValue)}
+                        onContextMenu={(e) => handleOpenMenu(e, noteValue)}
+                      >
+                        {getNoteDisplayName(noteValue)}
+                      </span>
                       <button
                         className="csv-db-note-pill-remove"
                         title="Remove"
@@ -293,6 +312,8 @@ function RowDetailField({
                     <button
                       className={`csv-db-note-open-btn${exists ? "" : " is-create"}`}
                       onClick={(e) => handleOpen(e, noteValues[0])}
+                      onContextMenu={(e) => handleOpenMenu(e, noteValues[0])}
+                      title={`${exists ? "Open" : "Create"} note · Ctrl/Cmd-click or right-click to open to the right`}
                     >
                       {exists ? "OPEN" : "CREATE"}
                     </button>
@@ -381,8 +402,12 @@ function RowDetailField({
           if (isUrl) {
             openExternalUrl(value);
           } else {
-            void openNoteValue(app, value);
+            void openNoteValue(app, value, { mode: noteOpenModeForClick(e) });
           }
+        };
+        const handleOpenMenu = (e: React.MouseEvent) => {
+          if (isUrl || !value) return;
+          showNoteContextMenu(e, (mode) => void openNoteValue(app, value, { mode }));
         };
         const exists = !isUrl && value ? notePathExists(app, value) : false;
         return (
@@ -403,6 +428,8 @@ function RowDetailField({
               <button
                 className={`csv-db-note-open-btn${!isUrl && !exists ? " is-create" : ""}`}
                 onClick={handleOpen}
+                onContextMenu={handleOpenMenu}
+                title={isUrl ? "Open in browser" : `${exists ? "Open" : "Create"} note · Ctrl/Cmd-click or right-click to open to the right`}
               >
                 {isUrl ? "OPEN" : exists ? "OPEN" : "CREATE"}
               </button>

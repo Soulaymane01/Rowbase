@@ -1,6 +1,7 @@
 import { App, TFile } from "obsidian";
 import { ColumnDef } from "./types";
 import { joinMultiSelect, splitMultiSelect } from "./csv-parser";
+import { ensureFolder } from "./folder-utils";
 
 export function normalizeNoteValue(value: string): string {
   const trimmed = value.trim();
@@ -51,9 +52,53 @@ export function notePathExists(app: App, value: string): boolean {
   return resolveNoteFile(app, value) !== null;
 }
 
-export async function openNoteValue(app: App, value: string): Promise<void> {
+export type NoteOpenMode = "current" | "split";
+
+/**
+ * Open a note in a vertical split (to the right of the current pane).
+ * Missing notes are created first, matching the current-pane CREATE behavior.
+ */
+async function openNoteInSplit(app: App, linkText: string): Promise<void> {
+  let file = app.metadataCache.getFirstLinkpathDest(linkText, "");
+
+  if (!file) {
+    const path = linkText.endsWith(".md") ? linkText : `${linkText}.md`;
+    const existing = app.vault.getAbstractFileByPath(path);
+    if (existing instanceof TFile) {
+      file = existing;
+    } else {
+      const folder = path.split("/").slice(0, -1).join("/");
+      if (folder) await ensureFolder(app, folder);
+      try {
+        file = await app.vault.create(path, "");
+      } catch {
+        file = app.metadataCache.getFirstLinkpathDest(path, "");
+      }
+    }
+  }
+
+  if (!file) {
+    // Let Obsidian resolve/create the link if the vault write didn't land.
+    await app.workspace.openLinkText(linkText, "", "split");
+    return;
+  }
+
+  const leaf = app.workspace.getLeaf("split", "vertical");
+  await leaf.openFile(file);
+}
+
+export async function openNoteValue(
+  app: App,
+  value: string,
+  options?: { mode?: NoteOpenMode }
+): Promise<void> {
   const normalized = normalizeNoteValue(value);
   if (!normalized) return;
+
+  if (options?.mode === "split") {
+    await openNoteInSplit(app, normalized);
+    return;
+  }
 
   const resolved = resolveNoteFile(app, normalized);
   await app.workspace.openLinkText(resolved?.path || normalized, "");

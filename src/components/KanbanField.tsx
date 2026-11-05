@@ -10,6 +10,7 @@ import { ProgressDisplay, ProgressEditor, parseProgressPercent } from "./Progres
 import { openExternalUrl } from "./LinkCell";
 import { WikilinkText } from "./WikilinkText";
 import { getImageDisplayName, resolveImageSrc } from "../image-utils";
+import { noteOpenModeForClick } from "../note-actions";
 
 interface KanbanFieldProps {
   column: ColumnDef;
@@ -180,7 +181,8 @@ export function KanbanField({
     );
   }
 
-  if (column.type === "url" || column.type === "link") {    const isUrl = column.type === "url";
+  if (column.type === "url" || column.type === "link") {
+    const isUrl = column.type === "url";
     return (
       <span
         className="csv-db-kanban-card-link"
@@ -189,7 +191,7 @@ export function KanbanField({
         onClick={(e) => {
           e.stopPropagation();
           if (isUrl) openExternalUrl(value);
-          else void openNoteValue(app, value);
+          else void openNoteValue(app, value, { mode: noteOpenModeForClick(e) });
         }}
       >
         {isUrl ? value : getNoteDisplayName(value)}
@@ -204,7 +206,7 @@ export function KanbanField({
         onMouseDown={stopMouseDown}
         onClick={(e) => {
           e.stopPropagation();
-          if (value) void openNoteValue(app, value);
+          if (value) void openNoteValue(app, value, { mode: noteOpenModeForClick(e) });
         }}
       >
         <span className="csv-db-note-cell-icon">📄</span>

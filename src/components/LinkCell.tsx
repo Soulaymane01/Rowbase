@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ColumnDef } from "../types";
 import { useApp } from "../AppContext";
 import { getNoteDisplayName, openNoteValue } from "../note-utils";
+import { noteOpenModeForClick, showNoteContextMenu } from "../note-actions";
 
 interface LinkCellProps {
   value: string;
@@ -79,8 +80,13 @@ export function LinkCell({ value, column, onChange }: LinkCellProps) {
     if (isUrl) {
       openExternalUrl(value);
     } else {
-      void openNoteValue(app, value);
+      void openNoteValue(app, value, { mode: noteOpenModeForClick(e) });
     }
+  };
+
+  const handleOpenMenu = (e: React.MouseEvent) => {
+    if (isUrl || !value) return;
+    showNoteContextMenu(e, (mode) => void openNoteValue(app, value, { mode }));
   };
 
   if (editing) {
@@ -111,11 +117,12 @@ export function LinkCell({ value, column, onChange }: LinkCellProps) {
           <a
             className="csv-db-link-cell-name"
             href={isUrl ? normalizeExternalUrl(value) : undefined}
-            title={isUrl ? value : `Open ${value}`}
+            title={isUrl ? value : `Open ${value} · Ctrl/Cmd-click or right-click to open to the right`}
             onClick={(e) => {
               e.preventDefault();
               handleOpen(e);
             }}
+            onContextMenu={handleOpenMenu}
           >
             {display}
           </a>

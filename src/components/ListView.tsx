@@ -14,6 +14,7 @@ import { ProgressDisplay } from "./ProgressCell";
 import { openExternalUrl } from "./LinkCell";
 import { WikilinkText } from "./WikilinkText";
 import { getImageDisplayName, resolveImageSrc } from "../image-utils";
+import { noteOpenModeForClick } from "../note-actions";
 
 interface ListViewProps {
   rows: QueryResultRow[];
@@ -80,7 +81,7 @@ function renderPreview(value: string, col: ColumnDef, app: App): React.ReactNode
         onClick={(e) => {
           e.stopPropagation();
           if (isUrl) openExternalUrl(value);
-          else void openNoteValue(app, value);
+          else void openNoteValue(app, value, { mode: noteOpenModeForClick(e) });
         }}
       >
         {isUrl ? value : getNoteDisplayName(value)}

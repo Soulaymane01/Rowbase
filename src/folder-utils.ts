@@ -26,7 +26,7 @@ export function titleFolderExists(app: App, value: string, column: ColumnDef, da
   return file instanceof TFolder;
 }
 
-async function ensureFolder(app: App, path: string): Promise<void> {
+export async function ensureFolder(app: App, path: string): Promise<void> {
   const parts = path.split("/").filter(Boolean);
   let current = "";
   for (const part of parts) {

@@ -3,6 +3,7 @@ import { ColumnDef } from "../types";
 import { useApp, useDatabasePath } from "../AppContext";
 import { openTitleNote, titleNoteExists } from "../title-utils";
 import { openTitleFolder, titleFolderExists } from "../folder-utils";
+import { noteOpenModeForClick, showNoteContextMenu } from "../note-actions";
 
 interface TitleCellProps {
   value: string;
@@ -41,7 +42,11 @@ export function TitleCell({ value, column, onChange }: TitleCellProps) {
 
   const handleOpen = (e: React.MouseEvent) => {
     e.stopPropagation();
-    void openTitleNote(app, value, column, databasePath);
+    void openTitleNote(app, value, column, databasePath, { mode: noteOpenModeForClick(e) });
+  };
+
+  const handleOpenMenu = (e: React.MouseEvent) => {
+    showNoteContextMenu(e, (mode) => void openTitleNote(app, value, column, databasePath, { mode }));
   };
 
   const handleOpenFolder = (e: React.MouseEvent) => {
@@ -87,6 +92,8 @@ export function TitleCell({ value, column, onChange }: TitleCellProps) {
             <button
               className={`csv-db-note-open-btn${exists ? "" : " is-create"}`}
               onClick={handleOpen}
+              onContextMenu={handleOpenMenu}
+              title={`${exists ? "Open" : "Create"} note · Ctrl/Cmd-click or right-click to open to the right`}
             >
               {exists ? "OPEN" : "CREATE"}
             </button>

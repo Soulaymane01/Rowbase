@@ -1,6 +1,6 @@
 import { App } from "obsidian";
 import { ColumnDef } from "./types";
-import { notePathExists, openNoteValue } from "./note-utils";
+import { NoteOpenMode, notePathExists, openNoteValue } from "./note-utils";
 
 export function getTitleNotePath(value: string, column: ColumnDef, databasePath: string): string {
   if (column.titleNoteEnabled === false) return "";
@@ -26,9 +26,15 @@ export function titleNoteExists(app: App, value: string, column: ColumnDef, data
   return path ? notePathExists(app, path) : false;
 }
 
-export async function openTitleNote(app: App, value: string, column: ColumnDef, databasePath: string): Promise<void> {
+export async function openTitleNote(
+  app: App,
+  value: string,
+  column: ColumnDef,
+  databasePath: string,
+  options?: { mode?: NoteOpenMode }
+): Promise<void> {
   const path = getTitleNotePath(value, column, databasePath);
   if (path) {
-    await openNoteValue(app, path);
+    await openNoteValue(app, path, options);
   }
 }
