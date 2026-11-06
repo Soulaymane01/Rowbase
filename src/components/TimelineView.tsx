@@ -8,6 +8,13 @@ const DAY = 86400000;
 const MIN_SPAN = DAY;
 const AUTO = "__auto";
 const NONE = "__none";
+const DEFAULT_LABEL_WIDTH = 180;
+const MIN_LABEL_WIDTH = 120;
+const MAX_LABEL_WIDTH = 480;
+
+function clampLabelWidth(width: number): number {
+  return Math.min(MAX_LABEL_WIDTH, Math.max(MIN_LABEL_WIDTH, Math.round(width)));
+}
 
 interface TimelineViewProps {
   rows: QueryResultRow[];
@@ -118,7 +125,9 @@ export function TimelineView({ rows, columns, activeView, onCardClick, onSetCell
   const [viewWindow, setViewWindow] = useState<{ start: number; end: number } | null>(null);
   const [barDrag, setBarDrag] = useState<{ originalIndex: number; start: number; end: number } | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [labelWidth, setLabelWidth] = useState(180);
+  const [labelWidth, setLabelWidth] = useState(() =>
+    clampLabelWidth(activeView.timelineLabelWidth ?? DEFAULT_LABEL_WIDTH)
+  );
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   useClickOutside([settingsRef], () => setSettingsOpen(false), settingsOpen);
@@ -252,6 +261,11 @@ export function TimelineView({ rows, columns, activeView, onCardClick, onSetCell
     }
   }, [items.length]);
 
+  // Keep the label column width in sync when switching views
+  useEffect(() => {
+    setLabelWidth(clampLabelWidth(activeView.timelineLabelWidth ?? DEFAULT_LABEL_WIDTH));
+  }, [activeView.timelineLabelWidth]);
+
   // Wheel: ctrl/cmd = zoom (anchored at cursor), otherwise pan the window
   useEffect(() => {
     const el = rootRef.current;
@@ -340,7 +354,7 @@ export function TimelineView({ rows, columns, activeView, onCardClick, onSetCell
   const onRootMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.button !== 0) return;
     const target = e.target as HTMLElement;
-    if (target.closest(".csv-db-gantt-toolbar, .csv-db-gantt-resize-handle, .csv-db-gantt-group-header, .csv-db-gantt-bar, .csv-db-gantt-ctx, button, select, input, textarea")) return;
+    if (target.closest(".csv-db-gantt-toolbar, .csv-db-gantt-resize-handle, .csv-db-gantt-label-resize, .csv-db-gantt-group-header, .csv-db-gantt-bar, .csv-db-gantt-ctx, button, select, input, textarea")) return;
     const timelineEl = bodyRef.current?.querySelector<HTMLElement>(".csv-db-gantt-timeline-col");
     const width = timelineEl?.getBoundingClientRect().width ?? 0;
     if (width <= 0) return;
@@ -370,6 +384,32 @@ export function TimelineView({ rows, columns, activeView, onCardClick, onSetCell
     doc.addEventListener("mousemove", onMove);
     doc.addEventListener("mouseup", onUp);
   }, [eff, clampWindow]);
+
+  // --- Drag the label column edge to resize it (persisted per view) ---
+  const startLabelResize = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const startWidth = labelWidth;
+    let nextWidth = startWidth;
+    const doc = activeDocument;
+    const onMove = (ev: MouseEvent) => {
+      nextWidth = clampLabelWidth(startWidth + ev.clientX - startX);
+      setLabelWidth(nextWidth);
+    };
+    const onUp = () => {
+      doc.removeEventListener("mousemove", onMove);
+      doc.removeEventListener("mouseup", onUp);
+      doc.body.classList.remove("csv-db-gantt-resizing");
+      if (nextWidth !== startWidth) {
+        onUpdateView({ ...activeView, timelineLabelWidth: nextWidth });
+      }
+    };
+    doc.body.classList.add("csv-db-gantt-resizing");
+    doc.addEventListener("mousemove", onMove);
+    doc.addEventListener("mouseup", onUp);
+  }, [labelWidth, activeView, onUpdateView]);
 
   // --- Drag edges to resize the window ---
   const startResize = useCallback((side: "left" | "right") => (e: React.MouseEvent) => {
@@ -534,7 +574,15 @@ export function TimelineView({ rows, columns, activeView, onCardClick, onSetCell
   };
 
   return (
-    <div className="csv-db-gantt" ref={rootRef} tabIndex={0} onKeyDown={handleKeyDown} onMouseDown={onRootMouseDown} onClick={closeCtxMenu}>
+    <div
+      className="csv-db-gantt"
+      ref={rootRef}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      onMouseDown={onRootMouseDown}
+      onClick={closeCtxMenu}
+      style={{ "--csv-db-gantt-label-width": `${labelWidth}px` } as React.CSSProperties}
+    >
       <div className="csv-db-gantt-toolbar">
         <div className="csv-db-gantt-toolbar-group">
           <span className="csv-db-gantt-toolbar-label">Group by</span>
@@ -622,8 +670,14 @@ export function TimelineView({ rows, columns, activeView, onCardClick, onSetCell
       </div>
 
       <div className="csv-db-gantt-header">
-        <div className="csv-db-gantt-label-col" ref={labelColRef} />
-        <div className="csv-db-gantt-timeline-col">
+        <div className="csv-db-gantt-label-col" ref={labelColRef}>
+          <div
+            className="csv-db-gantt-label-resize"
+            onMouseDown={startLabelResize}
+            title="Drag to resize the label column"
+          />
+        </div>
+        <div className="csv-db-gantt-timeline-col" style={{ marginRight: scrollbarWidth }}>
           <div className="csv-db-gantt-date-axis">
             {ticks.map((tk, i) => (
               <div key={i} className="csv-db-gantt-tick" style={{ left: `${pct(tk.t)}%` }}>

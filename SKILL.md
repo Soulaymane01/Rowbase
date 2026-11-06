@@ -136,6 +136,12 @@ interface ViewDef {
   chartYColumn?: string;
   chartAgg?: "count" | "sum" | "avg";
   chartColorByColumn?: string;
+  timelineStartColumn?: string;          // timeline: start date column
+  timelineEndColumn?: string;            // timeline: end/due date column
+  timelineGroupBy?: string;              // timeline: group rows by column
+  timelineStatusColumn?: string;         // timeline: bar color source (select)
+  timelineLabelColumn?: string;          // timeline: row label column
+  timelineLabelWidth?: number;           // timeline: label column px (120–480, default 180)
   matrixImportanceColumn?: string;       // matrix: select/checkbox column
   matrixUrgencyColumn?: string;          // matrix: select/checkbox/date column
   matrixImportanceHighValue?: string;    // matrix: select value treated as important

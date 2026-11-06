@@ -74,6 +74,7 @@ export interface ViewDef {
   timelineGroupBy?: string;
   timelineStatusColumn?: string;
   timelineLabelColumn?: string;
+  timelineLabelWidth?: number;
   matrixImportanceColumn?: string;
   matrixUrgencyColumn?: string;
   matrixImportanceHighValue?: string;
