@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { ColumnDef } from "../types";
 import { usePortalContainer } from "../AppContext";
 import { useClickOutside } from "../hooks/useClickOutside";
+import { keepEditorVisible } from "../editor-focus";
 
 function clampPercent(raw: string): number {
   const n = Number(raw);
@@ -33,6 +34,7 @@ interface ProgressEditorProps {
 export function ProgressEditor({ value, onChange, onClose, anchorRect }: ProgressEditorProps) {
   const [draft, setDraft] = useState(value);
   const editorRef = useRef<HTMLDivElement>(null);
+  const numberRef = useRef<HTMLInputElement>(null);
   const portalContainer = usePortalContainer();
 
   useClickOutside([editorRef], onClose);
@@ -41,6 +43,7 @@ export function ProgressEditor({ value, onChange, onClose, anchorRect }: Progres
   const commit = useCallback((next: number) => {
     const clamped = Math.max(0, Math.min(100, Math.round(next)));
     setDraft(clamped);
+    if (numberRef.current) numberRef.current.value = String(clamped);
     if (String(clamped) !== lastCommitted.current) {
       lastCommitted.current = String(clamped);
       onChange(String(clamped));
@@ -68,13 +71,16 @@ export function ProgressEditor({ value, onChange, onClose, anchorRect }: Progres
     <div ref={editorRef} className="csv-db-progress-editor" style={style}>
       <div className="csv-db-progress-editor-value">
         <input
+          ref={numberRef}
           className="csv-db-progress-number"
           type="number"
           min={0}
           max={100}
-          value={draft}
-          onChange={(e) => {
-            const n = Number(e.target.value);
+          // Uncontrolled while editing: avoids mobile IME caret resets.
+          defaultValue={value}
+          onFocus={(e) => keepEditorVisible(e.currentTarget)}
+          onInput={(e) => {
+            const n = Number((e.target as HTMLInputElement).value);
             if (Number.isNaN(n)) return;
             setDraft(Math.max(0, Math.min(100, Math.round(n))));
           }}

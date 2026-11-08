@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ColumnDef, SelectOption } from "../types";
 import { splitMultiSelect, joinMultiSelect } from "../csv-parser";
 import { getNoteDisplayName, openNoteValue } from "../note-utils";
@@ -11,6 +11,7 @@ import { openExternalUrl } from "./LinkCell";
 import { WikilinkText } from "./WikilinkText";
 import { getImageDisplayName, resolveImageSrc } from "../image-utils";
 import { noteOpenModeForClick } from "../note-actions";
+import { keepEditorVisible } from "../editor-focus";
 
 interface KanbanFieldProps {
   column: ColumnDef;
@@ -36,17 +37,36 @@ export function KanbanField({
 }: KanbanFieldProps) {
   const [openDropdown, setOpenDropdown] = useState<null | "select" | "progress">(null);
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const cancelledRef = useRef(false);
   const anchorRef = useRef<HTMLSpanElement>(null);
   const app = useApp();
+
+  useEffect(() => {
+    if (!editing) return;
+    const input = inputRef.current;
+    input?.focus();
+    input?.select();
+    keepEditorVisible(input);
+  }, [editing]);
+
+  const startEditing = () => {
+    cancelledRef.current = false;
+    setEditing(true);
+  };
 
   const stopMouseDown = (e: React.MouseEvent) => e.stopPropagation();
   const anchorRect = anchorRef.current?.getBoundingClientRect() ?? null;
 
   const commit = () => {
+    const next = inputRef.current?.value ?? value;
     setEditing(false);
-    if (draft !== value) {
-      onSetCell(rowIdx, dataIdx, draft);
+    if (cancelledRef.current) {
+      cancelledRef.current = false;
+      return;
+    }
+    if (next !== value) {
+      onSetCell(rowIdx, dataIdx, next);
     }
   };
 
@@ -223,11 +243,11 @@ export function KanbanField({
   if (editing) {
     return (
       <input
+        ref={inputRef}
         className="csv-db-kanban-field-input"
         type={column.type === "number" ? "number" : column.type === "date" ? "date" : "text"}
-        value={draft}
-        autoFocus
-        onChange={(e) => setDraft(e.target.value)}
+        // Uncontrolled while editing: avoids mobile IME caret resets.
+        defaultValue={value}
         onBlur={commit}
         onMouseDown={stopMouseDown}
         onClick={(e) => e.stopPropagation()}
@@ -236,6 +256,7 @@ export function KanbanField({
             e.preventDefault();
             e.currentTarget.blur();
           } else if (e.key === "Escape") {
+            cancelledRef.current = true;
             setEditing(false);
           }
         }}
@@ -249,8 +270,7 @@ export function KanbanField({
       onMouseDown={stopMouseDown}
       onClick={(e) => {
         e.stopPropagation();
-        setDraft(value);
-        setEditing(true);
+        startEditing();
       }}
       title={`Edit ${column.name}`}
     >

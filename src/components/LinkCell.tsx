@@ -3,6 +3,7 @@ import { ColumnDef } from "../types";
 import { useApp } from "../AppContext";
 import { getNoteDisplayName, openNoteValue } from "../note-utils";
 import { noteOpenModeForClick, showNoteContextMenu } from "../note-actions";
+import { keepEditorVisible } from "../editor-focus";
 
 interface LinkCellProps {
   value: string;
@@ -33,33 +34,34 @@ export function openExternalUrl(value: string): void {
 
 export function LinkCell({ value, column, onChange }: LinkCellProps) {
   const [editing, setEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cancelledRef = useRef(false);
   const app = useApp();
 
   const isUrl = column.type === "url";
 
   useEffect(() => {
-    if (editing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
+    if (!editing) return;
+    const input = inputRef.current;
+    if (!input) return;
+    input.focus();
+    input.select();
+    keepEditorVisible(input);
   }, [editing]);
 
-  useEffect(() => {
-    if (!editing) {
-      setEditValue(value);
-    }
-  }, [value, editing]);
-
   const startEditing = () => {
-    setEditValue(value);
+    cancelledRef.current = false;
     setEditing(true);
   };
 
   const commit = () => {
+    const next = inputRef.current?.value ?? value;
     setEditing(false);
-    onChange(editValue);
+    if (cancelledRef.current) {
+      cancelledRef.current = false;
+      return;
+    }
+    onChange(next);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -67,6 +69,7 @@ export function LinkCell({ value, column, onChange }: LinkCellProps) {
       e.preventDefault();
       inputRef.current?.blur();
     } else if (e.key === "Escape") {
+      cancelledRef.current = true;
       setEditing(false);
     }
   };
@@ -96,8 +99,9 @@ export function LinkCell({ value, column, onChange }: LinkCellProps) {
           ref={inputRef}
           className="csv-db-cell-input"
           type="text"
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
+          // Uncontrolled while editing: avoids mobile IME caret resets
+          // (text arriving reversed). Read on blur/Enter.
+          defaultValue={value}
           onBlur={commit}
           onKeyDown={handleKeyDown}
         />

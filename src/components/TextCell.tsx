@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ColumnDef } from "../types";
 import { WikilinkText } from "./WikilinkText";
+import { keepEditorVisible } from "../editor-focus";
 
 interface TextCellProps {
   value: string;
@@ -10,35 +11,33 @@ interface TextCellProps {
 
 export function TextCell({ value, column, onChange }: TextCellProps) {
   const [editing, setEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cancelledRef = useRef(false);
 
   useEffect(() => {
-    if (editing && inputRef.current) {
-      inputRef.current.focus();
-      if (column.type === "text") {
-        inputRef.current.select();
-      }
+    if (!editing) return;
+    const input = inputRef.current;
+    if (!input) return;
+    input.focus();
+    if (column.type === "text") {
+      input.select();
     }
+    keepEditorVisible(input);
   }, [editing, column.type]);
 
-  // Sync external value changes
-  useEffect(() => {
-    if (!editing) {
-      setEditValue(value);
-    }
-  }, [value, editing]);
-
-  const handleClick = () => {
-    if (!editing) {
-      setEditValue(value);
-      setEditing(true);
-    }
+  const startEditing = () => {
+    cancelledRef.current = false;
+    setEditing(true);
   };
 
   const commit = () => {
+    const next = inputRef.current?.value ?? value;
     setEditing(false);
-    onChange(editValue);
+    if (cancelledRef.current) {
+      cancelledRef.current = false;
+      return;
+    }
+    onChange(next);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -46,8 +45,8 @@ export function TextCell({ value, column, onChange }: TextCellProps) {
       e.preventDefault();
       inputRef.current?.blur();
     } else if (e.key === "Escape") {
+      cancelledRef.current = true;
       setEditing(false);
-      // revert, don't call onChange
     }
   };
 
@@ -58,8 +57,9 @@ export function TextCell({ value, column, onChange }: TextCellProps) {
           ref={inputRef}
           className="csv-db-cell-input"
           type={column.type === "number" ? "number" : column.type === "date" ? "date" : "text"}
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
+          // Uncontrolled while editing so mobile IME composition can't reset
+          // the caret (which made text arrive reversed).
+          defaultValue={value}
           onBlur={commit}
           onKeyDown={handleKeyDown}
         />
@@ -70,11 +70,8 @@ export function TextCell({ value, column, onChange }: TextCellProps) {
   return (
     <td
       className={`csv-db-cell${column.wrapContent ? " csv-db-cell-wrap" : ""}`}
-      onClick={handleClick}
-      onDoubleClick={() => {
-        setEditValue(value);
-        setEditing(true);
-      }}
+      onClick={startEditing}
+      onDoubleClick={startEditing}
     >
       <WikilinkText value={value} />
     </td>

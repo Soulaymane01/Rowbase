@@ -4,6 +4,7 @@ import { useApp, useDatabasePath } from "../AppContext";
 import { openTitleNote, titleNoteExists } from "../title-utils";
 import { openTitleFolder, titleFolderExists } from "../folder-utils";
 import { noteOpenModeForClick, showNoteContextMenu } from "../note-actions";
+import { keepEditorVisible } from "../editor-focus";
 
 interface TitleCellProps {
   value: string;
@@ -13,8 +14,8 @@ interface TitleCellProps {
 
 export function TitleCell({ value, column, onChange }: TitleCellProps) {
   const [editing, setEditing] = useState(false);
-  const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cancelledRef = useRef(false);
   const app = useApp();
   const databasePath = useDatabasePath();
   const linkToNote = column.titleNoteEnabled !== false;
@@ -23,21 +24,26 @@ export function TitleCell({ value, column, onChange }: TitleCellProps) {
   const folderExists = linkToFolder && titleFolderExists(app, value, column, databasePath);
 
   useEffect(() => {
-    if (editing) {
-      inputRef.current?.focus();
-      inputRef.current?.select();
-    }
+    if (!editing) return;
+    const input = inputRef.current;
+    input?.focus();
+    input?.select();
+    keepEditorVisible(input);
   }, [editing]);
 
-  useEffect(() => {
-    if (!editing) {
-      setEditValue(value);
-    }
-  }, [editing, value]);
+  const startEditing = () => {
+    cancelledRef.current = false;
+    setEditing(true);
+  };
 
   const commit = () => {
+    const next = inputRef.current?.value ?? value;
     setEditing(false);
-    onChange(editValue);
+    if (cancelledRef.current) {
+      cancelledRef.current = false;
+      return;
+    }
+    onChange(next);
   };
 
   const handleOpen = (e: React.MouseEvent) => {
@@ -61,14 +67,17 @@ export function TitleCell({ value, column, onChange }: TitleCellProps) {
           ref={inputRef}
           className="csv-db-cell-input"
           type="text"
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
+          // Uncontrolled while editing: on mobile, re-applying a controlled
+          // value during IME composition resets the caret (text arrives
+          // reversed). The value is read on blur/Enter instead.
+          defaultValue={value}
           onBlur={commit}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
               inputRef.current?.blur();
             } else if (e.key === "Escape") {
+              cancelledRef.current = true;
               setEditing(false);
             }
           }}
@@ -80,10 +89,7 @@ export function TitleCell({ value, column, onChange }: TitleCellProps) {
   return (
     <td
       className={`csv-db-cell${column.wrapContent ? " csv-db-cell-wrap" : ""}`}
-      onClick={() => {
-        setEditValue(value);
-        setEditing(true);
-      }}
+      onClick={startEditing}
     >
       {value && (
         <span className="csv-db-note-cell-content">
